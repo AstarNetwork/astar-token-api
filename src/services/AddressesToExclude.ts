@@ -1,0 +1,18 @@
+export const addressesToExclude = [
+    'YviwFNHUeQU32eYNHzR1N3SWrteVmji3BhD15kjX2MiC5PF',
+    'Wz9HAf34hmUB9i7BUTSCLY9FD39FZdMp94tVfc6QRgpfFxk',
+    'b6pba6jZYphJro4v7xf8H93K8Xei4WtwtL2hAtawJcJnpAZ',
+    'a77bQE6VsapT3FCnf5wQgGn55tYuLjS1v4KEz4FmFav7V1q',
+    'VwnfGPVmS92UZYnVZ17PfSp77v3mXyqDoW7R3hmLazfi7G5',
+    'XrBDtdr1f79juFzjBwxAwAJcGaiVZcZQyZFsnAtD6hBDxs2',
+    'bWEvcqtXE8GTQCQhB5292snM7EBYUpsehHEMCt1whG5MXbx',
+    'ZvXx9MoUm6i5a9ehXBmqVjG7LX66EkFCG8mJdYrSCmHfDBV',
+    'YXx6ZPttAVEXAndUEQE9SwFWiGZpU9w2AoYMnJ8ePisPKvK',
+    'bRbCtr854adUd2KsVuEVm4tTZz4piGcokKwDzqRbcSAdkfH',
+    'WaGSxLeKqbEB6oDgNJ3uYTozRR41pCmucQnA29ft82gSVzW',
+    'beXrDtqRQTvH7D7iKqpW5yrDMoGATqFQMxhkkhKVkYbyvgf',
+    'YdKBJ8dfv828qtCKcv6LsQ4nuWmqSVcymkVhzheamX4DYTV',
+    'bCYMppJz5QrwYKjLk28VvACTuGQFKT71CtMLn8PWaG8askP',
+    'YQnbw3oWxBnCUarnbePrjFcrSgVPP2jqTZYzWcccmN8fXhd',
+    'YQnbw3oWxBk2zTouRxQyxnD2dDCFsGrRGQRaCeDLy7KKMdJ',
+];

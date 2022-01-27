@@ -9,8 +9,11 @@ export class TokenStatsController implements IControllerBase {
     constructor(@inject('StatsService') private _statsService: IStatsService) {}
 
     public register(app: express.Application): void {
-        app.route('/api/tokenstats').get(async (req: Request, res: Response) => {
+        app.route('/api/token/stats').get(async (req: Request, res: Response) => {
             res.json(await this._statsService.getTokenStats());
+        });
+        app.route('/api/token/circulation').get(async (req: Request, res: Response) => {
+            res.json(await (await this._statsService.getTokenStats()).circulatingSupply);
         });
     }
 }

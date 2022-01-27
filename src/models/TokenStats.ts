@@ -1,3 +1,3 @@
 export class TokenStats {
-    constructor(public generatedAt: number, public totalSupply: string, public circulatingSupply: string) {}
+    constructor(public generatedAt: number, public totalSupply: number, public circulatingSupply: number) {}
 }
