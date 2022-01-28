@@ -2,8 +2,7 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { u128 } from '@polkadot/types';
 import { PalletBalancesAccountData } from '@polkadot/types/lookup';
 import { injectable } from 'inversify';
-
-const endpoint = process.env.ENDPOINT || 'wss://rpc.astar.network';
+import { networks } from '../networks';
 
 export interface IAstarApi {
     getTotalSupply(): Promise<u128>;
@@ -14,6 +13,8 @@ export interface IAstarApi {
 @injectable()
 export class AstarApi implements IAstarApi {
     private _api: ApiPromise;
+
+    constructor(private endpoint = networks.astar.endpoint) {}
 
     public async getTotalSupply(): Promise<u128> {
         await this.connect();
@@ -38,7 +39,7 @@ export class AstarApi implements IAstarApi {
     private async connect() {
         // establish node connection with the endpoint
         if (!this._api) {
-            const provider = new WsProvider(endpoint);
+            const provider = new WsProvider(this.endpoint);
             const api = new ApiPromise({ provider });
             const apiInst = await api.isReady;
             this._api = apiInst;

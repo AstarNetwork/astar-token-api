@@ -2,23 +2,24 @@ import { PalletBalancesAccountData } from '@polkadot/types/lookup';
 import { formatBalance } from '@polkadot/util';
 import BN from 'bn.js';
 import { injectable, inject } from 'inversify';
-import { IAstarApi } from '../client/AstarApi';
+import { IApiFactory } from '../client/ApiFactory';
 import { TokenStats } from '../models/TokenStats';
 import { addressesToExclude } from './AddressesToExclude';
 
 export interface IStatsService {
-    getTokenStats(): Promise<TokenStats>;
+    getTokenStats(network?: string): Promise<TokenStats>;
 }
 
 @injectable()
 export class StatsService implements IStatsService {
-    constructor(@inject('api') private _api: IAstarApi) {}
+    constructor(@inject('factory') private _apiFactory: IApiFactory) {}
 
-    public async getTokenStats(): Promise<TokenStats> {
-        const chainDecimals = await this._api.getChainDecimals();
-        const totalSupply = await this._api.getTotalSupply();
+    public async getTokenStats(network = 'astar'): Promise<TokenStats> {
+        const api = this._apiFactory.getApiInstance(network);
+        const chainDecimals = await api.getChainDecimals();
+        const totalSupply = await api.getTotalSupply();
 
-        const balancesToExclude = await this._api.getBalances(addressesToExclude);
+        const balancesToExclude = await api.getBalances(addressesToExclude);
         const totalBalancesToExclude = this.getTotalBalanceToExclude(balancesToExclude);
         const circulatingSupply = totalSupply.sub(totalBalancesToExclude);
 
