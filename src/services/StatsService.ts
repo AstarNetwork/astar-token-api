@@ -32,9 +32,9 @@ export class StatsService implements IStatsService {
     private getTotalBalanceToExclude(balances: PalletBalancesAccountData[]): BN {
         const sum = balances
             .map((balance) => {
-                return balance.free.add(balance.miscFrozen).add(balance.reserved).add(balance.feeFrozen);
+                return balance.free.add(balance.miscFrozen);
             })
-            .reduce((partialSum, balance) => partialSum.add(balance), new BN(0));
+            .reduce((partialSum, b) => partialSum.add(b), new BN(0));
 
         return sum;
     }
