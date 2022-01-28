@@ -1,6 +1,5 @@
 import express, { Request, Response } from 'express';
 import { injectable, inject } from 'inversify';
-import { ContainerTypes } from '../container';
 import { IStatsService } from '../services/StatsService';
 import { IControllerBase } from './IControllerBase';
 
@@ -12,8 +11,14 @@ export class TokenStatsController implements IControllerBase {
         app.route('/api/token/stats').get(async (req: Request, res: Response) => {
             res.json(await this._statsService.getTokenStats());
         });
+        app.route('/api/:network/token/stats').get(async (req: Request, res: Response) => {
+            res.json(await this._statsService.getTokenStats(req.params.network));
+        });
         app.route('/api/token/circulation').get(async (req: Request, res: Response) => {
             res.json(await (await this._statsService.getTokenStats()).circulatingSupply);
+        });
+        app.route('/api/:network/token/circulation').get(async (req: Request, res: Response) => {
+            res.json(await (await this._statsService.getTokenStats(req.params.network)).circulatingSupply);
         });
     }
 }
