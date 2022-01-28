@@ -61,9 +61,9 @@
     "dependencies": {
         "@discordjs/rest": "^0.1.0-canary.0",
         "@polkadot/api": "^6.0.5",
-        "@polkadot/keyring": "^7.4.1",
-        "@polkadot/util": "^7.4.1",
-        "@polkadot/util-crypto": "^7.4.1",
+        "@polkadot/keyring": "^8.3.3",
+        "@polkadot/util": "^8.3.3",
+        "@polkadot/util-crypto": "^8.3.3",
         "axios": "^0.24.0",
         "cors": "^2.8.5",
         "dedent": "^0.7.0",
