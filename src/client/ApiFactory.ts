@@ -10,12 +10,11 @@ export interface IApiFactory {
 @injectable()
 export class ApiFactory implements IApiFactory {
     public getApiInstance(networkName: string): IAstarApi {
-        let name = networks.astar.name;
-
-        if (networkName === networks.shiden.name) {
-            name = networks.shiden.name;
+        try {
+            return container.getNamed<IAstarApi>('api', networkName);
+        } catch {
+            // fallback to Astar if invalid network name provided
+            return container.getNamed<IAstarApi>('api', networks.astar.name);
         }
-
-        return container.getNamed<IAstarApi>('api', name);
     }
 }
