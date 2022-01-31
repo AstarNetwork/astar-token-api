@@ -1,9 +1,9 @@
 export const networks = {
-    shiden: {
+    astar: {
         name: 'astar',
         endpoint: 'wss://astar.api.onfinality.io/public-ws',
     },
-    astar: {
+    shiden: {
         name: 'shiden',
         endpoint: 'wss://rpc.shiden.astar.network',
     },
