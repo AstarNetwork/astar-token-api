@@ -11,9 +11,18 @@ export interface IStatsService {
 }
 
 @injectable()
+/**
+ * Token statistics calculation service.
+ */
 export class StatsService implements IStatsService {
     constructor(@inject('factory') private _apiFactory: IApiFactory) {}
 
+    /**
+     * Calculates token circulation supply by substracting sum of all token holder accounts
+     * not in circulation from total token supply.
+     * @param network Network (astar or shiden) to calculate token supply for.
+     * @returns Token statistics including total supply and circulating supply.
+     */
     public async getTokenStats(network = 'astar'): Promise<TokenStats> {
         const api = this._apiFactory.getApiInstance(network);
         const chainDecimals = await api.getChainDecimals();
