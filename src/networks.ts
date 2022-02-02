@@ -7,4 +7,8 @@ export const networks = {
         name: 'shiden',
         endpoint: 'wss://rpc.shiden.astar.network',
     },
+    shibuya: {
+        name: 'shibuya',
+        endpoint: 'wss://rpc.shibuya.astar.network',
+    },
 };
