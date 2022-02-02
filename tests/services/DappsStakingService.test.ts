@@ -14,7 +14,8 @@ describe('getApr', () => {
         const service = new DappsStakingService(apiFactory);
 
         const result = await service.calculateApr();
+        const roundedResult = Math.round(result * 10000) / 10000;
 
-        expect(result).toBe(9.297716009226429);
+        expect(roundedResult).toBe(9.2977);
     });
 });
