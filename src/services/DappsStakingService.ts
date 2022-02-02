@@ -44,7 +44,6 @@ export class DappsStakingService implements IDappsStakingService {
         const stakerBlockReward = (1 - data.developerRewardPercentage) * DAPPS_REWARD_RATE;
         const stakerApr = (annualRewards / totalStaked) * stakerBlockReward * 100;
 
-        console.log('bobo ', blockRewards);
         return stakerApr;
     }
 
