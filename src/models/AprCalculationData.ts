@@ -1,5 +1,4 @@
 import { u32, u64, u128 } from '@polkadot/types';
-import { BN } from '@polkadot/util';
 
 export class AprCalculationData {
     public blockRewards: u128;

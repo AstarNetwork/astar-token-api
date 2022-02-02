@@ -4,10 +4,11 @@ import BN from 'bn.js';
 import { injectable, inject } from 'inversify';
 import { IApiFactory } from '../client/ApiFactory';
 import { TokenStats } from '../models/TokenStats';
+import { NetworkType } from '../networks';
 import { addressesToExclude } from './AddressesToExclude';
 
 export interface IStatsService {
-    getTokenStats(network?: string): Promise<TokenStats>;
+    getTokenStats(network?: NetworkType): Promise<TokenStats>;
 }
 
 @injectable()

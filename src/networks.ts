@@ -1,3 +1,5 @@
+export type NetworkType = 'astar' | 'shiden' | 'shibuya';
+
 export const networks = {
     astar: {
         name: 'astar',
