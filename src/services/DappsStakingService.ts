@@ -1,11 +1,12 @@
 import { injectable, inject } from 'inversify';
+import { ethers } from 'ethers';
 import { IApiFactory } from '../client/ApiFactory';
 import { AprCalculationData } from '../models/AprCalculationData';
-import { networks } from '../networks';
-import { defaultAmountWithDecimals, reduceBalanceToDenom } from '../utils';
+import { networks, NetworkType } from '../networks';
+import { defaultAmountWithDecimals } from '../utils';
 
 export interface IDappsStakingService {
-    calculateApr(network?: string): Promise<number>;
+    calculateApr(network?: NetworkType): Promise<number>;
 }
 
 // Ref: https://github.com/PlasmNetwork/Astar/blob/5b01ef3c2ca608126601c1bd04270ed08ece69c4/runtime/shiden/src/lib.rs#L435
@@ -39,10 +40,11 @@ export class DappsStakingService implements IDappsStakingService {
         const annualRewards = eraRewards * dailyEraRate * 365.25;
 
         const tvl = await api.getTvl();
-        const totalStaked = Number(reduceBalanceToDenom(tvl, decimals));
+        const totalStaked = Number(ethers.utils.formatUnits(tvl.toString(), decimals));
         const stakerBlockReward = (1 - data.developerRewardPercentage) * DAPPS_REWARD_RATE;
         const stakerApr = (annualRewards / totalStaked) * stakerBlockReward * 100;
 
+        console.log('bobo ', blockRewards);
         return stakerApr;
     }
 
