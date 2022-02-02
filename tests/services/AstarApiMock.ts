@@ -1,4 +1,4 @@
-import { u128 } from '@polkadot/types';
+import { u32, u64, u128 } from '@polkadot/types';
 import { TypeRegistry } from '@polkadot/types/create';
 import { PalletBalancesAccountData } from '@polkadot/types/lookup';
 import BN from 'bn.js';
@@ -40,10 +40,22 @@ export class AstarApiMock implements IAstarApi {
     }
 
     public async getAprCalculationData(): Promise<AprCalculationData> {
-        return null;
+        const blockRewards = new u128(new TypeRegistry(), '266400000000000000000');
+        const timeStamp = new u64(new TypeRegistry(), '1643779416196');
+        const latestBlock = new u32(new TypeRegistry(), '325833');
+        const developerRewardPercentage = 0.01;
+        const blockPerEra = new u32(new TypeRegistry(), '7200');
+
+        return {
+            blockRewards,
+            timeStamp,
+            latestBlock,
+            developerRewardPercentage,
+            blockPerEra,
+        };
     }
 
     public async getTvl(): Promise<BN> {
-        return new BN('3,663,434,542,155,463,868,491,065,208');
+        return new BN('3663434542155463868491065208');
     }
 }
