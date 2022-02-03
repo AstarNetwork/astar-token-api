@@ -9,6 +9,8 @@ import { IStatsService, StatsService } from './services/StatsService';
 import { AstarApi, IAstarApi } from './client/AstarApi';
 import { networks } from './networks';
 import { ApiFactory, IApiFactory } from './client/ApiFactory';
+import { DappsStakingController } from './controllers/DappsStakingController';
+import { IDappsStakingService, DappsStakingService } from './services/DappsStakingService';
 
 export const ContainerTypes = {
     Controller: 'Controller',
@@ -26,12 +28,18 @@ container
     .bind<IAstarApi>('api')
     .toConstantValue(new AstarApi(networks.astar.endpoint))
     .whenTargetNamed(networks.astar.name);
+container
+    .bind<IAstarApi>('api')
+    .toConstantValue(new AstarApi(networks.shibuya.endpoint))
+    .whenTargetNamed(networks.shibuya.name);
 container.bind<IApiFactory>('factory').to(ApiFactory).inSingletonScope();
 
 // services registration
 container.bind<IStatsService>('StatsService').to(StatsService).inSingletonScope();
+container.bind<IDappsStakingService>('DappsStakingService').to(DappsStakingService).inSingletonScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);
+container.bind<IControllerBase>(ContainerTypes.Controller).to(DappsStakingController);
 
 export default container;
