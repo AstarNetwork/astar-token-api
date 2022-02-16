@@ -12,5 +12,8 @@ export class DappsStakingController implements IControllerBase {
         app.route('/api/:network/dapps-staking/apr').get(async (req: Request, res: Response) => {
             res.json(await this._stakingService.calculateApr(req.params.network as NetworkType));
         });
+        app.route('/api/:network/dapps-staking/apy').get(async (req: Request, res: Response) => {
+            res.json(await this._stakingService.calculateApy(req.params.network as NetworkType));
+        });
     }
 }
