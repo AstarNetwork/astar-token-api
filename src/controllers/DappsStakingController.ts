@@ -10,9 +10,25 @@ export class DappsStakingController implements IControllerBase {
 
     public register(app: express.Application): void {
         app.route('/api/:network/dapps-staking/apr').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retreives dapp staking APR for a given network.'
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    required: true
+                }
+            */
             res.json(await this._stakingService.calculateApr(req.params.network as NetworkType));
         });
         app.route('/api/:network/dapps-staking/apy').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retreives dapp staking APY for a given network.'
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    required: true
+                }
+            */
             res.json(await this._stakingService.calculateApy(req.params.network as NetworkType));
         });
     }

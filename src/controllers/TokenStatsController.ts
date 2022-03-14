@@ -32,6 +32,14 @@ export class TokenStatsController implements IControllerBase {
         });
 
         app.route('/api/:network/token/circulation').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retreives token circulation for a given network.'
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    required: true
+                }
+            */
             res.json(
                 await (
                     await this._statsService.getTokenStats(req.params.network as NetworkType)

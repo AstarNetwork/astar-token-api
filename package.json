@@ -22,10 +22,10 @@
     },
     "main": "build/index.js",
     "scripts": {
-        "start": "yarn run serve",
+        "start": "yarn run serve && yarn swagger-autogen",
         "serve": "node build/index.js",
         "dev": "ts-node-dev -r dotenv/config src/index.ts",
-        "build": "tsc --project tsconfig.json",
+        "build": "yarn swagger-autogen && tsc --project tsconfig.json",
         "lint": "eslint '*/**/*.{js,ts}' --quiet --fix && prettier -w .",
         "lint:check": "eslint '*/**/*.{js,ts}' && prettier -c .",
         "test": "jest",
