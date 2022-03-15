@@ -3,10 +3,9 @@ import cors from 'cors';
 import swagger from 'swagger-ui-express';
 import container, { ContainerTypes } from './container';
 import { IControllerBase } from './controllers/IControllerBase';
-import swaggerFile from '../swagger_output.json';
-import { generateDocumentation } from './swagger';
+import swaggerFile from './swagger_output.json';
 
-const listenPort = process.env.PORT || 30000;
+const listenPort = process.env.PORT || 3000;
 const app = express();
 app.use(cors());
 

@@ -8,7 +8,9 @@ const doc = {
       version: "1.0.0",
       title: "Astar token statistics API",
       description: "Provides network statistic information."
-  }
+  },
+  host: "api.astar.network",
+  schemes: ["http", "https"],
 };
 
 swaggerAutogen(outputFile, endpointsFiles, doc);
