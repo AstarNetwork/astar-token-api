@@ -9,7 +9,10 @@ export class DappsStakingController implements IControllerBase {
     constructor(@inject('DappsStakingService') private _stakingService: IDappsStakingService) {}
 
     public register(app: express.Application): void {
-        app.route('/api/:network/dapps-staking/apr').get(async (req: Request, res: Response) => {
+        /**
+        * @description Dapps staking APR route
+        */
+        app.route('/api/v1/:network/dapps-staking/apr').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retreives dapp staking APR for a given network.'
                 #swagger.parameters['network'] = {
@@ -20,7 +23,11 @@ export class DappsStakingController implements IControllerBase {
             */
             res.json(await this._stakingService.calculateApr(req.params.network as NetworkType));
         });
-        app.route('/api/:network/dapps-staking/apy').get(async (req: Request, res: Response) => {
+
+        /**
+        * @description Dapps staking APY route
+        */
+        app.route('/api/v1/:network/dapps-staking/apy').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retreives dapp staking APY for a given network.'
                 #swagger.parameters['network'] = {

@@ -5,14 +5,14 @@
     "title": "Astar token statistics API",
     "description": "Provides network statistic information."
   },
-  "host": "api.astar.network",
+  "host": "localhost:3000",
   "basePath": "/",
   "schemes": [
     "http",
     "https"
   ],
   "paths": {
-    "/api/{network}/token/stats": {
+    "/api/v1/{network}/token/stats": {
       "get": {
         "description": "Retreives token staticstics for a given network.",
         "parameters": [
@@ -31,7 +31,7 @@
         }
       }
     },
-    "/api/{network}/token/circulation": {
+    "/api/v1/{network}/token/circulation": {
       "get": {
         "description": "Retreives token circulation for a given network.",
         "parameters": [
@@ -50,7 +50,7 @@
         }
       }
     },
-    "/api/{network}/dapps-staking/apr": {
+    "/api/v1/{network}/dapps-staking/apr": {
       "get": {
         "description": "Retreives dapp staking APR for a given network.",
         "parameters": [
@@ -69,7 +69,7 @@
         }
       }
     },
-    "/api/{network}/dapps-staking/apy": {
+    "/api/v1/{network}/dapps-staking/apy": {
       "get": {
         "description": "Retreives dapp staking APY for a given network.",
         "parameters": [
