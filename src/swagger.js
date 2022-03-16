@@ -3,14 +3,15 @@ const swaggerAutogen = require('swagger-autogen')();
 const outputFile = 'src/swagger_output.json';
 const endpointsFiles = ['src/controllers/TokenStatsController.ts', 'src/controllers/DappsStakingController.ts'];
 
-const doc = {
+const getDocumentation = (host) => ({
   info: {
       version: "1.0.0",
       title: "Astar token statistics API",
       description: "Provides network statistic information."
   },
-  host: "api.astar.network",
+  host: host ? host : "localhost:3000",
   schemes: ["http", "https"],
-};
+});
 
-swaggerAutogen(outputFile, endpointsFiles, doc);
+const args = process.argv.slice(2); // first two args are 'node' and command name 
+swaggerAutogen(outputFile, endpointsFiles, getDocumentation(args[0]));
