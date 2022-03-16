@@ -10,8 +10,8 @@ export class DappsStakingController implements IControllerBase {
 
     public register(app: express.Application): void {
         /**
-        * @description Dapps staking APR route
-        */
+         * @description Dapps staking APR route
+         */
         app.route('/api/v1/:network/dapps-staking/apr').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retreives dapp staking APR for a given network.'
@@ -25,8 +25,8 @@ export class DappsStakingController implements IControllerBase {
         });
 
         /**
-        * @description Dapps staking APY route
-        */
+         * @description Dapps staking APY route
+         */
         app.route('/api/v1/:network/dapps-staking/apy').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retreives dapp staking APY for a given network.'
