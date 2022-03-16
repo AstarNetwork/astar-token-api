@@ -1,89 +1,92 @@
 {
-    "swagger": "2.0",
-    "info": {
-        "version": "1.0.0",
-        "title": "Astar token statistics API",
-        "description": "Provides network statistic information."
-    },
-    "host": "localhost:3000",
-    "basePath": "/",
-    "schemes": ["http", "https"],
-    "paths": {
-        "/api/v1/{network}/token/stats": {
-            "get": {
-                "description": "Retreives token staticstics for a given network.",
-                "parameters": [
-                    {
-                        "name": "network",
-                        "in": "path",
-                        "required": true,
-                        "type": "string",
-                        "description": "The network name. Supported networks: astar, shiden, shibuya"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
-        "/api/v1/{network}/token/circulation": {
-            "get": {
-                "description": "Retreives token circulation for a given network.",
-                "parameters": [
-                    {
-                        "name": "network",
-                        "in": "path",
-                        "required": true,
-                        "type": "string",
-                        "description": "The network name. Supported networks: astar, shiden, shibuya"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
-        "/api/v1/{network}/dapps-staking/apr": {
-            "get": {
-                "description": "Retreives dapp staking APR for a given network.",
-                "parameters": [
-                    {
-                        "name": "network",
-                        "in": "path",
-                        "required": true,
-                        "type": "string",
-                        "description": "The network name. Supported networks: astar, shiden, shibuya"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
-        "/api/v1/{network}/dapps-staking/apy": {
-            "get": {
-                "description": "Retreives dapp staking APY for a given network.",
-                "parameters": [
-                    {
-                        "name": "network",
-                        "in": "path",
-                        "required": true,
-                        "type": "string",
-                        "description": "The network name. Supported networks: astar, shiden, shibuya"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Astar token statistics API",
+    "description": "Provides network statistic information."
+  },
+  "host": "api.astar.network",
+  "basePath": "/",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "paths": {
+    "/api/v1/{network}/token/stats": {
+      "get": {
+        "description": "Retreives token staticstics for a given network.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
         }
+      }
+    },
+    "/api/v1/{network}/token/circulation": {
+      "get": {
+        "description": "Retreives token circulation for a given network.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/dapps-staking/apr": {
+      "get": {
+        "description": "Retreives dapp staking APR for a given network.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/dapps-staking/apy": {
+      "get": {
+        "description": "Retreives dapp staking APY for a given network.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
+  }
 }
