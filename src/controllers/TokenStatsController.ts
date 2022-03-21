@@ -1,12 +1,16 @@
 import express, { Request, Response } from 'express';
 import { injectable, inject } from 'inversify';
 import { NetworkType } from '../networks';
+import { IStatsIndexerService, PeriodType } from '../services/StatsIndexerService';
 import { IStatsService } from '../services/StatsService';
 import { IControllerBase } from './IControllerBase';
 
 @injectable()
 export class TokenStatsController implements IControllerBase {
-    constructor(@inject('StatsService') private _statsService: IStatsService) {}
+    constructor(
+        @inject('StatsService') private _statsService: IStatsService,
+        @inject('StatsIndexerService') private _indexerService: IStatsIndexerService,
+    ) {}
 
     public register(app: express.Application): void {
         /**
@@ -61,7 +65,7 @@ export class TokenStatsController implements IControllerBase {
         });
 
         /**
-         * @description Token statistics route v1.
+         * @description Token circulation route v1.
          */
         app.route('/api/v1/:network/token/circulation').get(async (req: Request, res: Response) => {
             /*
@@ -76,6 +80,33 @@ export class TokenStatsController implements IControllerBase {
                 await (
                     await this._statsService.getTokenStats(req.params.network as NetworkType)
                 ).circulatingSupply,
+            );
+        });
+
+        /**
+         * @description Token price route v1.
+         */
+        app.route('/api/v1/:network/token/price/:period').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retreives token price for a given network and period.'
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    required: true
+                }
+                #swagger.parameters['period'] = {
+                    in: 'path',
+                    description: 'The period type.',
+                    required: true,
+                    enum:
+                        - "7 days"
+                        - "30 days"
+                        - "90 days"
+                        - "1 year"
+                }
+            */
+            res.json(
+                await this._indexerService.getPrice(req.params.network as NetworkType, req.params.period as PeriodType),
             );
         });
     }

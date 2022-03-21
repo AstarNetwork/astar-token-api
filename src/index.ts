@@ -5,7 +5,7 @@ import container, { ContainerTypes } from './container';
 import { IControllerBase } from './controllers/IControllerBase';
 import swaggerFile from './swagger_output.json';
 
-const listenPort = process.env.PORT || 3000;
+const listenPort = process.env.PORT || 3001;
 const app = express();
 app.use(cors());
 
