@@ -109,30 +109,5 @@ export class TokenStatsController implements IControllerBase {
                 await this._indexerService.getPrice(req.params.network as NetworkType, req.params.period as PeriodType),
             );
         });
-
-        /**
-         * @description Transactions per block route v1.
-         */
-        app.route('/api/v1/:network/token/tx-perblock/:period').get(async (req: Request, res: Response) => {
-            /*
-                #swagger.description = 'Retreives token price for a given network and period.'
-                #swagger.parameters['network'] = {
-                    in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya',
-                    required: true
-                }
-                #swagger.parameters['period'] = {
-                    in: 'path',
-                    description: 'The period type.',
-                    required: true,
-                    enum:
-                        - "7 days"
-                        - "30 days"
-                        - "90 days"
-                        - "1 year"
-                }
-            */
-            res.json(await this._indexerService.getTransactionsPerBlock(req.params.period as PeriodType));
-        });
     }
 }

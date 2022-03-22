@@ -12,6 +12,7 @@ import { ApiFactory, IApiFactory } from './client/ApiFactory';
 import { DappsStakingController } from './controllers/DappsStakingController';
 import { IDappsStakingService, DappsStakingService } from './services/DappsStakingService';
 import { IStatsIndexerService, StatsIndexerService } from './services/StatsIndexerService';
+import { NodeController } from './controllers/NodeController';
 
 export const ContainerTypes = {
     Controller: 'Controller',
@@ -43,5 +44,6 @@ container.bind<IStatsIndexerService>('StatsIndexerService').to(StatsIndexerServi
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(DappsStakingController);
+container.bind<IControllerBase>(ContainerTypes.Controller).to(NodeController);
 
 export default container;

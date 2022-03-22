@@ -77,33 +77,6 @@
         }
       }
     },
-    "/api/v1/{network}/token/tx-perblock/{period}": {
-      "get": {
-        "description": "Retreives token price for a given network and period.",
-        "parameters": [
-          {
-            "name": "network",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya"
-          },
-          {
-            "name": "period",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "description": "The period type.",
-            "enum": null
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/v1/{network}/dapps-staking/apr": {
       "get": {
         "description": "Retreives dapp staking APR for a given network.",
@@ -160,6 +133,30 @@
             "type": "string",
             "description": "The period type.",
             "enum": null
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/node/tx-perblock/{period}": {
+      "get": {
+        "description": "Retreives token price for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {
