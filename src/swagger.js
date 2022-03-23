@@ -4,7 +4,8 @@ const outputFile = 'src/swagger_output.json';
 const endpointsFiles = [
     'src/controllers/TokenStatsController.ts',
     'src/controllers/DappsStakingController.ts',
-    'src/controllers/NodeController.ts'];
+    'src/controllers/NodeController.ts',
+];
 
 const getDocumentation = (host) => ({
     info: {
