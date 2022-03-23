@@ -15,7 +15,7 @@ export interface IStatsIndexerService {
 }
 
 const DEFAULT_RANGE_LENGTH_DAYS = 7;
-const API_URL = 'http://localhost:3000';
+const API_URL = 'https://api.subquery.network/sq/bobo-k2/astar-statistics__Ym9ib';
 
 @injectable()
 /**
@@ -89,14 +89,6 @@ export class StatsIndexerService implements IStatsIndexerService {
     public getDateRange(period: PeriodType): DateRange {
         const end = new Date();
         const numberOfDays = this.getPeriodDurationInDays(period);
-        // const parts = period.toString().split(' ');
-        // let numberOfDays: number;
-
-        // try {
-        //     numberOfDays = Number(parts[0]) * (parts[1].startsWith('year') ? 365 : 1);
-        // } catch {
-        //     numberOfDays = DEFAULT_RANGE_LENGTH_DAYS;
-        // }
 
         const start = new Date();
         start.setDate(start.getDate() - numberOfDays);

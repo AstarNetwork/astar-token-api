@@ -21,13 +21,8 @@ export class NodeController implements IControllerBase {
                 }
                 #swagger.parameters['period'] = {
                     in: 'path',
-                    description: 'The period type.',
+                    description: 'The period type.  Supported values: 7 days 30 days, 90 days, 1 year',
                     required: true,
-                    enum:
-                        - "7 days"
-                        - "30 days"
-                        - "90 days"
-                        - "1 year"
                 }
             */
             res.json(await this._indexerService.getTransactionsPerBlock(req.params.period as PeriodType));

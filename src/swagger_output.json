@@ -66,8 +66,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type.",
-            "enum": null
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
           }
         ],
         "responses": {
@@ -131,8 +130,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type.",
-            "enum": null
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
           }
         ],
         "responses": {
@@ -150,13 +148,15 @@
             "name": "network",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya"
           },
           {
             "name": "period",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
           }
         ],
         "responses": {
