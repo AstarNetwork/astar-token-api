@@ -7,11 +7,13 @@ export type Pair = { date: number; value: number };
 export type DateRange = { start: Date; end: Date };
 
 export interface IStatsIndexerService {
-    getTvl(period: PeriodType): Promise<Pair[]>;
+    getDappStakingTvl(period: PeriodType): Promise<Pair[]>;
 
     getTransactionsPerBlock(period: PeriodType): Promise<Pair[]>;
 
     getPrice(network: NetworkType, period: PeriodType): Promise<Pair[]>;
+
+    getTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
 }
 
 const DEFAULT_RANGE_LENGTH_DAYS = 7;
@@ -22,10 +24,12 @@ const API_URL = 'https://api.subquery.network/sq/bobo-k2/astar-statistics__Ym9ib
  * Fetches statistics from external data source
  */
 export class StatsIndexerService implements IStatsIndexerService {
-    public async getTvl(period: PeriodType): Promise<Pair[]> {
+    public async getDappStakingTvl(period: PeriodType): Promise<Pair[]> {
         const range = this.getDateRange(period);
-        const result = await axios.post(API_URL, {
-            query: `query {
+
+        try {
+            const result = await axios.post(API_URL, {
+                query: `query {
               tvls(filter: {
                 timestamp: {
                   greaterThanOrEqualTo: "${range.start.getTime()}"
@@ -42,17 +46,22 @@ export class StatsIndexerService implements IStatsIndexerService {
                 }
               }
             }`,
-        });
+            });
 
-        return result.data.data.tvls.nodes.map((node: { timestamp: string; tvlUsd: number }) => {
-            return [node.timestamp, node.tvlUsd];
-        });
+            return result.data.data.tvls.nodes.map((node: { timestamp: string; tvlUsd: number }) => {
+                return [node.timestamp, node.tvlUsd];
+            });
+        } catch {
+            return [];
+        }
     }
 
     public async getTransactionsPerBlock(period: PeriodType): Promise<Pair[]> {
         const range = this.getDateRange(period);
-        const result = await axios.post(API_URL, {
-            query: `query {
+
+        try {
+            const result = await axios.post(API_URL, {
+                query: `query {
               transactionsPerBlocks(filter: {
                 timestamp: {
                   greaterThanOrEqualTo: "${range.start.getTime()}"
@@ -69,21 +78,43 @@ export class StatsIndexerService implements IStatsIndexerService {
                 }
               }
             }`,
-        });
+            });
 
-        return result.data.data.transactionsPerBlocks.nodes.map(
-            (node: { timestamp: string; numberOfTransactions: number }) => {
-                return [node.timestamp, node.numberOfTransactions];
-            },
-        );
+            return result.data.data.transactionsPerBlocks.nodes.map(
+                (node: { timestamp: string; numberOfTransactions: number }) => {
+                    return [node.timestamp, node.numberOfTransactions];
+                },
+            );
+        } catch {
+            return [];
+        }
     }
 
     public async getPrice(network = 'astar', period: PeriodType): Promise<Pair[]> {
         const numberOfDays = this.getPeriodDurationInDays(period);
-        const result = await axios.get(
-            `https://api.coingecko.com/api/v3/coins/${network}/market_chart?vs_currency=usd&days=${numberOfDays}&interval=daily`,
-        );
-        return result.data.prices;
+
+        try {
+            const result = await axios.get(
+                `https://api.coingecko.com/api/v3/coins/${network}/market_chart?vs_currency=usd&days=${numberOfDays}&interval=daily`,
+            );
+            return result.data.prices;
+        } catch {
+            return [];
+        }
+    }
+
+    public async getTvl(network = 'astar', period: PeriodType): Promise<Pair[]> {
+        const numberOfDays = this.getPeriodDurationInDays(period);
+        const networkName = this.capitalizeFirstLetter(network);
+
+        try {
+            const result = await axios.get(
+                `https://defillama.com/_next/data/PSey3uVtmYag5KBhq1kuv/chain/${networkName}.json`,
+            );
+            return result.data.pageProps.chart.slice(-numberOfDays);
+        } catch {
+            return [];
+        }
     }
 
     public getDateRange(period: PeriodType): DateRange {
@@ -110,5 +141,9 @@ export class StatsIndexerService implements IStatsIndexerService {
         }
 
         return numberOfDays;
+    }
+
+    private capitalizeFirstLetter(text: string): string {
+        return text.charAt(0).toUpperCase() + text.slice(1);
     }
 }

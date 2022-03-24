@@ -60,7 +60,7 @@ export class DappsStakingController implements IControllerBase {
                     required: true,
                 }
             */
-            res.json(await this._indexerService.getTvl(req.params.period as PeriodType));
+            res.json(await this._indexerService.getDappStakingTvl(req.params.period as PeriodType));
         });
     }
 }

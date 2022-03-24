@@ -104,5 +104,27 @@ export class TokenStatsController implements IControllerBase {
                 await this._indexerService.getPrice(req.params.network as NetworkType, req.params.period as PeriodType),
             );
         });
+
+        /**
+         * @description Token TVL route v1.
+         */
+        app.route('/api/v1/:network/token/tvl/:period').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retreives token TVL for a given network and period.'
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    required: true
+                }
+                #swagger.parameters['period'] = {
+                    in: 'path',
+                    description: 'The period type.  Supported values: 7 days 30 days, 90 days, 1 year',
+                    required: true,
+                }
+            */
+            res.json(
+                await this._indexerService.getTvl(req.params.network as NetworkType, req.params.period as PeriodType),
+            );
+        });
     }
 }
