@@ -105,14 +105,18 @@ export class StatsIndexerService implements IStatsIndexerService {
 
     public async getTvl(network = 'astar', period: PeriodType): Promise<Pair[]> {
         const numberOfDays = this.getPeriodDurationInDays(period);
-        const networkName = this.capitalizeFirstLetter(network);
 
         try {
             const result = await axios.get(
-                `https://defillama.com/_next/data/PSey3uVtmYag5KBhq1kuv/chain/${networkName}.json`,
+                `https://api.llama.fi/charts/${network}`,
             );
-            return result.data.pageProps.chart.slice(-numberOfDays);
+            return result.data
+              .slice(-numberOfDays)
+              .map((item: { date: string; totalLiquidityUSD: number }) => {
+                return [Number(item.date), item.totalLiquidityUSD]
+              });
         } catch {
+            // TODO what to do with exceptions (all methods)
             return [];
         }
     }
@@ -141,9 +145,5 @@ export class StatsIndexerService implements IStatsIndexerService {
         }
 
         return numberOfDays;
-    }
-
-    private capitalizeFirstLetter(text: string): string {
-        return text.charAt(0).toUpperCase() + text.slice(1);
     }
 }
