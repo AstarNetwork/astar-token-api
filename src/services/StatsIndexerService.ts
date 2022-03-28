@@ -7,9 +7,9 @@ export type Pair = { date: number; value: number };
 export type DateRange = { start: Date; end: Date };
 
 export interface IStatsIndexerService {
-    getDappStakingTvl(period: PeriodType): Promise<Pair[]>;
+    getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
 
-    getTransactionsPerBlock(period: PeriodType): Promise<Pair[]>;
+    getTransactionsPerBlock(network: NetworkType, period: PeriodType): Promise<Pair[]>;
 
     getPrice(network: NetworkType, period: PeriodType): Promise<Pair[]>;
 
@@ -24,7 +24,11 @@ const API_URL = 'https://api.subquery.network/sq/bobo-k2/astar-statistics__Ym9ib
  * Fetches statistics from external data source
  */
 export class StatsIndexerService implements IStatsIndexerService {
-    public async getDappStakingTvl(period: PeriodType): Promise<Pair[]> {
+    public async getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]> {
+        if (network !== 'astar') {
+          return [];
+        }
+
         const range = this.getDateRange(period);
 
         try {
@@ -56,7 +60,11 @@ export class StatsIndexerService implements IStatsIndexerService {
         }
     }
 
-    public async getTransactionsPerBlock(period: PeriodType): Promise<Pair[]> {
+    public async getTransactionsPerBlock(network: NetworkType, period: PeriodType): Promise<Pair[]> {
+        if (network !== 'astar') {
+          return [];
+        }
+      
         const range = this.getDateRange(period);
 
         try {

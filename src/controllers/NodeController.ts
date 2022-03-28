@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import { injectable, inject } from 'inversify';
+import { NetworkType } from '../networks';
 import { IStatsIndexerService, PeriodType } from '../services/StatsIndexerService';
 import { IControllerBase } from './IControllerBase';
 
@@ -25,7 +26,7 @@ export class NodeController implements IControllerBase {
                     required: true,
                 }
             */
-            res.json(await this._indexerService.getTransactionsPerBlock(req.params.period as PeriodType));
+            res.json(await this._indexerService.getTransactionsPerBlock(req.params.network as NetworkType, req.params.period as PeriodType));
         });
     }
 }
