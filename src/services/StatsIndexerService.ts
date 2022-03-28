@@ -26,7 +26,7 @@ const API_URL = 'https://api.subquery.network/sq/bobo-k2/astar-statistics__Ym9ib
 export class StatsIndexerService implements IStatsIndexerService {
     public async getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]> {
         if (network !== 'astar') {
-          return [];
+            return [];
         }
 
         const range = this.getDateRange(period);
@@ -62,9 +62,9 @@ export class StatsIndexerService implements IStatsIndexerService {
 
     public async getTransactionsPerBlock(network: NetworkType, period: PeriodType): Promise<Pair[]> {
         if (network !== 'astar') {
-          return [];
+            return [];
         }
-      
+
         const range = this.getDateRange(period);
 
         try {
@@ -115,14 +115,10 @@ export class StatsIndexerService implements IStatsIndexerService {
         const numberOfDays = this.getPeriodDurationInDays(period);
 
         try {
-            const result = await axios.get(
-                `https://api.llama.fi/charts/${network}`,
-            );
-            return result.data
-              .slice(-numberOfDays)
-              .map((item: { date: string; totalLiquidityUSD: number }) => {
-                return [Number(item.date), item.totalLiquidityUSD]
-              });
+            const result = await axios.get(`https://api.llama.fi/charts/${network}`);
+            return result.data.slice(-numberOfDays).map((item: { date: string; totalLiquidityUSD: number }) => {
+                return [Number(item.date), item.totalLiquidityUSD];
+            });
         } catch {
             // TODO what to do with exceptions (all methods)
             return [];

@@ -26,7 +26,12 @@ export class NodeController implements IControllerBase {
                     required: true,
                 }
             */
-            res.json(await this._indexerService.getTransactionsPerBlock(req.params.network as NetworkType, req.params.period as PeriodType));
+            res.json(
+                await this._indexerService.getTransactionsPerBlock(
+                    req.params.network as NetworkType,
+                    req.params.period as PeriodType,
+                ),
+            );
         });
     }
 }
