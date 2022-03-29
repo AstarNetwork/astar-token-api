@@ -149,7 +149,6 @@ export class StatsIndexerService implements IStatsIndexerService {
                 axios.get('https://api.llama.fi/charts/astar'),
                 axios.get('https://api.llama.fi/protocol/starlay-finance'),
             ]);
-            console.log('data received');
             const tvl = result.data.slice(-numberOfDays).map((item: { date: string; totalLiquidityUSD: number }) => {
                 return [Number(item.date), item.totalLiquidityUSD];
             });
@@ -166,7 +165,7 @@ export class StatsIndexerService implements IStatsIndexerService {
                 lastBorrow[0] = lastTvl[0];
             }
 
-            // match tvl and borrow and increase tvl by borrow ammount
+            // match tvl and borrow by date and increase tvl by borrow ammount
             // todo optimize
             for (let i = 0; i < tvl.length; i++) {
                 for (let j = 0; j < borrows.length; j++) {
