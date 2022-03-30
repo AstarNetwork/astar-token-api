@@ -112,6 +112,10 @@ export class StatsIndexerService implements IStatsIndexerService {
     }
 
     public async getTvl(network = 'astar', period: PeriodType): Promise<Pair[]> {
+        if (network === 'astar') {
+            return this.getTvlAstar(period);
+        }
+
         const numberOfDays = this.getPeriodDurationInDays(period);
 
         try {
@@ -120,7 +124,6 @@ export class StatsIndexerService implements IStatsIndexerService {
                 return [Number(item.date), item.totalLiquidityUSD];
             });
         } catch {
-            // TODO what to do with exceptions (all methods)
             return [];
         }
     }
@@ -136,6 +139,46 @@ export class StatsIndexerService implements IStatsIndexerService {
             start,
             end,
         };
+    }
+
+    private async getTvlAstar(period: PeriodType): Promise<Pair[]> {
+        const numberOfDays = this.getPeriodDurationInDays(period);
+
+        try {
+            const [result, resultBorrows] = await Promise.all([
+                axios.get('https://api.llama.fi/charts/astar'),
+                axios.get('https://api.llama.fi/protocol/starlay-finance'),
+            ]);
+            const tvl = result.data.slice(-numberOfDays).map((item: { date: string; totalLiquidityUSD: number }) => {
+                return [Number(item.date), item.totalLiquidityUSD];
+            });
+            const borrows = resultBorrows.data.chainTvls['Astar-borrowed'].tvl.map(
+                (item: { date: string; totalLiquidityUSD: number }) => {
+                    return [Number(item.date), item.totalLiquidityUSD];
+                },
+            );
+
+            // fix: last borrow date is not for day start while tvl is, so we match them anyway since last values are for the current day.
+            if (borrows && borrows.length > 0 && tvl && tvl.length > 0) {
+                const lastBorrow = borrows[borrows.length - 1];
+                const lastTvl = tvl[tvl.length - 1];
+                lastBorrow[0] = lastTvl[0];
+            }
+
+            // match tvl and borrow by date and increase tvl by borrow ammount
+            // todo optimize
+            for (let i = 0; i < tvl.length; i++) {
+                for (let j = 0; j < borrows.length; j++) {
+                    if (tvl[i][0] === borrows[j][0]) {
+                        tvl[i][1] += borrows[j][1];
+                    }
+                }
+            }
+
+            return tvl;
+        } catch {
+            return [];
+        }
     }
 
     private getPeriodDurationInDays(period: PeriodType): number {
