@@ -17,7 +17,10 @@ export interface IStatsIndexerService {
 }
 
 const DEFAULT_RANGE_LENGTH_DAYS = 7;
-const API_URL = 'https://api.subquery.network/sq/bobo-k2/astar-statistics__Ym9ib';
+const API_URLS = {
+    astar: 'https://api.subquery.network/sq/bobo-k2/astar-statistics__Ym9ib',
+    shiden: 'https://api.subquery.network/sq/bobo-k2/shiden-statistics',
+};
 
 @injectable()
 /**
@@ -32,7 +35,7 @@ export class StatsIndexerService implements IStatsIndexerService {
         const range = this.getDateRange(period);
 
         try {
-            const result = await axios.post(API_URL, {
+            const result = await axios.post(API_URLS[network], {
                 query: `query {
               tvls(filter: {
                 timestamp: {
@@ -61,14 +64,14 @@ export class StatsIndexerService implements IStatsIndexerService {
     }
 
     public async getTransactionsPerBlock(network: NetworkType, period: PeriodType): Promise<Pair[]> {
-        if (network !== 'astar') {
+        if (network !== 'astar' && network !== 'shiden') {
             return [];
         }
 
         const range = this.getDateRange(period);
 
         try {
-            const result = await axios.post(API_URL, {
+            const result = await axios.post(API_URLS[network], {
                 query: `query {
               transactionsPerBlocks(filter: {
                 timestamp: {
