@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import container from '../container';
 import { networks, NetworkType } from '../networks';
-import { IAstarApi } from './AstarApi';
+import { IAstarApi } from './BaseApi';
 
 export interface IApiFactory {
     getApiInstance(networkName: string): IAstarApi;
