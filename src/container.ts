@@ -6,13 +6,15 @@ import { Container } from 'inversify';
 import { IControllerBase } from './controllers/IControllerBase';
 import { TokenStatsController } from './controllers/TokenStatsController';
 import { IStatsService, StatsService } from './services/StatsService';
-import { AstarApi, IAstarApi } from './client/AstarApi';
+import { AstarApi } from './client/AstarApi';
+import { IAstarApi } from './client/BaseApi';
 import { networks } from './networks';
 import { ApiFactory, IApiFactory } from './client/ApiFactory';
 import { DappsStakingController } from './controllers/DappsStakingController';
 import { IDappsStakingService, DappsStakingService } from './services/DappsStakingService';
 import { IStatsIndexerService, StatsIndexerService } from './services/StatsIndexerService';
 import { NodeController } from './controllers/NodeController';
+import { AstarApi2 } from './client/AstarApi2';
 
 export const ContainerTypes = {
     Controller: 'Controller',
@@ -24,7 +26,7 @@ const container = new Container();
 // data access
 container
     .bind<IAstarApi>('api')
-    .toConstantValue(new AstarApi(networks.shiden.endpoint))
+    .toConstantValue(new AstarApi2(networks.shiden.endpoint))
     .whenTargetNamed(networks.shiden.name);
 container
     .bind<IAstarApi>('api')
@@ -32,7 +34,7 @@ container
     .whenTargetNamed(networks.astar.name);
 container
     .bind<IAstarApi>('api')
-    .toConstantValue(new AstarApi(networks.shibuya.endpoint))
+    .toConstantValue(new AstarApi2(networks.shibuya.endpoint))
     .whenTargetNamed(networks.shibuya.name);
 container.bind<IApiFactory>('factory').to(ApiFactory).inSingletonScope();
 
