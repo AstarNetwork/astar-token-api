@@ -31,7 +31,11 @@ export class StatsService implements IStatsService {
 
         const balancesToExclude = await api.getBalances(addressesToExclude);
         const totalBalancesToExclude = this.getTotalBalanceToExclude(balancesToExclude);
-        const circulatingSupply = totalSupply.sub(totalBalancesToExclude);
+        let circulatingSupply = totalSupply.sub(totalBalancesToExclude);
+
+        if (network === 'astar') {
+            circulatingSupply = circulatingSupply.sub(new BN('1708161816000000000000000000'));
+        }
 
         return new TokenStats(
             Math.floor(new Date().getTime() / 1000),
