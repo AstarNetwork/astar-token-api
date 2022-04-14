@@ -30,7 +30,7 @@ container
     .whenTargetNamed(networks.shiden.name);
 container
     .bind<IAstarApi>('api')
-    .toConstantValue(new AstarApi(networks.astar.endpoint))
+    .toConstantValue(new AstarApi2(networks.astar.endpoint))
     .whenTargetNamed(networks.astar.name);
 container
     .bind<IAstarApi>('api')

@@ -30,23 +30,28 @@ export class DappsStakingService implements IDappsStakingService {
     constructor(@inject('factory') private _apiFactory: IApiFactory) {}
 
     public async calculateApr(network = 'astar'): Promise<number> {
-        const api = this._apiFactory.getApiInstance(network);
-        const data = await api.getAprCalculationData();
-        const decimals = await api.getChainDecimals();
+        try {
+            const api = this._apiFactory.getApiInstance(network);
+            const data = await api.getAprCalculationData();
+            const decimals = await api.getChainDecimals();
 
-        const blockRewards = Number(defaultAmountWithDecimals(data.blockRewards, decimals));
-        const averageBlocksPerMinute = this.getAverageBlocksPerMins(network, data);
-        const averageBlocksPerDay = averageBlocksPerMinute * 60 * 24;
-        const dailyEraRate = averageBlocksPerDay / data.blockPerEra.toNumber();
-        const eraRewards = data.blockPerEra.toNumber() * blockRewards;
-        const annualRewards = eraRewards * dailyEraRate * 365.25;
+            const blockRewards = Number(defaultAmountWithDecimals(data.blockRewards, decimals));
+            const averageBlocksPerMinute = this.getAverageBlocksPerMins(network, data);
+            const averageBlocksPerDay = averageBlocksPerMinute * 60 * 24;
+            const dailyEraRate = averageBlocksPerDay / data.blockPerEra.toNumber();
+            const eraRewards = data.blockPerEra.toNumber() * blockRewards;
+            const annualRewards = eraRewards * dailyEraRate * 365.25;
 
-        const tvl = await api.getTvl();
-        const totalStaked = Number(ethers.utils.formatUnits(tvl.toString(), decimals));
-        const stakerBlockReward = (1 - data.developerRewardPercentage) * DAPPS_REWARD_RATE;
-        const stakerApr = (annualRewards / totalStaked) * stakerBlockReward * 100;
+            const tvl = await api.getTvl();
+            const totalStaked = Number(ethers.utils.formatUnits(tvl.toString(), decimals));
+            const stakerBlockReward = (1 - data.developerRewardPercentage) * DAPPS_REWARD_RATE;
+            const stakerApr = (annualRewards / totalStaked) * stakerBlockReward * 100;
 
-        return stakerApr;
+            return stakerApr;
+        } catch (e) {
+            console.error(e);
+            return 0;
+        }
     }
 
     public async calculateApy(network = 'astar'): Promise<number> {
