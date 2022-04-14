@@ -58,7 +58,8 @@ export class StatsIndexerService implements IStatsIndexerService {
             return result.data.data.tvls.nodes.map((node: { timestamp: string; tvlUsd: number }) => {
                 return [node.timestamp, node.tvlUsd];
             });
-        } catch {
+        } catch (e) {
+            console.error(e);
             return [];
         }
     }
@@ -96,7 +97,8 @@ export class StatsIndexerService implements IStatsIndexerService {
                     return [node.timestamp, node.numberOfTransactions];
                 },
             );
-        } catch {
+        } catch (e) {
+            console.error(e);
             return [];
         }
     }
@@ -110,7 +112,8 @@ export class StatsIndexerService implements IStatsIndexerService {
                 `https://api.coingecko.com/api/v3/coins/${network}/market_chart?vs_currency=usd&days=${numberOfDays}&interval=${interval}`,
             );
             return result.data.prices;
-        } catch {
+        } catch (e) {
+            console.error(e);
             return [];
         }
     }
@@ -127,7 +130,8 @@ export class StatsIndexerService implements IStatsIndexerService {
             return result.data.slice(-numberOfDays).map((item: { date: string; totalLiquidityUSD: number }) => {
                 return [Number(item.date), item.totalLiquidityUSD];
             });
-        } catch {
+        } catch (e) {
+            console.error(e);
             return [];
         }
     }
@@ -180,7 +184,8 @@ export class StatsIndexerService implements IStatsIndexerService {
             }
 
             return tvl;
-        } catch {
+        } catch (e) {
+            console.error(e);
             return [];
         }
     }
