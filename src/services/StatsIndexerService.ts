@@ -22,6 +22,11 @@ const API_URLS = {
     shiden: 'https://api.subquery.network/sq/bobo-k2/shiden-statistics',
 };
 
+const API_URLS_TVL = {
+    astar: 'https://api.subquery.network/sq/bobo-k2/astar-tvl__Ym9ib',
+    shiden: 'https://api.subquery.network/sq/bobo-k2/shiden-statistics',
+};
+
 @injectable()
 /**
  * Fetches statistics from external data source
@@ -35,7 +40,7 @@ export class StatsIndexerService implements IStatsIndexerService {
         const range = this.getDateRange(period);
 
         try {
-            const result = await axios.post(API_URLS[network], {
+            const result = await axios.post(API_URLS_TVL[network], {
                 query: `query {
               tvls(filter: {
                 timestamp: {
