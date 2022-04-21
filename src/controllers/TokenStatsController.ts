@@ -3,14 +3,17 @@ import { injectable, inject } from 'inversify';
 import { NetworkType } from '../networks';
 import { IStatsIndexerService, PeriodType } from '../services/StatsIndexerService';
 import { IStatsService } from '../services/StatsService';
+import { ControllerBase } from './ControllerBase';
 import { IControllerBase } from './IControllerBase';
 
 @injectable()
-export class TokenStatsController implements IControllerBase {
+export class TokenStatsController extends ControllerBase implements IControllerBase {
     constructor(
         @inject('StatsService') private _statsService: IStatsService,
         @inject('StatsIndexerService') private _indexerService: IStatsIndexerService,
-    ) {}
+    ) {
+        super();
+    }
 
     public register(app: express.Application): void {
         /**
@@ -18,7 +21,11 @@ export class TokenStatsController implements IControllerBase {
          */
         app.route('/api/token/stats').get(async (req: Request, res: Response) => {
             // #swagger.ignore = true
-            res.json(await this._statsService.getTokenStats());
+            try {
+                res.json(await this._statsService.getTokenStats());
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**
@@ -26,7 +33,11 @@ export class TokenStatsController implements IControllerBase {
          */
         app.route('/api/:network/token/stats').get(async (req: Request, res: Response) => {
             // #swagger.ignore = true
-            res.json(await this._statsService.getTokenStats(req.params.network as NetworkType));
+            try {
+                res.json(await this._statsService.getTokenStats(req.params.network as NetworkType));
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**
@@ -41,7 +52,11 @@ export class TokenStatsController implements IControllerBase {
                     required: true
                 }
             */
-            res.json(await this._statsService.getTokenStats(req.params.network as NetworkType));
+            try {
+                res.json(await this._statsService.getTokenStats(req.params.network as NetworkType));
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**
@@ -49,7 +64,11 @@ export class TokenStatsController implements IControllerBase {
          */
         app.route('/api/token/circulation').get(async (req: Request, res: Response) => {
             // #swagger.ignore = true
-            res.json(await (await this._statsService.getTokenStats()).circulatingSupply);
+            try {
+                res.json(await (await this._statsService.getTokenStats()).circulatingSupply);
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**
@@ -57,11 +76,15 @@ export class TokenStatsController implements IControllerBase {
          */
         app.route('/api/:network/token/circulation').get(async (req: Request, res: Response) => {
             // #swagger.ignore = true
-            res.json(
-                await (
-                    await this._statsService.getTokenStats(req.params.network as NetworkType)
-                ).circulatingSupply,
-            );
+            try {
+                res.json(
+                    await (
+                        await this._statsService.getTokenStats(req.params.network as NetworkType)
+                    ).circulatingSupply,
+                );
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**
@@ -76,11 +99,15 @@ export class TokenStatsController implements IControllerBase {
                     required: true
                 }
             */
-            res.json(
-                await (
-                    await this._statsService.getTokenStats(req.params.network as NetworkType)
-                ).circulatingSupply,
-            );
+            try {
+                res.json(
+                    await (
+                        await this._statsService.getTokenStats(req.params.network as NetworkType)
+                    ).circulatingSupply,
+                );
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**

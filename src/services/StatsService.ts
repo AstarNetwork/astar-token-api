@@ -41,7 +41,7 @@ export class StatsService implements IStatsService {
             );
         } catch (e) {
             console.error(e);
-            return new TokenStats(Math.floor(new Date().getTime() / 1000), 0, 0);
+            throw new Error('Unable to fetch token statistics from a node.');
         }
     }
 
