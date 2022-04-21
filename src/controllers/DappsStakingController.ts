@@ -3,14 +3,17 @@ import { injectable, inject } from 'inversify';
 import { NetworkType } from '../networks';
 import { IDappsStakingService } from '../services/DappsStakingService';
 import { IStatsIndexerService, PeriodType } from '../services/StatsIndexerService';
+import { ControllerBase } from './ControllerBase';
 import { IControllerBase } from './IControllerBase';
 
 @injectable()
-export class DappsStakingController implements IControllerBase {
+export class DappsStakingController extends ControllerBase implements IControllerBase {
     constructor(
         @inject('DappsStakingService') private _stakingService: IDappsStakingService,
         @inject('StatsIndexerService') private _indexerService: IStatsIndexerService,
-    ) {}
+    ) {
+        super();
+    }
 
     public register(app: express.Application): void {
         /**
@@ -25,7 +28,11 @@ export class DappsStakingController implements IControllerBase {
                     required: true
                 }
             */
-            res.json(await this._stakingService.calculateApr(req.params.network as NetworkType));
+            try {
+                res.json(await this._stakingService.calculateApr(req.params.network as NetworkType));
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**
@@ -40,7 +47,11 @@ export class DappsStakingController implements IControllerBase {
                     required: true
                 }
             */
-            res.json(await this._stakingService.calculateApy(req.params.network as NetworkType));
+            try {
+                res.json(await this._stakingService.calculateApy(req.params.network as NetworkType));
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**

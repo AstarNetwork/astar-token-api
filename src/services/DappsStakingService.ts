@@ -50,13 +50,21 @@ export class DappsStakingService implements IDappsStakingService {
             return stakerApr;
         } catch (e) {
             console.error(e);
-            return 0;
+            throw new Error(
+                'Unable to calculate network APR. Most likely there is an error fetching data from a node.',
+            );
         }
     }
 
     public async calculateApy(network = 'astar'): Promise<number> {
-        const apr = await this.calculateApr(network);
-        return aprToApy(apr);
+        try {
+            const apr = await this.calculateApr(network);
+            return aprToApy(apr);
+        } catch {
+            throw new Error(
+                'Unable to calculate network APY. Most likely there is an error fetching data from a node.',
+            );
+        }
     }
 
     private getAverageBlocksPerMins(chainId: string, data: AprCalculationData): number {
