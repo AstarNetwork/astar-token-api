@@ -232,11 +232,6 @@ export class StatsIndexerService implements IStatsIndexerService {
 
         const decimals = await api.getChainDecimals();
         const totalStaked = Number(ethers.utils.formatUnits(tvl.toString(), decimals));
-
-        // // Current price
-        // const result = await axios.get(
-        //     `https://api.coingecko.com/api/v3/simple/price?ids=${network}&vs_currencies=usd`,
-        // );
         const price = priceResult.data[network].usd;
         const utcNow = getDateUTC(new Date());
 
