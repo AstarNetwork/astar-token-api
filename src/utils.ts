@@ -28,3 +28,16 @@ export const defaultAmountWithDecimals = (value: BN | BigNumber | string, decima
         return formatFixed(hexValue, decimal);
     }
 };
+
+export const getDateUTC = (date: Date) => {
+    const utcDate = Date.UTC(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate(),
+        date.getUTCHours(),
+        date.getUTCMinutes(),
+        date.getUTCSeconds(),
+    );
+
+    return new Date(utcDate);
+};

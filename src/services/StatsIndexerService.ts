@@ -1,6 +1,9 @@
 import axios from 'axios';
-import { injectable } from 'inversify';
-import { networks, NetworkType } from '../networks';
+import { ethers } from 'ethers';
+import { inject, injectable } from 'inversify';
+import { IApiFactory } from '../client/ApiFactory';
+import { NetworkType } from '../networks';
+import { getDateUTC } from '../utils';
 
 export type PeriodType = '7 days' | '30 days' | '90 days' | '1 year';
 export type Pair = { date: number; value: number };
@@ -18,7 +21,7 @@ export interface IStatsIndexerService {
 
 const DEFAULT_RANGE_LENGTH_DAYS = 7;
 const API_URLS = {
-    astar: 'https://api.subquery.network/sq/bobo-k2/astar-statistics__Ym9ib',
+    astar: 'http://localhost:3000',
     shiden: 'https://api.subquery.network/sq/bobo-k2/shiden-statistics',
 };
 
@@ -32,6 +35,8 @@ const API_URLS_TVL = {
  * Fetches statistics from external data source
  */
 export class StatsIndexerService implements IStatsIndexerService {
+    constructor(@inject('factory') private _apiFactory: IApiFactory) {}
+
     public async getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]> {
         if (network !== 'astar') {
             return [];
@@ -40,7 +45,7 @@ export class StatsIndexerService implements IStatsIndexerService {
         const range = this.getDateRange(period);
 
         try {
-            const result = await axios.post(API_URLS_TVL[network], {
+            const result = await axios.post(API_URLS[network], {
                 query: `query {
               tvls(filter: {
                 timestamp: {
@@ -60,9 +65,18 @@ export class StatsIndexerService implements IStatsIndexerService {
             }`,
             });
 
-            return result.data.data.tvls.nodes.map((node: { timestamp: string; tvlUsd: number }) => {
+            const indexedTvl = result.data.data.tvls.nodes.map((node: { timestamp: string; tvlUsd: number }) => {
                 return [node.timestamp, node.tvlUsd];
             });
+
+            // Add current TVL to the result, so we provide up to date TVL info.
+            try {
+                indexedTvl.push(await this.getCurrentTvlInUsd(network));
+            } catch (err) {
+                console.error(`Unable to fetch current TVL ${err}`);
+            }
+
+            return indexedTvl;
         } catch (e) {
             console.error(e);
             return [];
@@ -108,7 +122,7 @@ export class StatsIndexerService implements IStatsIndexerService {
         }
     }
 
-    public async getPrice(network = 'astar', period: PeriodType): Promise<Pair[]> {
+    public async getPrice(network: NetworkType = 'astar', period: PeriodType): Promise<Pair[]> {
         const numberOfDays = this.getPeriodDurationInDays(period);
 
         try {
@@ -123,7 +137,7 @@ export class StatsIndexerService implements IStatsIndexerService {
         }
     }
 
-    public async getTvl(network = 'astar', period: PeriodType): Promise<Pair[]> {
+    public async getTvl(network: NetworkType = 'astar', period: PeriodType): Promise<Pair[]> {
         if (network === 'astar') {
             return this.getTvlAstar(period);
         }
@@ -206,5 +220,26 @@ export class StatsIndexerService implements IStatsIndexerService {
         }
 
         return numberOfDays;
+    }
+
+    private async getCurrentTvlInUsd(network: NetworkType = 'astar'): Promise<[number, number]> {
+        // Current TVL
+        const api = this._apiFactory.getApiInstance(network);
+        const [tvl, priceResult] = await Promise.all([
+            api.getTvl(),
+            await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=${network}&vs_currencies=usd`),
+        ]);
+
+        const decimals = await api.getChainDecimals();
+        const totalStaked = Number(ethers.utils.formatUnits(tvl.toString(), decimals));
+
+        // // Current price
+        // const result = await axios.get(
+        //     `https://api.coingecko.com/api/v3/simple/price?ids=${network}&vs_currencies=usd`,
+        // );
+        const price = priceResult.data[network].usd;
+        const utcNow = getDateUTC(new Date());
+
+        return [utcNow.getTime(), totalStaked * price];
     }
 }
