@@ -21,7 +21,7 @@ export interface IStatsIndexerService {
 
 const DEFAULT_RANGE_LENGTH_DAYS = 7;
 const API_URLS = {
-    astar: 'http://localhost:3000',
+    astar: 'https://api.subquery.network/sq/bobo-k2/astar-statistics__Ym9ib',
     shiden: 'https://api.subquery.network/sq/bobo-k2/shiden-statistics',
 };
 
@@ -45,7 +45,7 @@ export class StatsIndexerService implements IStatsIndexerService {
         const range = this.getDateRange(period);
 
         try {
-            const result = await axios.post(API_URLS[network], {
+            const result = await axios.post(API_URLS_TVL[network], {
                 query: `query {
               tvls(filter: {
                 timestamp: {
