@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { inject, injectable } from 'inversify';
 import { IApiFactory } from '../client/ApiFactory';
 import { NetworkType } from '../networks';
-import { getDateUTC } from '../utils';
+import { getDateUTC, getDateYyyyMmDd } from '../utils';
 
 export type PeriodType = '7 days' | '30 days' | '90 days' | '1 year';
 export type Pair = { date: number; value: number };
@@ -91,31 +91,16 @@ export class StatsIndexerService implements IStatsIndexerService {
         const range = this.getDateRange(period);
 
         try {
-            const result = await axios.post(API_URLS[network], {
-                query: `query {
-              transactionsPerBlocks(filter: {
-                timestamp: {
-                  greaterThanOrEqualTo: "${range.start.getTime()}"
-                },
-                and: {
-                  timestamp: {
-                    lessThanOrEqualTo: "${range.end.getTime()}"
-                  }
-                }
-              }, orderBy: TIMESTAMP_ASC) {
-                nodes {
-                  timestamp,
-                  numberOfTransactions
-                }
-              }
-            }`,
+            const result = await axios.post(`https://${network}.api.subscan.io/api/scan/daily`, {
+                start: getDateYyyyMmDd(range.start),
+                end: getDateYyyyMmDd(range.end),
+                format: 'day',
+                category: 'transfer',
             });
 
-            return result.data.data.transactionsPerBlocks.nodes.map(
-                (node: { timestamp: string; numberOfTransactions: number }) => {
-                    return [node.timestamp, node.numberOfTransactions];
-                },
-            );
+            return result.data.data.list.map((node: { time_utc: string; total: number }) => {
+                return [Date.parse(node.time_utc), node.total];
+            });
         } catch (e) {
             console.error(e);
             return [];

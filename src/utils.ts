@@ -41,3 +41,7 @@ export const getDateUTC = (date: Date) => {
 
     return new Date(utcDate);
 };
+
+export const getDateYyyyMmDd = (date: Date) => {
+    return date.toISOString().split('T')[0];
+};
