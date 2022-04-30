@@ -21,7 +21,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
          */
         app.route('/api/v1/:network/dapps-staking/apr').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives dapp staking APR for a given network.'
+                #swagger.description = 'Retrieves dapp staking APR for a given network.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
@@ -40,7 +40,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
          */
         app.route('/api/v1/:network/dapps-staking/apy').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives dapp staking APY for a given network.'
+                #swagger.description = 'Retrieves dapp staking APY for a given network.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
@@ -59,7 +59,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
          */
         app.route('/api/v1/:network/dapps-staking/tvl/:period').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives dapps staking TVL for a given network and period.'
+                #swagger.description = 'Retrieves dapps staking TVL for a given network and period.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
@@ -76,6 +76,28 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     req.params.network as NetworkType,
                     req.params.period as PeriodType,
                 ),
+            );
+        });
+
+        /**
+         * @description Dapps staking TVL rout v1.
+         */
+        app.route('/api/v1/:network/dapps-staking/earned/:address').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retrieves earned staking rewards for dapps staking'
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    required: true
+                }
+                #swagger.parameters['address'] = {
+                    in: 'path',
+                    description: 'Wallet address. Supported address format: SS58',
+                    required: true,
+                }
+            */
+            res.json(
+                await this._stakingService.getEarned(req.params.network as NetworkType, req.params.address as string),
             );
         });
     }

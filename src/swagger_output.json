@@ -11,7 +11,7 @@
     "paths": {
         "/api/v1/{network}/token/stats": {
             "get": {
-                "description": "Retreives token staticstics for a given network.",
+                "description": "Retrieves token statistics for a given network.",
                 "parameters": [
                     {
                         "name": "network",
@@ -30,7 +30,7 @@
         },
         "/api/v1/{network}/token/circulation": {
             "get": {
-                "description": "Retreives token circulation for a given network.",
+                "description": "Retrieves token circulation for a given network.",
                 "parameters": [
                     {
                         "name": "network",
@@ -49,7 +49,7 @@
         },
         "/api/v1/{network}/token/price/{period}": {
             "get": {
-                "description": "Retreives token price for a given network and period.",
+                "description": "Retrieves token price for a given network and period.",
                 "parameters": [
                     {
                         "name": "network",
@@ -75,7 +75,7 @@
         },
         "/api/v1/{network}/token/tvl/{period}": {
             "get": {
-                "description": "Retreives token TVL for a given network and period.",
+                "description": "Retrieves token TVL for a given network and period.",
                 "parameters": [
                     {
                         "name": "network",
@@ -101,7 +101,7 @@
         },
         "/api/v1/{network}/dapps-staking/apr": {
             "get": {
-                "description": "Retreives dapp staking APR for a given network.",
+                "description": "Retrieves dapp staking APR for a given network.",
                 "parameters": [
                     {
                         "name": "network",
@@ -120,7 +120,7 @@
         },
         "/api/v1/{network}/dapps-staking/apy": {
             "get": {
-                "description": "Retreives dapp staking APY for a given network.",
+                "description": "Retrieves dapp staking APY for a given network.",
                 "parameters": [
                     {
                         "name": "network",
@@ -139,7 +139,7 @@
         },
         "/api/v1/{network}/dapps-staking/tvl/{period}": {
             "get": {
-                "description": "Retreives dapps staking TVL for a given network and period.",
+                "description": "Retrieves dapps staking TVL for a given network and period.",
                 "parameters": [
                     {
                         "name": "network",
@@ -154,6 +154,32 @@
                         "required": true,
                         "type": "string",
                         "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/v1/{network}/dapps-staking/earned/{address}": {
+            "get": {
+                "description": "Retrieves earned staking rewards for dapps staking",
+                "parameters": [
+                    {
+                        "name": "network",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The network name. Supported networks: astar, shiden, shibuya"
+                    },
+                    {
+                        "name": "address",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Wallet address. Supported address format: SS58"
                     }
                 ],
                 "responses": {
