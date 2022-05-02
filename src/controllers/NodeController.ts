@@ -12,7 +12,7 @@ export class NodeController implements IControllerBase {
         /**
          * @description Transactions route v1.
          */
-         app.route('/api/v1/:network/node/tx-perblock/total').get(async (req: Request, res: Response) => {
+        app.route('/api/v1/:network/node/tx-perblock/total').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retreives total (valid and failed) number of transfers (number of balance.Transfer events).'
                 #swagger.parameters['network'] = {

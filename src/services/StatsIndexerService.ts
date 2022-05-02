@@ -93,12 +93,16 @@ export class StatsIndexerService implements IStatsIndexerService {
         const option = getSubscanOption();
 
         try {
-            const result = await axios.post(url, {
-                start: getDateYyyyMmDd(range.start),
-                end: getDateYyyyMmDd(range.end),
-                format: 'day',
-                category: 'transfer',
-            }, option);
+            const result = await axios.post(
+                url,
+                {
+                    start: getDateYyyyMmDd(range.start),
+                    end: getDateYyyyMmDd(range.end),
+                    format: 'day',
+                    category: 'transfer',
+                },
+                option,
+            );
 
             return result.data.data.list.map((node: { time_utc: string; total: number }) => {
                 return [Date.parse(node.time_utc), node.total];
@@ -116,14 +120,20 @@ export class StatsIndexerService implements IStatsIndexerService {
         const option = getSubscanOption();
 
         try {
-            const result = await axios.post(url, {
-                "row": 1,
-                "page": 1
-              }, option);
+            const result = await axios.post(
+                url,
+                {
+                    row: 1,
+                    page: 1,
+                },
+                option,
+            );
             return result.data.data.count;
         } catch (e) {
             console.error(e);
-            throw new Error('Unable to fetch number of total transfers. Most likely there is an error fetching data from Subscan API.');
+            throw new Error(
+                'Unable to fetch number of total transfers. Most likely there is an error fetching data from Subscan API.',
+            );
         }
     }
 

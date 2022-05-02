@@ -66,6 +66,6 @@ export const getSubscanOption = () => {
     if (apiKey) {
         options.headers = { 'X-API-Key': apiKey };
     }
-    
+
     return options;
-}
+};
