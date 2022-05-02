@@ -4,11 +4,13 @@ import { aprToApy } from 'apr-tools';
 import { IApiFactory } from '../client/ApiFactory';
 import { AprCalculationData } from '../models/AprCalculationData';
 import { networks, NetworkType } from '../networks';
-import { defaultAmountWithDecimals } from '../utils';
+import { defaultAmountWithDecimals, getSubscanUrl } from '../utils';
+import axios from 'axios';
 
 export interface IDappsStakingService {
     calculateApr(network?: NetworkType): Promise<number>;
     calculateApy(network?: NetworkType): Promise<number>;
+    getEarned(network?: NetworkType, address?: string): Promise<number>;
 }
 
 // Ref: https://github.com/PlasmNetwork/Astar/blob/5b01ef3c2ca608126601c1bd04270ed08ece69c4/runtime/shiden/src/lib.rs#L435
@@ -73,5 +75,28 @@ export class DappsStakingService implements IDappsStakingService {
         const avgBlocksPerMin = data.latestBlock.toNumber() / minsChainRunning;
 
         return avgBlocksPerMin;
+    }
+
+    public async getEarned(network = 'astar', address: string): Promise<number> {
+        try {
+            // Docs: https://support.subscan.io/#staking-api
+            const base = getSubscanUrl(network);
+            const url = base + '/api/scan/staking_history';
+            const apiKey = String(process.env.SUBSCAN_API_KEY);
+            const option = {
+                headers: { 'X-API-Key': apiKey },
+            };
+            const body = {
+                row: 20,
+                page: 0,
+                address,
+            };
+
+            const result = await axios.post(url, body, option);
+            const earned = result.data.data.sum;
+            return Number(ethers.utils.formatEther(earned));
+        } catch {
+            throw new Error('Something went wrong. Most likely there is an error fetching data from Subscan API.');
+        }
     }
 }
