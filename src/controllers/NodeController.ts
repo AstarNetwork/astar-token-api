@@ -26,7 +26,7 @@ export class NodeController implements IControllerBase {
 
         app.route('/api/v1/:network/node/tx-perblock/:period').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives number of succesful transfers (number of balance.Transfer events) per day for agiven period.'
+                #swagger.description = 'Retreives number of successful transfers (number of balance.Transfer events) per day for a given period.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
