@@ -45,3 +45,16 @@ export const getDateUTC = (date: Date) => {
 export const getDateYyyyMmDd = (date: Date) => {
     return date.toISOString().split('T')[0];
 };
+
+export const getSubscanUrl = (network: string): string => {
+    switch (network) {
+        case 'astar':
+            return 'https://astar.api.subscan.io';
+        case 'shiden':
+            return 'https://shiden.api.subscan.io';
+        case 'shibuya':
+            return 'https://shibuya.api.subscan.io';
+        default:
+            return 'https://astar.api.subscan.io';
+    }
+};

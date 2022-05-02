@@ -45,7 +45,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
          */
         app.route('/api/v1/:network/token/stats').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives token staticstics for a given network.'
+                #swagger.description = 'Retrieves token statistics for a given network.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
@@ -92,7 +92,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
          */
         app.route('/api/v1/:network/token/circulation').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives token circulation for a given network.'
+                #swagger.description = 'Retrieves token circulation for a given network.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
@@ -115,7 +115,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
          */
         app.route('/api/v1/:network/token/price/:period').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives token price for a given network and period.'
+                #swagger.description = 'Retrieves token price for a given network and period.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
@@ -137,7 +137,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
          */
         app.route('/api/v1/:network/token/tvl/:period').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives token TVL for a given network and period.'
+                #swagger.description = 'Retrieves token TVL for a given network and period.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
