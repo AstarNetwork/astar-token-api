@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { inject, injectable } from 'inversify';
 import { IApiFactory } from '../client/ApiFactory';
 import { NetworkType } from '../networks';
-import { getDateUTC, getDateYyyyMmDd } from '../utils';
+import { getDateUTC, getDateYyyyMmDd, getSubscanUrl, getSubscanOption } from '../utils';
 
 export type PeriodType = '7 days' | '30 days' | '90 days' | '1 year';
 export type Pair = { date: number; value: number };
@@ -12,7 +12,9 @@ export type DateRange = { start: Date; end: Date };
 export interface IStatsIndexerService {
     getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
 
-    getTransactionsPerBlock(network: NetworkType, period: PeriodType): Promise<Pair[]>;
+    getValidTransactions(network: NetworkType, period: PeriodType): Promise<Pair[]>;
+
+    getTotalTransfers(network: NetworkType): Promise<number>;
 
     getPrice(network: NetworkType, period: PeriodType): Promise<Pair[]>;
 
@@ -83,20 +85,20 @@ export class StatsIndexerService implements IStatsIndexerService {
         }
     }
 
-    public async getTransactionsPerBlock(network: NetworkType, period: PeriodType): Promise<Pair[]> {
-        if (network !== 'astar' && network !== 'shiden') {
-            return [];
-        }
-
+    public async getValidTransactions(network: NetworkType, period: PeriodType): Promise<Pair[]> {
+        // Docs: https://support.subscan.io/#daily
+        const base = getSubscanUrl(network);
+        const url = base + '/api/scan/daily';
         const range = this.getDateRange(period);
+        const option = getSubscanOption();
 
         try {
-            const result = await axios.post(`https://${network}.api.subscan.io/api/scan/daily`, {
+            const result = await axios.post(url, {
                 start: getDateYyyyMmDd(range.start),
                 end: getDateYyyyMmDd(range.end),
                 format: 'day',
                 category: 'transfer',
-            });
+            }, option);
 
             return result.data.data.list.map((node: { time_utc: string; total: number }) => {
                 return [Date.parse(node.time_utc), node.total];
@@ -104,6 +106,24 @@ export class StatsIndexerService implements IStatsIndexerService {
         } catch (e) {
             console.error(e);
             return [];
+        }
+    }
+
+    public async getTotalTransfers(network: NetworkType): Promise<number> {
+        // Docs: https://support.subscan.io/#transfers
+        const base = getSubscanUrl(network);
+        const url = base + '/api/scan/transfers';
+        const option = getSubscanOption();
+
+        try {
+            const result = await axios.post(url, {
+                "row": 1,
+                "page": 1
+              }, option);
+            return result.data.data.count;
+        } catch (e) {
+            console.error(e);
+            throw new Error('Unable to fetch number of total transfers. Most likely there is an error fetching data from Subscan API.');
         }
     }
 
