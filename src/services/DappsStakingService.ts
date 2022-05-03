@@ -4,7 +4,7 @@ import { aprToApy } from 'apr-tools';
 import { IApiFactory } from '../client/ApiFactory';
 import { AprCalculationData } from '../models/AprCalculationData';
 import { networks, NetworkType } from '../networks';
-import { defaultAmountWithDecimals, getSubscanUrl } from '../utils';
+import { defaultAmountWithDecimals, getSubscanUrl, getSubscanOption } from '../utils';
 import axios from 'axios';
 
 export interface IDappsStakingService {
@@ -83,9 +83,8 @@ export class DappsStakingService implements IDappsStakingService {
             const base = getSubscanUrl(network);
             const url = base + '/api/scan/staking_history';
             const apiKey = String(process.env.SUBSCAN_API_KEY);
-            const option = {
-                headers: { 'X-API-Key': apiKey },
-            };
+            const option = getSubscanOption();
+
             const body = {
                 row: 20,
                 page: 0,
@@ -93,9 +92,15 @@ export class DappsStakingService implements IDappsStakingService {
             };
 
             const result = await axios.post(url, body, option);
-            const earned = result.data.data.sum;
-            return Number(ethers.utils.formatEther(earned));
-        } catch {
+
+            if (result.data) {
+                const earned = result.data.data.sum;
+                return Number(ethers.utils.formatEther(earned));
+            } else {
+                return 0;
+            }
+        } catch (e) {
+            console.error(e);
             throw new Error('Something went wrong. Most likely there is an error fetching data from Subscan API.');
         }
     }

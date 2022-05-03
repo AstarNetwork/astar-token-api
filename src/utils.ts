@@ -4,6 +4,7 @@
 import BN from 'bn.js';
 import { BigNumber, formatFixed } from '@ethersproject/bignumber';
 import { isString } from '@polkadot/util';
+import { AxiosRequestConfig, AxiosRequestHeaders } from 'axios';
 
 /**
  * Convert the given value into the given token decimal point WITHOUT losing decimals.
@@ -42,6 +43,10 @@ export const getDateUTC = (date: Date) => {
     return new Date(utcDate);
 };
 
+export const getDateYyyyMmDd = (date: Date) => {
+    return date.toISOString().split('T')[0];
+};
+
 export const getSubscanUrl = (network: string): string => {
     switch (network) {
         case 'astar':
@@ -53,4 +58,14 @@ export const getSubscanUrl = (network: string): string => {
         default:
             return 'https://astar.api.subscan.io';
     }
+};
+
+export const getSubscanOption = () => {
+    const apiKey = String(process.env.SUBSCAN_API_KEY);
+    const options: AxiosRequestConfig = {};
+    if (apiKey) {
+        options.headers = { 'X-API-Key': apiKey };
+    }
+
+    return options;
 };

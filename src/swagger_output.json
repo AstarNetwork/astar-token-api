@@ -191,7 +191,7 @@
         },
         "/api/v1/{network}/node/tx-perblock/{period}": {
             "get": {
-                "description": "Retreives token price for a given network and period.",
+                "description": "Retreives number of succesful transfers (number of balance.Transfer events) per day for agiven period.",
                 "parameters": [
                     {
                         "name": "network",
@@ -206,6 +206,25 @@
                         "required": true,
                         "type": "string",
                         "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/v1/{network}/node/tx-perblock/total": {
+            "get": {
+                "description": "Retreives total (valid and failed) number of transfers (number of balance.Transfer events).",
+                "parameters": [
+                    {
+                        "name": "network",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The network name. Supported networks: astar, shiden, shibuya"
                     }
                 ],
                 "responses": {
