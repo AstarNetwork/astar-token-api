@@ -22,14 +22,9 @@ export interface IStatsIndexerService {
 }
 
 const DEFAULT_RANGE_LENGTH_DAYS = 7;
-const API_URLS = {
-    astar: 'https://api.subquery.network/sq/bobo-k2/astar-statistics__Ym9ib',
-    shiden: 'https://api.subquery.network/sq/bobo-k2/shiden-statistics',
-};
-
 const API_URLS_TVL = {
     astar: 'https://api.subquery.network/sq/bobo-k2/astar-tvl__Ym9ib',
-    shiden: 'https://api.subquery.network/sq/bobo-k2/shiden-statistics',
+    shiden: 'https://api.subquery.network/sq/bobo-k2/shiden-statistics-v2',
 };
 
 @injectable()
@@ -40,7 +35,7 @@ export class StatsIndexerService implements IStatsIndexerService {
     constructor(@inject('factory') private _apiFactory: IApiFactory) {}
 
     public async getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]> {
-        if (network !== 'astar') {
+        if (network !== 'astar' && network !== 'shiden') {
             return [];
         }
 
