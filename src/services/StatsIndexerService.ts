@@ -19,6 +19,7 @@ export interface IStatsIndexerService {
     getPrice(network: NetworkType, period: PeriodType): Promise<Pair[]>;
 
     getTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
+    getHolders(network: NetworkType): Promise<number>;
 }
 
 const DEFAULT_RANGE_LENGTH_DAYS = 7;
@@ -246,5 +247,25 @@ export class StatsIndexerService implements IStatsIndexerService {
         const utcNow = getDateUTC(new Date());
 
         return [utcNow.getTime(), totalStaked * price];
+    }
+
+    public async getHolders(network = 'astar'): Promise<number> {
+        try {
+            const base = getSubscanUrl(network);
+            const url = base + '/api/scan/metadata';
+            const option = getSubscanOption();
+            const body = {};
+            const result = await axios.post(url, body, option);
+
+            if (result.data) {
+                const holders = result.data.data.count_account;
+                return Number(holders);
+            } else {
+                return 0;
+            }
+        } catch (e) {
+            console.error(e);
+            throw new Error('Something went wrong. Most likely there is an error fetching data from Subscan API.');
+        }
     }
 }
