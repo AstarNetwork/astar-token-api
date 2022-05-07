@@ -82,7 +82,6 @@ export class DappsStakingService implements IDappsStakingService {
             // Docs: https://support.subscan.io/#staking-api
             const base = getSubscanUrl(network);
             const url = base + '/api/scan/staking_history';
-            const apiKey = String(process.env.SUBSCAN_API_KEY);
             const option = getSubscanOption();
 
             const body = {
