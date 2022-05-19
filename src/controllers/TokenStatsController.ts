@@ -3,14 +3,17 @@ import { injectable, inject } from 'inversify';
 import { NetworkType } from '../networks';
 import { IStatsIndexerService, PeriodType } from '../services/StatsIndexerService';
 import { IStatsService } from '../services/StatsService';
+import { ControllerBase } from './ControllerBase';
 import { IControllerBase } from './IControllerBase';
 
 @injectable()
-export class TokenStatsController implements IControllerBase {
+export class TokenStatsController extends ControllerBase implements IControllerBase {
     constructor(
         @inject('StatsService') private _statsService: IStatsService,
         @inject('StatsIndexerService') private _indexerService: IStatsIndexerService,
-    ) {}
+    ) {
+        super();
+    }
 
     public register(app: express.Application): void {
         /**
@@ -18,7 +21,11 @@ export class TokenStatsController implements IControllerBase {
          */
         app.route('/api/token/stats').get(async (req: Request, res: Response) => {
             // #swagger.ignore = true
-            res.json(await this._statsService.getTokenStats());
+            try {
+                res.json(await this._statsService.getTokenStats());
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**
@@ -26,7 +33,11 @@ export class TokenStatsController implements IControllerBase {
          */
         app.route('/api/:network/token/stats').get(async (req: Request, res: Response) => {
             // #swagger.ignore = true
-            res.json(await this._statsService.getTokenStats(req.params.network as NetworkType));
+            try {
+                res.json(await this._statsService.getTokenStats(req.params.network as NetworkType));
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**
@@ -34,14 +45,18 @@ export class TokenStatsController implements IControllerBase {
          */
         app.route('/api/v1/:network/token/stats').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives token staticstics for a given network.'
+                #swagger.description = 'Retrieves token statistics for a given network.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
                     required: true
                 }
             */
-            res.json(await this._statsService.getTokenStats(req.params.network as NetworkType));
+            try {
+                res.json(await this._statsService.getTokenStats(req.params.network as NetworkType));
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**
@@ -49,7 +64,11 @@ export class TokenStatsController implements IControllerBase {
          */
         app.route('/api/token/circulation').get(async (req: Request, res: Response) => {
             // #swagger.ignore = true
-            res.json(await (await this._statsService.getTokenStats()).circulatingSupply);
+            try {
+                res.json(await (await this._statsService.getTokenStats()).circulatingSupply);
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**
@@ -57,11 +76,15 @@ export class TokenStatsController implements IControllerBase {
          */
         app.route('/api/:network/token/circulation').get(async (req: Request, res: Response) => {
             // #swagger.ignore = true
-            res.json(
-                await (
-                    await this._statsService.getTokenStats(req.params.network as NetworkType)
-                ).circulatingSupply,
-            );
+            try {
+                res.json(
+                    await (
+                        await this._statsService.getTokenStats(req.params.network as NetworkType)
+                    ).circulatingSupply,
+                );
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**
@@ -69,18 +92,22 @@ export class TokenStatsController implements IControllerBase {
          */
         app.route('/api/v1/:network/token/circulation').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives token circulation for a given network.'
+                #swagger.description = 'Retrieves token circulation for a given network.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
                     required: true
                 }
             */
-            res.json(
-                await (
-                    await this._statsService.getTokenStats(req.params.network as NetworkType)
-                ).circulatingSupply,
-            );
+            try {
+                res.json(
+                    await (
+                        await this._statsService.getTokenStats(req.params.network as NetworkType)
+                    ).circulatingSupply,
+                );
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**
@@ -88,7 +115,7 @@ export class TokenStatsController implements IControllerBase {
          */
         app.route('/api/v1/:network/token/price/:period').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives token price for a given network and period.'
+                #swagger.description = 'Retrieves token price for a given network and period.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
@@ -110,7 +137,7 @@ export class TokenStatsController implements IControllerBase {
          */
         app.route('/api/v1/:network/token/tvl/:period').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives token TVL for a given network and period.'
+                #swagger.description = 'Retrieves token TVL for a given network and period.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
@@ -125,6 +152,21 @@ export class TokenStatsController implements IControllerBase {
             res.json(
                 await this._indexerService.getTvl(req.params.network as NetworkType, req.params.period as PeriodType),
             );
+        });
+
+        /**
+         * @description Token Holders.
+         */
+        app.route('/api/v1/:network/token/holders').get(async (req: Request, res: Response) => {
+            /*
+                        #swagger.description = 'Retrieves number of token holders'
+                        #swagger.parameters['network'] = {
+                            in: 'path',
+                            description: 'The network name. Supported networks: astar, shiden, shibuya',
+                            required: true
+                        }
+                    */
+            res.json(await this._indexerService.getHolders(req.params.network as NetworkType));
         });
     }
 }

@@ -3,14 +3,17 @@ import { injectable, inject } from 'inversify';
 import { NetworkType } from '../networks';
 import { IDappsStakingService } from '../services/DappsStakingService';
 import { IStatsIndexerService, PeriodType } from '../services/StatsIndexerService';
+import { ControllerBase } from './ControllerBase';
 import { IControllerBase } from './IControllerBase';
 
 @injectable()
-export class DappsStakingController implements IControllerBase {
+export class DappsStakingController extends ControllerBase implements IControllerBase {
     constructor(
         @inject('DappsStakingService') private _stakingService: IDappsStakingService,
         @inject('StatsIndexerService') private _indexerService: IStatsIndexerService,
-    ) {}
+    ) {
+        super();
+    }
 
     public register(app: express.Application): void {
         /**
@@ -18,14 +21,18 @@ export class DappsStakingController implements IControllerBase {
          */
         app.route('/api/v1/:network/dapps-staking/apr').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives dapp staking APR for a given network.'
+                #swagger.description = 'Retrieves dapp staking APR for a given network.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
                     required: true
                 }
             */
-            res.json(await this._stakingService.calculateApr(req.params.network as NetworkType));
+            try {
+                res.json(await this._stakingService.calculateApr(req.params.network as NetworkType));
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**
@@ -33,14 +40,18 @@ export class DappsStakingController implements IControllerBase {
          */
         app.route('/api/v1/:network/dapps-staking/apy').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives dapp staking APY for a given network.'
+                #swagger.description = 'Retrieves dapp staking APY for a given network.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
                     required: true
                 }
             */
-            res.json(await this._stakingService.calculateApy(req.params.network as NetworkType));
+            try {
+                res.json(await this._stakingService.calculateApy(req.params.network as NetworkType));
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
         });
 
         /**
@@ -48,7 +59,7 @@ export class DappsStakingController implements IControllerBase {
          */
         app.route('/api/v1/:network/dapps-staking/tvl/:period').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives dapps staking TVL for a given network and period.'
+                #swagger.description = 'Retrieves dapps staking TVL for a given network and period.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
@@ -65,6 +76,28 @@ export class DappsStakingController implements IControllerBase {
                     req.params.network as NetworkType,
                     req.params.period as PeriodType,
                 ),
+            );
+        });
+
+        /**
+         * @description Dapps staking TVL rout v1.
+         */
+        app.route('/api/v1/:network/dapps-staking/earned/:address').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retrieves earned staking rewards for dapps staking'
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    required: true
+                }
+                #swagger.parameters['address'] = {
+                    in: 'path',
+                    description: 'Wallet address. Supported address format: SS58',
+                    required: true,
+                }
+            */
+            res.json(
+                await this._stakingService.getEarned(req.params.network as NetworkType, req.params.address as string),
             );
         });
     }

@@ -25,19 +25,24 @@ export class StatsService implements IStatsService {
      * @returns Token statistics including total supply and circulating supply.
      */
     public async getTokenStats(network = 'astar'): Promise<TokenStats> {
-        const api = this._apiFactory.getApiInstance(network);
-        const chainDecimals = await api.getChainDecimals();
-        const totalSupply = await api.getTotalSupply();
+        try {
+            const api = this._apiFactory.getApiInstance(network);
+            const chainDecimals = await api.getChainDecimals();
+            const totalSupply = await api.getTotalSupply();
 
-        const balancesToExclude = await api.getBalances(addressesToExclude);
-        const totalBalancesToExclude = this.getTotalBalanceToExclude(balancesToExclude);
-        const circulatingSupply = totalSupply.sub(totalBalancesToExclude);
+            const balancesToExclude = await api.getBalances(addressesToExclude);
+            const totalBalancesToExclude = this.getTotalBalanceToExclude(balancesToExclude);
+            const circulatingSupply = totalSupply.sub(totalBalancesToExclude);
 
-        return new TokenStats(
-            Math.floor(new Date().getTime() / 1000),
-            this.formatBalance(totalSupply, chainDecimals),
-            this.formatBalance(circulatingSupply, chainDecimals),
-        );
+            return new TokenStats(
+                Math.floor(new Date().getTime() / 1000),
+                this.formatBalance(totalSupply, chainDecimals),
+                this.formatBalance(circulatingSupply, chainDecimals),
+            );
+        } catch (e) {
+            console.error(e);
+            throw new Error('Unable to fetch token statistics from a node.');
+        }
     }
 
     private getTotalBalanceToExclude(balances: PalletBalancesAccountData[]): BN {

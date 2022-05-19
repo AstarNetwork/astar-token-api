@@ -1,6 +1,9 @@
 import axios from 'axios';
-import { injectable } from 'inversify';
-import { networks, NetworkType } from '../networks';
+import { ethers } from 'ethers';
+import { inject, injectable } from 'inversify';
+import { IApiFactory } from '../client/ApiFactory';
+import { NetworkType } from '../networks';
+import { getDateUTC, getDateYyyyMmDd, getSubscanUrl, getSubscanOption } from '../utils';
 
 export type PeriodType = '7 days' | '30 days' | '90 days' | '1 year';
 export type Pair = { date: number; value: number };
@@ -9,17 +12,20 @@ export type DateRange = { start: Date; end: Date };
 export interface IStatsIndexerService {
     getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
 
-    getTransactionsPerBlock(network: NetworkType, period: PeriodType): Promise<Pair[]>;
+    getValidTransactions(network: NetworkType, period: PeriodType): Promise<Pair[]>;
+
+    getTotalTransfers(network: NetworkType): Promise<number>;
 
     getPrice(network: NetworkType, period: PeriodType): Promise<Pair[]>;
 
     getTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
+    getHolders(network: NetworkType): Promise<number>;
 }
 
 const DEFAULT_RANGE_LENGTH_DAYS = 7;
-const API_URLS = {
-    astar: 'https://api.subquery.network/sq/bobo-k2/astar-statistics__Ym9ib',
-    shiden: 'https://api.subquery.network/sq/bobo-k2/shiden-statistics',
+const API_URLS_TVL = {
+    astar: 'https://api.subquery.network/sq/bobo-k2/astar-tvl__Ym9ib',
+    shiden: 'https://api.subquery.network/sq/bobo-k2/shiden-statistics-v2',
 };
 
 @injectable()
@@ -27,15 +33,17 @@ const API_URLS = {
  * Fetches statistics from external data source
  */
 export class StatsIndexerService implements IStatsIndexerService {
+    constructor(@inject('factory') private _apiFactory: IApiFactory) {}
+
     public async getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]> {
-        if (network !== 'astar') {
+        if (network !== 'astar' && network !== 'shiden') {
             return [];
         }
 
         const range = this.getDateRange(period);
 
         try {
-            const result = await axios.post(API_URLS[network], {
+            const result = await axios.post(API_URLS_TVL[network], {
                 query: `query {
               tvls(filter: {
                 timestamp: {
@@ -55,53 +63,77 @@ export class StatsIndexerService implements IStatsIndexerService {
             }`,
             });
 
-            return result.data.data.tvls.nodes.map((node: { timestamp: string; tvlUsd: number }) => {
+            const indexedTvl = result.data.data.tvls.nodes.map((node: { timestamp: string; tvlUsd: number }) => {
                 return [node.timestamp, node.tvlUsd];
             });
-        } catch {
+
+            // Add current TVL to the result, so we provide up to date TVL info.
+            try {
+                indexedTvl.push(await this.getCurrentTvlInUsd(network));
+            } catch (err) {
+                console.error(`Unable to fetch current TVL ${err}`);
+            }
+
+            return indexedTvl;
+        } catch (e) {
+            console.error(e);
             return [];
         }
     }
 
-    public async getTransactionsPerBlock(network: NetworkType, period: PeriodType): Promise<Pair[]> {
-        if (network !== 'astar' && network !== 'shiden') {
-            return [];
-        }
-
+    public async getValidTransactions(network: NetworkType, period: PeriodType): Promise<Pair[]> {
+        // Docs: https://support.subscan.io/#daily
+        const base = getSubscanUrl(network);
+        const url = base + '/api/scan/daily';
         const range = this.getDateRange(period);
+        const option = getSubscanOption();
 
         try {
-            const result = await axios.post(API_URLS[network], {
-                query: `query {
-              transactionsPerBlocks(filter: {
-                timestamp: {
-                  greaterThanOrEqualTo: "${range.start.getTime()}"
+            const result = await axios.post(
+                url,
+                {
+                    start: getDateYyyyMmDd(range.start),
+                    end: getDateYyyyMmDd(range.end),
+                    format: 'day',
+                    category: 'transfer',
                 },
-                and: {
-                  timestamp: {
-                    lessThanOrEqualTo: "${range.end.getTime()}"
-                  }
-                }
-              }, orderBy: TIMESTAMP_ASC) {
-                nodes {
-                  timestamp,
-                  numberOfTransactions
-                }
-              }
-            }`,
-            });
-
-            return result.data.data.transactionsPerBlocks.nodes.map(
-                (node: { timestamp: string; numberOfTransactions: number }) => {
-                    return [node.timestamp, node.numberOfTransactions];
-                },
+                option,
             );
-        } catch {
+
+            return result.data.data.list.map((node: { time_utc: string; total: number }) => {
+                return [Date.parse(node.time_utc), node.total];
+            });
+        } catch (e) {
+            console.error(e);
             return [];
         }
     }
 
-    public async getPrice(network = 'astar', period: PeriodType): Promise<Pair[]> {
+    public async getTotalTransfers(network: NetworkType): Promise<number> {
+        // Docs: https://support.subscan.io/#transfers
+        const base = getSubscanUrl(network);
+        const url = base + '/api/scan/transfers';
+        const option = getSubscanOption();
+
+        try {
+            const result = await axios.post(
+                url,
+                {
+                    row: 1,
+                    page: 1,
+                },
+                option,
+            );
+            return result.data.data.count;
+        } catch (e) {
+            console.error(e);
+            throw new Error(
+                'Unable to fetch number of total transfers. Most likely there is an error fetching data from Subscan API.',
+            );
+        }
+    }
+
+    public async getPrice(network: NetworkType = 'astar', period: PeriodType): Promise<Pair[]> {
         const numberOfDays = this.getPeriodDurationInDays(period);
 
         try {
@@ -110,12 +142,13 @@ export class StatsIndexerService implements IStatsIndexerService {
                 `https://api.coingecko.com/api/v3/coins/${network}/market_chart?vs_currency=usd&days=${numberOfDays}&interval=${interval}`,
             );
             return result.data.prices;
-        } catch {
+        } catch (e) {
+            console.error(e);
             return [];
         }
     }
 
-    public async getTvl(network = 'astar', period: PeriodType): Promise<Pair[]> {
+    public async getTvl(network: NetworkType = 'astar', period: PeriodType): Promise<Pair[]> {
         if (network === 'astar') {
             return this.getTvlAstar(period);
         }
@@ -127,7 +160,8 @@ export class StatsIndexerService implements IStatsIndexerService {
             return result.data.slice(-numberOfDays).map((item: { date: string; totalLiquidityUSD: number }) => {
                 return [Number(item.date), item.totalLiquidityUSD];
             });
-        } catch {
+        } catch (e) {
+            console.error(e);
             return [];
         }
     }
@@ -180,7 +214,8 @@ export class StatsIndexerService implements IStatsIndexerService {
             }
 
             return tvl;
-        } catch {
+        } catch (e) {
+            console.error(e);
             return [];
         }
     }
@@ -196,5 +231,41 @@ export class StatsIndexerService implements IStatsIndexerService {
         }
 
         return numberOfDays;
+    }
+
+    private async getCurrentTvlInUsd(network: NetworkType = 'astar'): Promise<[number, number]> {
+        // Current TVL
+        const api = this._apiFactory.getApiInstance(network);
+        const [tvl, priceResult] = await Promise.all([
+            api.getTvl(),
+            await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=${network}&vs_currencies=usd`),
+        ]);
+
+        const decimals = await api.getChainDecimals();
+        const totalStaked = Number(ethers.utils.formatUnits(tvl.toString(), decimals));
+        const price = priceResult.data[network].usd;
+        const utcNow = getDateUTC(new Date());
+
+        return [utcNow.getTime(), totalStaked * price];
+    }
+
+    public async getHolders(network = 'astar'): Promise<number> {
+        try {
+            const base = getSubscanUrl(network);
+            const url = base + '/api/scan/metadata';
+            const option = getSubscanOption();
+            const body = {};
+            const result = await axios.post(url, body, option);
+
+            if (result.data) {
+                const holders = result.data.data.count_account;
+                return Number(holders);
+            } else {
+                return 0;
+            }
+        } catch (e) {
+            console.error(e);
+            throw new Error('Something went wrong. Most likely there is an error fetching data from Subscan API.');
+        }
     }
 }

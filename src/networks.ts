@@ -3,7 +3,7 @@ export type NetworkType = 'astar' | 'shiden' | 'shibuya';
 export const networks = {
     astar: {
         name: 'astar',
-        endpoint: 'wss://astar.api.onfinality.io/public-ws',
+        endpoint: 'wss://wss.astar.network',
     },
     shiden: {
         name: 'shiden',

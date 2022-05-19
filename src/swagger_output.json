@@ -11,7 +11,7 @@
     "paths": {
         "/api/v1/{network}/token/stats": {
             "get": {
-                "description": "Retreives token staticstics for a given network.",
+                "description": "Retrieves token statistics for a given network.",
                 "parameters": [
                     {
                         "name": "network",
@@ -30,7 +30,7 @@
         },
         "/api/v1/{network}/token/circulation": {
             "get": {
-                "description": "Retreives token circulation for a given network.",
+                "description": "Retrieves token circulation for a given network.",
                 "parameters": [
                     {
                         "name": "network",
@@ -49,7 +49,7 @@
         },
         "/api/v1/{network}/token/price/{period}": {
             "get": {
-                "description": "Retreives token price for a given network and period.",
+                "description": "Retrieves token price for a given network and period.",
                 "parameters": [
                     {
                         "name": "network",
@@ -75,7 +75,7 @@
         },
         "/api/v1/{network}/token/tvl/{period}": {
             "get": {
-                "description": "Retreives token TVL for a given network and period.",
+                "description": "Retrieves token TVL for a given network and period.",
                 "parameters": [
                     {
                         "name": "network",
@@ -99,9 +99,28 @@
                 }
             }
         },
+        "/api/v1/{network}/token/holders": {
+            "get": {
+                "description": "Retrieves number of token holders",
+                "parameters": [
+                    {
+                        "name": "network",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The network name. Supported networks: astar, shiden, shibuya"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/api/v1/{network}/dapps-staking/apr": {
             "get": {
-                "description": "Retreives dapp staking APR for a given network.",
+                "description": "Retrieves dapp staking APR for a given network.",
                 "parameters": [
                     {
                         "name": "network",
@@ -120,7 +139,7 @@
         },
         "/api/v1/{network}/dapps-staking/apy": {
             "get": {
-                "description": "Retreives dapp staking APY for a given network.",
+                "description": "Retrieves dapp staking APY for a given network.",
                 "parameters": [
                     {
                         "name": "network",
@@ -139,7 +158,7 @@
         },
         "/api/v1/{network}/dapps-staking/tvl/{period}": {
             "get": {
-                "description": "Retreives dapps staking TVL for a given network and period.",
+                "description": "Retrieves dapps staking TVL for a given network and period.",
                 "parameters": [
                     {
                         "name": "network",
@@ -163,9 +182,54 @@
                 }
             }
         },
+        "/api/v1/{network}/dapps-staking/earned/{address}": {
+            "get": {
+                "description": "Retrieves earned staking rewards for dapps staking",
+                "parameters": [
+                    {
+                        "name": "network",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The network name. Supported networks: astar, shiden, shibuya"
+                    },
+                    {
+                        "name": "address",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Wallet address. Supported address format: SS58"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/v1/{network}/node/tx-perblock/total": {
+            "get": {
+                "description": "Retreives total (valid and failed) number of transfers (number of balance.Transfer events).",
+                "parameters": [
+                    {
+                        "name": "network",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The network name. Supported networks: astar, shiden, shibuya"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/api/v1/{network}/node/tx-perblock/{period}": {
             "get": {
-                "description": "Retreives token price for a given network and period.",
+                "description": "Retreives number of successful transfers (number of balance.Transfer events) per day for a given period.",
                 "parameters": [
                     {
                         "name": "network",
