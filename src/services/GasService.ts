@@ -1,3 +1,5 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+
 import { injectable, inject } from 'inversify';
 import { ethers } from 'ethers';
 import { IApiFactory } from '../client/ApiFactory';
