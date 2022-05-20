@@ -12,6 +12,8 @@ import { networks } from './networks';
 import { ApiFactory, IApiFactory } from './client/ApiFactory';
 import { DappsStakingController } from './controllers/DappsStakingController';
 import { IDappsStakingService, DappsStakingService } from './services/DappsStakingService';
+import { IGasService, GasService } from './services/GasService';
+import { GasController } from './controllers/GasController';
 import { IStatsIndexerService, StatsIndexerService } from './services/StatsIndexerService';
 import { NodeController } from './controllers/NodeController';
 import { AstarApi2 } from './client/AstarApi2';
@@ -42,10 +44,12 @@ container.bind<IApiFactory>('factory').to(ApiFactory).inSingletonScope();
 container.bind<IStatsService>('StatsService').to(StatsService).inSingletonScope();
 container.bind<IDappsStakingService>('DappsStakingService').to(DappsStakingService).inSingletonScope();
 container.bind<IStatsIndexerService>('StatsIndexerService').to(StatsIndexerService).inSingletonScope();
+container.bind<IGasService>('GasService').to(GasService).inSingletonScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(DappsStakingController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(NodeController);
+container.bind<IControllerBase>(ContainerTypes.Controller).to(GasController);
 
 export default container;

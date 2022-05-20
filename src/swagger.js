@@ -5,6 +5,7 @@ const endpointsFiles = [
     'src/controllers/TokenStatsController.ts',
     'src/controllers/DappsStakingController.ts',
     'src/controllers/NodeController.ts',
+    'src/controllers/GasController.ts',
 ];
 
 const getDocumentation = (host) => ({
