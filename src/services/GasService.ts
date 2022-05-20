@@ -35,7 +35,7 @@ export type Gas = {
     };
 };
 
-const blockInterval = 12000;
+export const blockInterval = 12000;
 const historicalBlocks = 200;
 const timestamp = Date.now();
 
@@ -216,12 +216,3 @@ export class GasService implements IGasService {
         return estimate[network];
     }
 }
-
-harvest('shibuya');
-harvest('shiden');
-harvest('astar');
-setInterval(() => {
-    harvest('shibuya');
-    harvest('shiden');
-    harvest('astar');
-}, blockInterval);
