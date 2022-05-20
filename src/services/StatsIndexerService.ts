@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { inject, injectable } from 'inversify';
 import { IApiFactory } from '../client/ApiFactory';
 import { NetworkType } from '../networks';
-import { getDateUTC } from '../utils';
+import { getDateUTC, getDateYyyyMmDd, getSubscanUrl, getSubscanOption } from '../utils';
 
 export type PeriodType = '7 days' | '30 days' | '90 days' | '1 year';
 export type Pair = { date: number; value: number };
@@ -12,22 +12,20 @@ export type DateRange = { start: Date; end: Date };
 export interface IStatsIndexerService {
     getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
 
-    getTransactionsPerBlock(network: NetworkType, period: PeriodType): Promise<Pair[]>;
+    getValidTransactions(network: NetworkType, period: PeriodType): Promise<Pair[]>;
+
+    getTotalTransfers(network: NetworkType): Promise<number>;
 
     getPrice(network: NetworkType, period: PeriodType): Promise<Pair[]>;
 
     getTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
+    getHolders(network: NetworkType): Promise<number>;
 }
 
 const DEFAULT_RANGE_LENGTH_DAYS = 7;
-const API_URLS = {
-    astar: 'https://api.subquery.network/sq/bobo-k2/astar-statistics__Ym9ib',
-    shiden: 'https://api.subquery.network/sq/bobo-k2/shiden-statistics',
-};
-
 const API_URLS_TVL = {
     astar: 'https://api.subquery.network/sq/bobo-k2/astar-tvl__Ym9ib',
-    shiden: 'https://api.subquery.network/sq/bobo-k2/shiden-statistics',
+    shiden: 'https://api.subquery.network/sq/bobo-k2/shiden-statistics-v2',
 };
 
 @injectable()
@@ -38,7 +36,7 @@ export class StatsIndexerService implements IStatsIndexerService {
     constructor(@inject('factory') private _apiFactory: IApiFactory) {}
 
     public async getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]> {
-        if (network !== 'astar') {
+        if (network !== 'astar' && network !== 'shiden') {
             return [];
         }
 
@@ -83,42 +81,55 @@ export class StatsIndexerService implements IStatsIndexerService {
         }
     }
 
-    public async getTransactionsPerBlock(network: NetworkType, period: PeriodType): Promise<Pair[]> {
-        if (network !== 'astar' && network !== 'shiden') {
-            return [];
-        }
-
+    public async getValidTransactions(network: NetworkType, period: PeriodType): Promise<Pair[]> {
+        // Docs: https://support.subscan.io/#daily
+        const base = getSubscanUrl(network);
+        const url = base + '/api/scan/daily';
         const range = this.getDateRange(period);
+        const option = getSubscanOption();
 
         try {
-            const result = await axios.post(API_URLS[network], {
-                query: `query {
-              transactionsPerBlocks(filter: {
-                timestamp: {
-                  greaterThanOrEqualTo: "${range.start.getTime()}"
+            const result = await axios.post(
+                url,
+                {
+                    start: getDateYyyyMmDd(range.start),
+                    end: getDateYyyyMmDd(range.end),
+                    format: 'day',
+                    category: 'transfer',
                 },
-                and: {
-                  timestamp: {
-                    lessThanOrEqualTo: "${range.end.getTime()}"
-                  }
-                }
-              }, orderBy: TIMESTAMP_ASC) {
-                nodes {
-                  timestamp,
-                  numberOfTransactions
-                }
-              }
-            }`,
-            });
-
-            return result.data.data.transactionsPerBlocks.nodes.map(
-                (node: { timestamp: string; numberOfTransactions: number }) => {
-                    return [node.timestamp, node.numberOfTransactions];
-                },
+                option,
             );
+
+            return result.data.data.list.map((node: { time_utc: string; total: number }) => {
+                return [Date.parse(node.time_utc), node.total];
+            });
         } catch (e) {
             console.error(e);
             return [];
+        }
+    }
+
+    public async getTotalTransfers(network: NetworkType): Promise<number> {
+        // Docs: https://support.subscan.io/#transfers
+        const base = getSubscanUrl(network);
+        const url = base + '/api/scan/transfers';
+        const option = getSubscanOption();
+
+        try {
+            const result = await axios.post(
+                url,
+                {
+                    row: 1,
+                    page: 1,
+                },
+                option,
+            );
+            return result.data.data.count;
+        } catch (e) {
+            console.error(e);
+            throw new Error(
+                'Unable to fetch number of total transfers. Most likely there is an error fetching data from Subscan API.',
+            );
         }
     }
 
@@ -236,5 +247,25 @@ export class StatsIndexerService implements IStatsIndexerService {
         const utcNow = getDateUTC(new Date());
 
         return [utcNow.getTime(), totalStaked * price];
+    }
+
+    public async getHolders(network = 'astar'): Promise<number> {
+        try {
+            const base = getSubscanUrl(network);
+            const url = base + '/api/scan/metadata';
+            const option = getSubscanOption();
+            const body = {};
+            const result = await axios.post(url, body, option);
+
+            if (result.data) {
+                const holders = result.data.data.count_account;
+                return Number(holders);
+            } else {
+                return 0;
+            }
+        } catch (e) {
+            console.error(e);
+            throw new Error('Something went wrong. Most likely there is an error fetching data from Subscan API.');
+        }
     }
 }

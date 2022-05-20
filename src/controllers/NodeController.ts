@@ -10,11 +10,23 @@ export class NodeController implements IControllerBase {
 
     public register(app: express.Application): void {
         /**
-         * @description Transactions per block route v1.
+         * @description Transactions route v1.
          */
+        app.route('/api/v1/:network/node/tx-perblock/total').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retreives total (valid and failed) number of transfers (number of balance.Transfer events).'
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    required: true
+                }
+            */
+            res.json(await this._indexerService.getTotalTransfers(req.params.network as NetworkType));
+        });
+
         app.route('/api/v1/:network/node/tx-perblock/:period').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives token price for a given network and period.'
+                #swagger.description = 'Retreives number of successful transfers (number of balance.Transfer events) per day for a given period.'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya',
@@ -27,7 +39,7 @@ export class NodeController implements IControllerBase {
                 }
             */
             res.json(
-                await this._indexerService.getTransactionsPerBlock(
+                await this._indexerService.getValidTransactions(
                     req.params.network as NetworkType,
                     req.params.period as PeriodType,
                 ),

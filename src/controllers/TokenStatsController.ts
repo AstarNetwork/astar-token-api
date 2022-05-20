@@ -153,5 +153,20 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 await this._indexerService.getTvl(req.params.network as NetworkType, req.params.period as PeriodType),
             );
         });
+
+        /**
+         * @description Token Holders.
+         */
+        app.route('/api/v1/:network/token/holders').get(async (req: Request, res: Response) => {
+            /*
+                        #swagger.description = 'Retrieves number of token holders'
+                        #swagger.parameters['network'] = {
+                            in: 'path',
+                            description: 'The network name. Supported networks: astar, shiden, shibuya',
+                            required: true
+                        }
+                    */
+            res.json(await this._indexerService.getHolders(req.params.network as NetworkType));
+        });
     }
 }
