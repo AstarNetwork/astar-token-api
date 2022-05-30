@@ -211,6 +211,25 @@
         }
       }
     },
+    "/api/v1/{network}/dapps-staking/dapps": {
+      "get": {
+        "description": "Retrieves list of dapps registered for dapps staking",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya, development"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/{network}/node/tx-perblock/total": {
       "get": {
         "description": "Retreives total (valid and failed) number of transfers (number of balance.Transfer events).",

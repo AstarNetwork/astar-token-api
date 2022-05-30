@@ -58,7 +58,7 @@ export class DappsStakingService implements IDappsStakingService {
         }
     }
 
-    public async calculateApy(network = 'astar'): Promise<number> {
+    public async calculateApy(network: NetworkType = 'astar'): Promise<number> {
         try {
             const apr = await this.calculateApr(network);
             return aprToApy(apr);
@@ -77,7 +77,7 @@ export class DappsStakingService implements IDappsStakingService {
         return avgBlocksPerMin;
     }
 
-    public async getEarned(network = 'astar', address: string): Promise<number> {
+    public async getEarned(network: NetworkType = 'astar', address: string): Promise<number> {
         try {
             // Docs: https://support.subscan.io/#staking-api
             const base = getSubscanUrl(network);

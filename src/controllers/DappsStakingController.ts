@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import { injectable, inject } from 'inversify';
 import { NetworkType } from '../networks';
 import { IDappsStakingService } from '../services/DappsStakingService';
+import { IFirebaseService } from '../services/FirebaseService';
 import { IStatsIndexerService, PeriodType } from '../services/StatsIndexerService';
 import { ControllerBase } from './ControllerBase';
 import { IControllerBase } from './IControllerBase';
@@ -11,6 +12,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
     constructor(
         @inject('DappsStakingService') private _stakingService: IDappsStakingService,
         @inject('StatsIndexerService') private _indexerService: IStatsIndexerService,
+        @inject('FirebaseService') private _firebaseService: IFirebaseService,
     ) {
         super();
     }
@@ -99,6 +101,18 @@ export class DappsStakingController extends ControllerBase implements IControlle
             res.json(
                 await this._stakingService.getEarned(req.params.network as NetworkType, req.params.address as string),
             );
+        });
+
+        app.route('/api/v1/:network/dapps-staking/dapps').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retrieves list of dapps registered for dapps staking'
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, development',
+                    required: true
+                }
+            */
+            res.json(await this._firebaseService.getDapps(req.params.network as NetworkType));
         });
     }
 }

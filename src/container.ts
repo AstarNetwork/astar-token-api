@@ -17,6 +17,7 @@ import { GasController } from './controllers/GasController';
 import { IStatsIndexerService, StatsIndexerService } from './services/StatsIndexerService';
 import { NodeController } from './controllers/NodeController';
 import { AstarApi2 } from './client/AstarApi2';
+import { FirebaseService, IFirebaseService } from './services/FirebaseService';
 
 export const ContainerTypes = {
     Controller: 'Controller',
@@ -45,6 +46,7 @@ container.bind<IStatsService>('StatsService').to(StatsService).inSingletonScope(
 container.bind<IDappsStakingService>('DappsStakingService').to(DappsStakingService).inSingletonScope();
 container.bind<IStatsIndexerService>('StatsIndexerService').to(StatsIndexerService).inSingletonScope();
 container.bind<IGasService>('GasService').to(GasService).inSingletonScope();
+container.bind<IFirebaseService>('FirebaseService').to(FirebaseService).inSingletonScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);
