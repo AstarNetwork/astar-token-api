@@ -13,6 +13,7 @@ export interface IAstarApi {
     getChainDecimals(): Promise<number>;
     getAprCalculationData(): Promise<AprCalculationData>;
     getTvl(): Promise<BN>;
+    getChainName(): Promise<string>;
 }
 
 export class BaseApi implements IAstarApi {
@@ -65,6 +66,12 @@ export class BaseApi implements IAstarApi {
         const result = await this._api.query.dappsStaking.eraRewardsAndStakes<Option<EraRewardAndStake>>(era);
         const tvl = result.unwrap().staked;
         return tvl;
+    }
+
+    public async getChainName(): Promise<string> {
+        await this.connect();
+
+        return (await this._api.rpc.system.chain()).toString() || 'development-dapps';
     }
 
     protected async connect() {
