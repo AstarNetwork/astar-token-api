@@ -147,3 +147,7 @@ lib
 !.db/.gitkeep
 
 # End of https://www.toptal.com/developers/gitignore/api/node,visualstudiocode,yarn
+
+## firebase
+
+.firebase/

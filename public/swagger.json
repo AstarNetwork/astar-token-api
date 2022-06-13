@@ -5,7 +5,7 @@
     "title": "Astar token statistics API",
     "description": "Provides network statistic information."
   },
-  "host": "localhost:3000",
+  "host": "api.astar.network",
   "basePath": "/",
   "schemes": [
     "http",
@@ -266,25 +266,6 @@
             "required": true,
             "type": "string",
             "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/v1/{network}/gasnow": {
-      "get": {
-        "description": "Retrieves gas for a given network.",
-        "parameters": [
-          {
-            "name": "network",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya"
           }
         ],
         "responses": {
