@@ -33,7 +33,7 @@
         "lint:check": "eslint '*/**/*.{js,ts}' && prettier -c .",
         "test": "jest",
         "swagger-autogen": "node src/swagger.js",
-        "deploy": "firebase deploy --only functions"
+        "deploy": "firebase deploy"
     },
     "engines": {
         "node": "16"
