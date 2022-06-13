@@ -1,15 +1,21 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "outDir": "lib",
-    "sourceMap": true,
-    "strict": true,
-    "target": "es2017"
+      "module": "commonjs",
+      "esModuleInterop": true,
+      "target": "esnext",
+      "lib": ["esnext", "DOM", "DOM.Iterable"],
+      "moduleResolution": "node",
+      "sourceMap": true,
+      "outDir": "lib",
+      "strict": true,
+      "rootDir": "src",
+      "resolveJsonModule": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      // we set this to false because of TypeORM entity decorators
+      "strictPropertyInitialization": false,
+      "removeComments": true
   },
-  "compileOnSave": true,
-  "include": [
-    "src"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "lib"]
 }
