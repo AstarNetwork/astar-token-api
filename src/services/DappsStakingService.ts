@@ -1,3 +1,5 @@
+import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto';
+import { u8aToHex } from '@polkadot/util';
 import { injectable, inject } from 'inversify';
 import { ethers } from 'ethers';
 import { aprToApy } from 'apr-tools';
@@ -5,12 +7,15 @@ import { IApiFactory } from '../client/ApiFactory';
 import { AprCalculationData } from '../models/AprCalculationData';
 import { networks, NetworkType } from '../networks';
 import { defaultAmountWithDecimals, getSubscanUrl, getSubscanOption } from '../utils';
+import { NewDappItem } from '../models/Dapp';
 import axios from 'axios';
+import { sign } from 'crypto';
 
 export interface IDappsStakingService {
     calculateApr(network?: NetworkType): Promise<number>;
     calculateApy(network?: NetworkType): Promise<number>;
     getEarned(network?: NetworkType, address?: string): Promise<number>;
+    registerDapp(dapp: NewDappItem, network?: NetworkType): Promise<void>;
 }
 
 // Ref: https://github.com/PlasmNetwork/Astar/blob/5b01ef3c2ca608126601c1bd04270ed08ece69c4/runtime/shiden/src/lib.rs#L435
@@ -102,5 +107,67 @@ export class DappsStakingService implements IDappsStakingService {
             console.error(e);
             throw new Error('Something went wrong. Most likely there is an error fetching data from Subscan API.');
         }
+    }
+
+    public async registerDapp(dapp: NewDappItem, network: NetworkType = 'astar'): Promise<void> {
+        return;
+    }
+
+    /**
+     * Validates dapp registration request taking into account the following criteria:
+     *  - Sender signature is valid
+     *  - senderAddress is whitelisted for dapp staking
+     *  - sender didn't register dapp before
+     * @param signature Requester signature.
+     * @param senderAddress Requester address.
+     * @param dappAddress Dapp address.
+     */
+    protected async validateRegistrationRequest(
+        signature: string,
+        senderAddress: string,
+        dappAddress: string,
+        network: NetworkType,
+    ): Promise<boolean> {
+        const api = this._apiFactory.getApiInstance(network);
+
+        // Check signature
+        const signedMessage = api.getRegisterDappPayload(dappAddress);
+        const isValidSignature = await this.isValidSignature(signedMessage, signature, senderAddress);
+
+        if (isValidSignature) {
+            // Check if sender is preapproved developer
+            const api = this._apiFactory.getApiInstance(network);
+            const preapprovedDevelopers = await api.getPreapprovedDevelopers();
+
+            if (preapprovedDevelopers.has(senderAddress)) {
+                // Check if developer has already registered dapp.
+                const registeredDapps = await api.getRegisteredDapps();
+
+                if (!registeredDapps.has(dappAddress)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Validates user signature.
+     * @param signedMessage Message signed by a signer.
+     * @param signature Signed message.
+     * @param signerAddress Signer address.
+     */
+    protected async isValidSignature(
+        signedMessage: string,
+        signature: string,
+        signerAddress: string,
+    ): Promise<boolean> {
+        await cryptoWaitReady();
+
+        const publicKey = decodeAddress(signerAddress);
+        const hexPublicKey = u8aToHex(publicKey);
+
+        return signatureVerify(signedMessage, signature, hexPublicKey).isValid;
     }
 }

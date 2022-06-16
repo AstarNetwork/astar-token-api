@@ -13,3 +13,12 @@ export interface DappItem {
     gitHubUrl?: string;
     imagesUrl?: string[];
 }
+
+export interface NewDappItem extends DappItem {
+    iconFileName: string;
+    iconFile: string;
+    images: File[];
+    imagesContent: string[];
+    videoUrlInput: string;
+    signature: string;
+}

@@ -5,7 +5,7 @@ import BN from 'bn.js';
 import { IAstarApi } from '../../src/client/AstarApi';
 import { AprCalculationData } from '../../src/models/AprCalculationData';
 
-/**
+/** 
  * Astar Polkadot API mock.
  */
 export class AstarApiMock implements IAstarApi {
@@ -57,5 +57,24 @@ export class AstarApiMock implements IAstarApi {
 
     public async getTvl(): Promise<BN> {
         return new BN('3663434542155463868491065208');
+    }
+
+    public async getPreapprovedDevelopers(): Promise<Map<string, string>> {
+        const result = new Map<string, string>();
+        result.set('5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty', '');
+        result.set('Wwfs24NNBLsdN9BHHj29spDsq5vkjk771dxPvMrXwraLywn', '');
+
+        return Promise.resolve(result);
+    }
+
+    public async getRegisteredDapps(): Promise<Map<string, string>> {
+        const result = new Map<string, string>();
+        result.set('Wwfs24NNBLsdN9BHHj29spDsq5vkjk771dxPvMrXwraLywn', '');
+
+        return Promise.resolve(result);
+    }
+
+    public getRegisterDappPayload(dappAdress: string): string {
+        return 'This is a text message';
     }
 }
