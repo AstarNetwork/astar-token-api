@@ -1,5 +1,5 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
-import { u32, u128, Option, Struct } from '@polkadot/types';
+import { u32, u128, Option, Struct, Enum } from '@polkadot/types';
 import { PalletBalancesAccountData } from '@polkadot/types/lookup';
 import { Header, AccountId } from '@polkadot/types/interfaces';
 import BN from 'bn.js';
@@ -11,6 +11,11 @@ interface DappInfo extends Struct {
     developer: AccountId;
 }
 
+interface SmartContract extends Enum {
+    readonly Evm: string;
+    readonly Wasm: string;
+}
+
 export interface IAstarApi {
     getTotalSupply(): Promise<u128>;
     getBalances(addresses: string[]): Promise<PalletBalancesAccountData[]>;
@@ -20,7 +25,7 @@ export interface IAstarApi {
     getChainName(): Promise<string>;
     getRegisterDappPayload(dappAdress: string): Promise<string>;
     getPreapprovedDevelopers(): Promise<Map<string, string>>;
-    getRegisteredDapps(): Promise<Map<string, string>>;
+    getRegisteredDevelopers(): Promise<Map<string, string>>;
 }
 
 export class BaseApi implements IAstarApi {
@@ -108,15 +113,17 @@ export class BaseApi implements IAstarApi {
     /**
      * Gets map of registered developers and their dapps.
      */
-    public async getRegisteredDapps(): Promise<Map<string, string>> {
+    public async getRegisteredDevelopers(): Promise<Map<string, string>> {
         await this.connect();
 
         const result = new Map<string, string>();
-        const dapps = await this._api.query.dappsStaking.getRegisteredDapps.entries();
+        const devs = await this._api.query.dappsStaking.registeredDevelopers.entries();
+        devs.forEach((item) => {
+            const keyStr = item[0].toHuman()?.toString();
 
-        dapps.forEach((item) => {
-            const dappAddres = item[0].toHuman()?.toString();
-            const developerAddress = (<DappInfo>item[1]).developer.toString();
+            if (keyStr) {
+                result.set(keyStr, '');
+            }
         });
 
         return result;

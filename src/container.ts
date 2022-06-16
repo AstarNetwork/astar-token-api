@@ -39,6 +39,10 @@ container
     .bind<IAstarApi>('api')
     .toConstantValue(new AstarApi2(networks.shibuya.endpoint))
     .whenTargetNamed(networks.shibuya.name);
+container
+    .bind<IAstarApi>('api')
+    .toConstantValue(new AstarApi2(networks.dev.endpoint))
+    .whenTargetNamed(networks.dev.name);
 container.bind<IApiFactory>('factory').to(ApiFactory).inSingletonScope();
 
 // services registration

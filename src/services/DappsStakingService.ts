@@ -127,7 +127,7 @@ export class DappsStakingService implements IDappsStakingService {
      * Validates dapp registration request taking into account the following criteria:
      *  - Sender signature is valid
      *  - senderAddress is whitelisted for dapp staking
-     *  - sender didn't register dapp before
+     *  - sender don't have a registered dapp
      * @param signature Requester signature.
      * @param senderAddress Requester address.
      * @param dappAddress Dapp address.
@@ -143,7 +143,7 @@ export class DappsStakingService implements IDappsStakingService {
         // Check signature
         const signedMessage = await api.getRegisterDappPayload(dappAddress);
         const isValidSignature = await this.isValidSignature(signedMessage, signature, senderAddress);
-        console.log('is valid sig', isValidSignature);
+
         if (isValidSignature) {
             // Check if sender is preapproved developer
             const api = this._apiFactory.getApiInstance(network);
@@ -151,9 +151,9 @@ export class DappsStakingService implements IDappsStakingService {
 
             if (preapprovedDevelopers.has(senderAddress)) {
                 // Check if developer has already registered dapp.
-                const registeredDapps = await api.getRegisteredDapps();
+                const registeredDevelopers = await api.getRegisteredDevelopers();
 
-                if (!registeredDapps.has(dappAddress)) {
+                if (!registeredDevelopers.has(senderAddress)) {
                     return true;
                 }
             }
