@@ -1,4 +1,5 @@
 import express from 'express';
+import bodyParser from 'body-parser';
 import cors from 'cors';
 import swagger from 'swagger-ui-express';
 import container, { ContainerTypes } from './container';
@@ -8,6 +9,8 @@ import swaggerFile from './swagger_output.json';
 
 const listenPort = process.env.PORT || 3000;
 const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(cors());
 
 // Get all controllers and register all endpoints.

@@ -18,7 +18,7 @@ export interface IAstarApi {
     getAprCalculationData(): Promise<AprCalculationData>;
     getTvl(): Promise<BN>;
     getChainName(): Promise<string>;
-    getRegisterDappPayload(dappAdress: string): string;
+    getRegisterDappPayload(dappAdress: string): Promise<string>;
     getPreapprovedDevelopers(): Promise<Map<string, string>>;
     getRegisteredDapps(): Promise<Map<string, string>>;
 }
@@ -81,13 +81,17 @@ export class BaseApi implements IAstarApi {
         return (await this._api.rpc.system.chain()).toString() || 'development-dapps';
     }
 
-    public getRegisterDappPayload(dappAdress: string): string {
+    public async getRegisterDappPayload(dappAdress: string): Promise<string> {
+        await this.connect();
+
         const payload = this._api.tx.dappsStaking.register(this.getAddressEnum(dappAdress)).toHex();
 
         return payload;
     }
 
     public async getPreapprovedDevelopers(): Promise<Map<string, string>> {
+        await this.connect();
+
         const result = new Map<string, string>();
         const devs = await this._api.query.dappsStaking.preApprovedDevelopers.entries();
         devs.forEach((item) => {
@@ -105,6 +109,8 @@ export class BaseApi implements IAstarApi {
      * Gets map of registered developers and their dapps.
      */
     public async getRegisteredDapps(): Promise<Map<string, string>> {
+        await this.connect();
+
         const result = new Map<string, string>();
         const dapps = await this._api.query.dappsStaking.getRegisteredDapps.entries();
 

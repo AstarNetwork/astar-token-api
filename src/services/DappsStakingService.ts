@@ -110,7 +110,17 @@ export class DappsStakingService implements IDappsStakingService {
     }
 
     public async registerDapp(dapp: NewDappItem, network: NetworkType = 'astar'): Promise<void> {
-        return;
+        // console.log(dapp);
+        try {
+            if (await this.validateRegistrationRequest(dapp.signature, dapp.senderAddress, dapp.address, network)) {
+                console.log('valid signature');
+            } else {
+                console.log('invalid signature');
+            }
+        } catch (e) {
+            console.error(e);
+            throw new Error('Unable to register dApp because of unexpected error.');
+        }
     }
 
     /**
@@ -131,9 +141,9 @@ export class DappsStakingService implements IDappsStakingService {
         const api = this._apiFactory.getApiInstance(network);
 
         // Check signature
-        const signedMessage = api.getRegisterDappPayload(dappAddress);
+        const signedMessage = await api.getRegisterDappPayload(dappAddress);
         const isValidSignature = await this.isValidSignature(signedMessage, signature, senderAddress);
-
+        console.log('is valid sig', isValidSignature);
         if (isValidSignature) {
             // Check if sender is preapproved developer
             const api = this._apiFactory.getApiInstance(network);

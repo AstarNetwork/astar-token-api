@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import { injectable, inject } from 'inversify';
+import { NewDappItem } from '../models/Dapp';
 import { NetworkType } from '../networks';
 import { IDappsStakingService } from '../services/DappsStakingService';
 import { IFirebaseService } from '../services/FirebaseService';
@@ -57,7 +58,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         });
 
         /**
-         * @description Dapps staking TVL rout v1.
+         * @description Dapps staking TVL route v1.
          */
         app.route('/api/v1/:network/dapps-staking/tvl/:period').get(async (req: Request, res: Response) => {
             /*
@@ -82,7 +83,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         });
 
         /**
-         * @description Dapps staking TVL rout v1.
+         * @description Dapps staking TVL route v1.
          */
         app.route('/api/v1/:network/dapps-staking/earned/:address').get(async (req: Request, res: Response) => {
             /*
@@ -113,6 +114,18 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 }
             */
             res.json(await this._firebaseService.getDapps(req.params.network as NetworkType));
+        });
+
+        app.route('/api/v1/:network/dapps-staking/register').post(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Registers a new dapp'
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, development',
+                    required: true
+                }
+            */
+            res.json(await this._stakingService.registerDapp(req.body, req.params.network as NetworkType));
         });
     }
 }

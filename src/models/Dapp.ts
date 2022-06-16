@@ -20,5 +20,6 @@ export interface NewDappItem extends DappItem {
     images: File[];
     imagesContent: string[];
     videoUrlInput: string;
+    senderAddress: string;
     signature: string;
 }
