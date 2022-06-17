@@ -1,12 +1,12 @@
-import { notEqual } from 'assert';
 import admin from 'firebase-admin';
 import { inject, injectable } from 'inversify';
 import { IApiFactory } from '../client/ApiFactory';
-import { DappItem } from '../models/Dapp';
+import { DappItem, FileInfo, NewDappItem } from '../models/Dapp';
 import { NetworkType } from '../networks';
 
 export interface IFirebaseService {
     getDapps(network: NetworkType): Promise<DappItem[]>;
+    registerDapp(dapp: NewDappItem, network: NetworkType): Promise<void>;
 }
 
 @injectable()
@@ -29,6 +29,39 @@ export class FirebaseService implements IFirebaseService {
         });
 
         return result;
+    }
+
+    public async registerDapp(dapp: NewDappItem, network: NetworkType): Promise<void> {
+        this.initApp();
+
+        // TODO validate dapp
+        const collectionKey = await this.getCollectionKey(network);
+
+        // upload icon file
+        const iconUrl = await this.uploadImage(dapp.iconFile, collectionKey, dapp.address);
+        dapp.iconUrl = iconUrl;
+
+        // upload images
+        dapp.imagesUrl = [];
+        dapp.images.forEach(async (image) => {
+            const imageUrl = await this.uploadImage(image, collectionKey, dapp.senderAddress);
+            dapp.imagesUrl.push(imageUrl);
+        });
+
+        //upload document
+        await admin.firestore().collection(collectionKey).doc(dapp.address).set(dapp);
+    }
+
+    private async uploadImage(fileInfo: FileInfo, collectionKey: string, contractAddress: string): Promise<string> {
+        const file = admin
+            .storage()
+            .bucket(process.env.FIREBASE_BUCKET_NAME)
+            .file(`${collectionKey}/${contractAddress}_${fileInfo.name}`);
+        const buffer = Buffer.from(fileInfo.base64content, 'base64');
+        await file.save(buffer, { contentType: fileInfo.contentType });
+        file.makePublic();
+
+        return file.publicUrl();
     }
 
     private initApp(): void {

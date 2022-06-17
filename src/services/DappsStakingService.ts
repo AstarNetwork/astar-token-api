@@ -10,6 +10,7 @@ import { defaultAmountWithDecimals, getSubscanUrl, getSubscanOption } from '../u
 import { NewDappItem } from '../models/Dapp';
 import axios from 'axios';
 import { sign } from 'crypto';
+import { IFirebaseService } from './FirebaseService';
 
 export interface IDappsStakingService {
     calculateApr(network?: NetworkType): Promise<number>;
@@ -34,7 +35,10 @@ const TS_FIRST_BLOCK = {
  * Dapps staking calculation service.
  */
 export class DappsStakingService implements IDappsStakingService {
-    constructor(@inject('factory') private _apiFactory: IApiFactory) {}
+    constructor(
+        @inject('factory') private _apiFactory: IApiFactory,
+        @inject('FirebaseService') private _firebase: IFirebaseService,
+    ) {}
 
     public async calculateApr(network = 'astar'): Promise<number> {
         try {
@@ -114,6 +118,7 @@ export class DappsStakingService implements IDappsStakingService {
         try {
             if (await this.validateRegistrationRequest(dapp.signature, dapp.senderAddress, dapp.address, network)) {
                 console.log('valid signature');
+                this._firebase.registerDapp(dapp, network);
             } else {
                 console.log('invalid signature');
             }

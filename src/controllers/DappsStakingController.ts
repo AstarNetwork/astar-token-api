@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
+import { body, validationResult } from 'express-validator';
 import { injectable, inject } from 'inversify';
-import { NewDappItem } from '../models/Dapp';
 import { NetworkType } from '../networks';
 import { IDappsStakingService } from '../services/DappsStakingService';
 import { IFirebaseService } from '../services/FirebaseService';
@@ -116,16 +116,43 @@ export class DappsStakingController extends ControllerBase implements IControlle
             res.json(await this._firebaseService.getDapps(req.params.network as NetworkType));
         });
 
-        app.route('/api/v1/:network/dapps-staking/register').post(async (req: Request, res: Response) => {
-            /*
-                #swagger.description = 'Registers a new dapp'
-                #swagger.parameters['network'] = {
-                    in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya, development',
-                    required: true
+        app.route('/api/v1/:network/dapps-staking/register').post(
+            body('name').not().isEmpty().trim().escape(),
+            body('description').not().isEmpty().trim().escape(),
+            body('url').isURL(),
+            body('license').not().isEmpty().trim().escape(),
+            body('address').not().isEmpty().trim().escape(),
+            body('tags').isArray({ min: 1 }),
+            body('tags.*').isString(), // validate if tags array elements are strings
+            body('forumUrl').isURL(),
+            body('githubUrl').isURL(),
+            body('iconFile').not().isEmpty(),
+            body('iconFile.name').isString(),
+            body('iconFile.contentType').isString(),
+            body('iconFile.base64content').isString(),
+            body('images').isArray({ min: 4 }),
+            body('images.*.name').isString(),
+            body('images.*.contentType').isString(),
+            body('images.*.base64content').isString(),
+            body('senderAddress').not().isEmpty().trim().escape(),
+            body('signature').not().isEmpty().trim().escape(),
+            async (req: Request, res: Response) => {
+                /*
+                    #swagger.description = 'Registers a new dapp'
+                    #swagger.parameters['network'] = {
+                        in: 'path',
+                        description: 'The network name. Supported networks: astar, shiden, shibuya, development',
+                        required: true
+                    }
+                */
+
+                const errors = validationResult(req);
+                if (!errors.isEmpty()) {
+                    return res.status(400).json({ errors: errors.array() });
                 }
-            */
-            res.json(await this._stakingService.registerDapp(req.body, req.params.network as NetworkType));
-        });
+
+                res.json(await this._stakingService.registerDapp(req.body, req.params.network as NetworkType));
+            },
+        );
     }
 }
