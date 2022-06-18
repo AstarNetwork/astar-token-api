@@ -9,6 +9,7 @@ import swaggerFile from './swagger_output.json';
 
 const listenPort = process.env.PORT || 3000;
 const app = express();
+app.use(express.json({ limit: '5mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());

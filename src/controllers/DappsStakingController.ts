@@ -125,7 +125,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
             body('tags').isArray({ min: 1 }),
             body('tags.*').isString(), // validate if tags array elements are strings
             body('forumUrl').isURL(),
-            body('githubUrl').isURL(),
+            body('gitHubUrl').isURL(),
             body('iconFile').not().isEmpty(),
             body('iconFile.name').isString(),
             body('iconFile.contentType').isString(),
@@ -151,7 +151,15 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     return res.status(400).json({ errors: errors.array() });
                 }
 
-                res.json(await this._stakingService.registerDapp(req.body, req.params.network as NetworkType));
+                try {
+                    const response = await this._stakingService.registerDapp(
+                        req.body,
+                        req.params.network as NetworkType,
+                    );
+                    res.json(response);
+                } catch (e) {
+                    this.handleError(res, e as Error);
+                }
             },
         );
     }

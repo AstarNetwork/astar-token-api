@@ -6,7 +6,7 @@ import { NetworkType } from '../networks';
 
 export interface IFirebaseService {
     getDapps(network: NetworkType): Promise<DappItem[]>;
-    registerDapp(dapp: NewDappItem, network: NetworkType): Promise<void>;
+    registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem>;
 }
 
 @injectable()
@@ -31,10 +31,8 @@ export class FirebaseService implements IFirebaseService {
         return result;
     }
 
-    public async registerDapp(dapp: NewDappItem, network: NetworkType): Promise<void> {
+    public async registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem> {
         this.initApp();
-
-        // TODO validate dapp
         const collectionKey = await this.getCollectionKey(network);
 
         // upload icon file
@@ -43,13 +41,29 @@ export class FirebaseService implements IFirebaseService {
 
         // upload images
         dapp.imagesUrl = [];
-        dapp.images.forEach(async (image) => {
-            const imageUrl = await this.uploadImage(image, collectionKey, dapp.senderAddress);
+        for (const image of dapp.images) {
+            const imageUrl = await this.uploadImage(image, collectionKey, dapp.address);
             dapp.imagesUrl.push(imageUrl);
-        });
+        }
 
         //upload document
-        await admin.firestore().collection(collectionKey).doc(dapp.address).set(dapp);
+        const firebasePayload = {
+            name: dapp.name,
+            iconUrl: dapp.iconUrl,
+            description: dapp.description,
+            url: dapp.url,
+            address: dapp.address,
+            license: dapp.license,
+            videoUrl: dapp.videoUrl ? dapp.videoUrl : '',
+            tags: dapp.tags,
+            forumUrl: dapp.forumUrl,
+            authorContact: dapp.authorContact,
+            gitHubUrl: dapp.gitHubUrl,
+            imagesUrl: dapp.imagesUrl,
+        } as DappItem;
+        await admin.firestore().collection(collectionKey).doc(dapp.address).set(firebasePayload);
+
+        return firebasePayload;
     }
 
     private async uploadImage(fileInfo: FileInfo, collectionKey: string, contractAddress: string): Promise<string> {

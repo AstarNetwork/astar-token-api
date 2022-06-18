@@ -1,6 +1,8 @@
 import { IApiFactory, ApiFactory } from '../../src/client/ApiFactory';
 import { DappsStakingService } from '../../src/services/DappsStakingService';
+import { IFirebaseService } from '../../src/services/FirebaseService';
 import { AstarApiMock } from './AstarApiMock';
+import { FirebaseServiceMock } from './FirebaseServiceMock';
 
 /**
  * Wrapper around DappsStakingService so protected methods can be tested
@@ -21,6 +23,7 @@ class DappStakingServiceWrapper extends DappsStakingService {
 
 describe('getApr', () => {
     let apiFactory: IApiFactory;
+    let firebaseService: IFirebaseService;
     const signature =
         '0x2aeaa98e26062cf65161c68c5cb7aa31ca050cb5bdd07abc80a475d2a2eebc7b7a9c9546fbdff971b29419ddd9982bf4148c81a49df550154e1674a6b58bac84';
     const sender = '5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty';
@@ -29,10 +32,11 @@ describe('getApr', () => {
     beforeEach(() => {
         apiFactory = new ApiFactory();
         apiFactory.getApiInstance = jest.fn().mockReturnValue(new AstarApiMock());
+        firebaseService = new FirebaseServiceMock();
     });
 
     it('calculates APR', async () => {
-        const service = new DappsStakingService(apiFactory);
+        const service = new DappsStakingService(apiFactory, firebaseService);
 
         const result = await service.calculateApr();
         const roundedResult = Math.round(result * 10000) / 10000;
@@ -41,7 +45,7 @@ describe('getApr', () => {
     });
 
     it('validates dapp registration request', async () => {
-        const service = new DappStakingServiceWrapper(apiFactory);
+        const service = new DappStakingServiceWrapper(apiFactory, firebaseService);
 
         const result = await service.validateRegistrationRequest(signature, sender, dapp);
 
@@ -49,7 +53,7 @@ describe('getApr', () => {
     });
 
     it('dapp registration request fails if not preapproved developer', async () => {
-        const service = new DappStakingServiceWrapper(apiFactory);
+        const service = new DappStakingServiceWrapper(apiFactory, firebaseService);
 
         const result = await service.validateRegistrationRequest(
             signature,
@@ -61,7 +65,7 @@ describe('getApr', () => {
     });
 
     it('validates signature', async () => {
-        const service = new DappStakingServiceWrapper(apiFactory);
+        const service = new DappStakingServiceWrapper(apiFactory, firebaseService);
 
         const result = await service.isValidSignature('This is a text message', signature, sender);
 

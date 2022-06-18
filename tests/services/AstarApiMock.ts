@@ -2,10 +2,10 @@ import { u32, u64, u128 } from '@polkadot/types';
 import { TypeRegistry } from '@polkadot/types/create';
 import { PalletBalancesAccountData } from '@polkadot/types/lookup';
 import BN from 'bn.js';
-import { IAstarApi } from '../../src/client/AstarApi';
+import { IAstarApi } from '../../src/client/BaseApi';
 import { AprCalculationData } from '../../src/models/AprCalculationData';
 
-/** 
+/**
  * Astar Polkadot API mock.
  */
 export class AstarApiMock implements IAstarApi {
@@ -67,14 +67,18 @@ export class AstarApiMock implements IAstarApi {
         return Promise.resolve(result);
     }
 
-    public async getRegisteredDapps(): Promise<Map<string, string>> {
+    public async getRegisteredDevelopers(): Promise<Map<string, string>> {
         const result = new Map<string, string>();
         result.set('Wwfs24NNBLsdN9BHHj29spDsq5vkjk771dxPvMrXwraLywn', '');
 
         return Promise.resolve(result);
     }
 
-    public getRegisterDappPayload(dappAdress: string): string {
-        return 'This is a text message';
+    public getRegisterDappPayload(dappAdress: string): Promise<string> {
+        return Promise.resolve('This is a text message');
+    }
+
+    public async getChainName(): Promise<string> {
+        return Promise.resolve('development');
     }
 }

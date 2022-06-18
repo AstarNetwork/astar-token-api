@@ -7,16 +7,17 @@ import { IApiFactory } from '../client/ApiFactory';
 import { AprCalculationData } from '../models/AprCalculationData';
 import { networks, NetworkType } from '../networks';
 import { defaultAmountWithDecimals, getSubscanUrl, getSubscanOption } from '../utils';
-import { NewDappItem } from '../models/Dapp';
+import { DappItem, NewDappItem } from '../models/Dapp';
 import axios from 'axios';
 import { sign } from 'crypto';
 import { IFirebaseService } from './FirebaseService';
+import { DappsStakingController } from '../controllers/DappsStakingController';
 
 export interface IDappsStakingService {
     calculateApr(network?: NetworkType): Promise<number>;
     calculateApy(network?: NetworkType): Promise<number>;
     getEarned(network?: NetworkType, address?: string): Promise<number>;
-    registerDapp(dapp: NewDappItem, network?: NetworkType): Promise<void>;
+    registerDapp(dapp: NewDappItem, network?: NetworkType): Promise<DappItem>;
 }
 
 // Ref: https://github.com/PlasmNetwork/Astar/blob/5b01ef3c2ca608126601c1bd04270ed08ece69c4/runtime/shiden/src/lib.rs#L435
@@ -113,14 +114,12 @@ export class DappsStakingService implements IDappsStakingService {
         }
     }
 
-    public async registerDapp(dapp: NewDappItem, network: NetworkType = 'astar'): Promise<void> {
-        // console.log(dapp);
+    public async registerDapp(dapp: NewDappItem, network: NetworkType = 'astar'): Promise<DappItem> {
         try {
             if (await this.validateRegistrationRequest(dapp.signature, dapp.senderAddress, dapp.address, network)) {
-                console.log('valid signature');
-                this._firebase.registerDapp(dapp, network);
+                return this._firebase.registerDapp(dapp, network);
             } else {
-                console.log('invalid signature');
+                throw new Error('Invalid signature');
             }
         } catch (e) {
             console.error(e);
