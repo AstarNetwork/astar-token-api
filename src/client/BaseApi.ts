@@ -1,7 +1,9 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { u32, u128, Option, Struct, Enum } from '@polkadot/types';
 import { PalletBalancesAccountData } from '@polkadot/types/lookup';
-import { Header, AccountId } from '@polkadot/types/interfaces';
+import { Header, AccountId, DispatchError } from '@polkadot/types/interfaces';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
+import { ISubmittableResult, ITuple } from '@polkadot/types/types';
 import BN from 'bn.js';
 import { AprCalculationData } from '../models/AprCalculationData';
 import { networks } from '../networks';
@@ -23,9 +25,8 @@ export interface IAstarApi {
     getAprCalculationData(): Promise<AprCalculationData>;
     getTvl(): Promise<BN>;
     getChainName(): Promise<string>;
-    getRegisterDappPayload(dappAdress: string): Promise<string>;
-    getPreapprovedDevelopers(): Promise<Map<string, string>>;
-    getRegisteredDevelopers(): Promise<Map<string, string>>;
+    getTransactionFromHex(transactionHex: string): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>>;
+    sendTransaction(transaction: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<string>;
 }
 
 export class BaseApi implements IAstarApi {
@@ -86,47 +87,57 @@ export class BaseApi implements IAstarApi {
         return (await this._api.rpc.system.chain()).toString() || 'development-dapps';
     }
 
-    public async getRegisterDappPayload(dappAdress: string): Promise<string> {
-        await this.connect();
+    public async sendTransaction(transaction: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<string> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const hash = await transaction.send((result) => {
+                    if (result.isFinalized) {
+                        let message = '';
+                        result.events
+                            .filter((record): boolean => !!record.event && record.event.section !== 'democracy')
+                            .map(({ event: { data, method, section } }) => {
+                                if (section === 'system' && method === 'ExtrinsicFailed') {
+                                    const [dispatchError] = data as unknown as ITuple<[DispatchError]>;
+                                    message = dispatchError.type.toString();
 
-        const payload = this._api.tx.dappsStaking.register(this.getAddressEnum(dappAdress)).toHex();
+                                    if (dispatchError.isModule) {
+                                        try {
+                                            const mod = dispatchError.asModule;
+                                            const error = dispatchError.registry.findMetaError(mod);
 
-        return payload;
-    }
+                                            message = `${error.section}.${error.name}`;
+                                        } catch (error) {
+                                            // swallow
+                                            console.error(error);
+                                        }
+                                    } else if (dispatchError.isToken) {
+                                        message = `${dispatchError.type}.${dispatchError.asToken.type}`;
+                                    }
 
-    public async getPreapprovedDevelopers(): Promise<Map<string, string>> {
-        await this.connect();
-
-        const result = new Map<string, string>();
-        const devs = await this._api.query.dappsStaking.preApprovedDevelopers.entries();
-        devs.forEach((item) => {
-            const keyStr = item[0].toHuman()?.toString();
-
-            if (keyStr) {
-                result.set(keyStr, '');
+                                    reject(message);
+                                } else if (section === 'utility' && method === 'BatchInterrupted') {
+                                    const anyData = data as any;
+                                    const error = anyData[1].registry.findMetaError(anyData[1].asModule);
+                                    let message = `${error.section}.${error.name}`;
+                                    message = `action: ${section}.${method} ${message}`;
+                                    reject(message);
+                                }
+                            });
+                        resolve(hash.toString());
+                    }
+                });
+            } catch (e) {
+                reject(e);
             }
         });
-
-        return result;
     }
 
-    /**
-     * Gets map of registered developers and their dapps.
-     */
-    public async getRegisteredDevelopers(): Promise<Map<string, string>> {
+    public async getTransactionFromHex(
+        transactionHex: string,
+    ): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>> {
         await this.connect();
 
-        const result = new Map<string, string>();
-        const devs = await this._api.query.dappsStaking.registeredDevelopers.entries();
-        devs.forEach((item) => {
-            const keyStr = item[0].toHuman()?.toString();
-
-            if (keyStr) {
-                result.set(keyStr, '');
-            }
-        });
-
-        return result;
+        return this._api.tx(transactionHex);
     }
 
     private getAddressEnum(address: string) {

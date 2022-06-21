@@ -16,8 +16,8 @@ export const networks = {
         endpoint: 'wss://rpc.shibuya.astar.network',
         evmRpc: 'https://evm.shibuya.astar.network',
     },
-    dev: {
-        name: 'dev',
+    development: {
+        name: 'development',
         endpoint: 'ws://localhost:9944',
         evmRpc: '',
     },

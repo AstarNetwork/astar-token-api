@@ -12,6 +12,8 @@ import axios from 'axios';
 import { sign } from 'crypto';
 import { IFirebaseService } from './FirebaseService';
 import { DappsStakingController } from '../controllers/DappsStakingController';
+import { BaseApi } from '../client/BaseApi';
+import { SubmittableExtrinsics } from '@polkadot/api/types/submittable';
 
 export interface IDappsStakingService {
     calculateApr(network?: NetworkType): Promise<number>;
@@ -116,72 +118,19 @@ export class DappsStakingService implements IDappsStakingService {
 
     public async registerDapp(dapp: NewDappItem, network: NetworkType = 'astar'): Promise<DappItem> {
         try {
-            if (await this.validateRegistrationRequest(dapp.signature, dapp.senderAddress, dapp.address, network)) {
+            const api = this._apiFactory.getApiInstance(network);
+            const transaction = await api.getTransactionFromHex(dapp.signature);
+
+            // TODO check. Not sure if this validation is enough
+            if (transaction.method.method === 'register' && transaction.method.section === 'dappsStaking') {
+                const hash = await api.sendTransaction(transaction);
                 return this._firebase.registerDapp(dapp, network);
             } else {
-                throw new Error('Invalid signature');
+                throw new Error('The given transaction is not supported.');
             }
         } catch (e) {
-            console.error(e);
-            throw new Error('Unable to register dApp because of unexpected error.');
+            console.error('registration error', e);
+            throw new Error(`Unable to register dApp because of the following error: ${e}`);
         }
-    }
-
-    /**
-     * Validates dapp registration request taking into account the following criteria:
-     *  - Sender signature is valid
-     *  - senderAddress is whitelisted for dapp staking
-     *  - sender don't have a registered dapp
-     * @param signature Requester signature.
-     * @param senderAddress Requester address.
-     * @param dappAddress Dapp address.
-     */
-    protected async validateRegistrationRequest(
-        signature: string,
-        senderAddress: string,
-        dappAddress: string,
-        network: NetworkType,
-    ): Promise<boolean> {
-        const api = this._apiFactory.getApiInstance(network);
-
-        // Check signature
-        const signedMessage = await api.getRegisterDappPayload(dappAddress);
-        const isValidSignature = await this.isValidSignature(signedMessage, signature, senderAddress);
-
-        if (isValidSignature) {
-            // Check if sender is preapproved developer
-            const api = this._apiFactory.getApiInstance(network);
-            const preapprovedDevelopers = await api.getPreapprovedDevelopers();
-
-            if (preapprovedDevelopers.has(senderAddress)) {
-                // Check if developer has already registered dapp.
-                const registeredDevelopers = await api.getRegisteredDevelopers();
-
-                if (!registeredDevelopers.has(senderAddress)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Validates user signature.
-     * @param signedMessage Message signed by a signer.
-     * @param signature Signed message.
-     * @param signerAddress Signer address.
-     */
-    protected async isValidSignature(
-        signedMessage: string,
-        signature: string,
-        signerAddress: string,
-    ): Promise<boolean> {
-        await cryptoWaitReady();
-
-        const publicKey = decodeAddress(signerAddress);
-        const hexPublicKey = u8aToHex(publicKey);
-
-        return signatureVerify(signedMessage, signature, hexPublicKey).isValid;
     }
 }

@@ -43,32 +43,4 @@ describe('getApr', () => {
 
         expect(roundedResult).toBe(9.2977);
     });
-
-    it('validates dapp registration request', async () => {
-        const service = new DappStakingServiceWrapper(apiFactory, firebaseService);
-
-        const result = await service.validateRegistrationRequest(signature, sender, dapp);
-
-        expect(result).toStrictEqual(true);
-    });
-
-    it('dapp registration request fails if not preapproved developer', async () => {
-        const service = new DappStakingServiceWrapper(apiFactory, firebaseService);
-
-        const result = await service.validateRegistrationRequest(
-            signature,
-            'bdwHz6t2fJ2ALk63N2ECUVTyghbFFq8dFTss5pytFxApFaR',
-            dapp,
-        );
-
-        expect(result).toStrictEqual(false);
-    });
-
-    it('validates signature', async () => {
-        const service = new DappStakingServiceWrapper(apiFactory, firebaseService);
-
-        const result = await service.isValidSignature('This is a text message', signature, sender);
-
-        expect(result).toBeTruthy();
-    });
 });

@@ -1,6 +1,8 @@
+import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { u32, u64, u128 } from '@polkadot/types';
 import { TypeRegistry } from '@polkadot/types/create';
 import { PalletBalancesAccountData } from '@polkadot/types/lookup';
+import { ISubmittableResult } from '@polkadot/types/types';
 import BN from 'bn.js';
 import { IAstarApi } from '../../src/client/BaseApi';
 import { AprCalculationData } from '../../src/models/AprCalculationData';
@@ -59,26 +61,17 @@ export class AstarApiMock implements IAstarApi {
         return new BN('3663434542155463868491065208');
     }
 
-    public async getPreapprovedDevelopers(): Promise<Map<string, string>> {
-        const result = new Map<string, string>();
-        result.set('5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty', '');
-        result.set('Wwfs24NNBLsdN9BHHj29spDsq5vkjk771dxPvMrXwraLywn', '');
-
-        return Promise.resolve(result);
-    }
-
-    public async getRegisteredDevelopers(): Promise<Map<string, string>> {
-        const result = new Map<string, string>();
-        result.set('Wwfs24NNBLsdN9BHHj29spDsq5vkjk771dxPvMrXwraLywn', '');
-
-        return Promise.resolve(result);
-    }
-
-    public getRegisterDappPayload(dappAdress: string): Promise<string> {
-        return Promise.resolve('This is a text message');
-    }
-
     public async getChainName(): Promise<string> {
         return Promise.resolve('development');
+    }
+
+    public async getTransactionFromHex(
+        _transactionHex: string,
+    ): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>> {
+        return null;
+    }
+
+    public async sendTransaction(transaction: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<string>{
+        return Promise.resolve('123');
     }
 }
