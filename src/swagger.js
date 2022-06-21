@@ -1,11 +1,10 @@
 const swaggerAutogen = require('swagger-autogen')();
 
-const outputFile = 'src/swagger_output.json';
+const outputFile = 'public/swagger.json';
 const endpointsFiles = [
     'src/controllers/TokenStatsController.ts',
     'src/controllers/DappsStakingController.ts',
     'src/controllers/NodeController.ts',
-    'src/controllers/GasController.ts',
 ];
 
 const getDocumentation = (host) => ({
