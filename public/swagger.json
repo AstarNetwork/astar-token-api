@@ -296,25 +296,6 @@
           }
         }
       }
-    },
-    "/api/v1/{network}/gasnow": {
-      "get": {
-        "description": "Retrieves gas for a given network.",
-        "parameters": [
-          {
-            "name": "network",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
     }
   }
 }
