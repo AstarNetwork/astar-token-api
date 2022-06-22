@@ -70,7 +70,7 @@ export class FirebaseService implements IFirebaseService {
     private async uploadImage(fileInfo: FileInfo, collectionKey: string, contractAddress: string): Promise<string> {
         const file = admin
             .storage()
-            .bucket(process.env.FIREBASE_BUCKET_NAME)
+            .bucket(functions.config().extfirebase.bucket)
             .file(`${collectionKey}/${contractAddress}_${fileInfo.name}`);
         const buffer = Buffer.from(fileInfo.base64content, 'base64');
         await file.save(buffer, { contentType: fileInfo.contentType });
