@@ -1,4 +1,5 @@
 import admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
 import { inject, injectable } from 'inversify';
 import { IApiFactory } from '../client/ApiFactory';
 import { DappItem, FileInfo, NewDappItem } from '../models/Dapp';
@@ -82,9 +83,9 @@ export class FirebaseService implements IFirebaseService {
         if (!this.app) {
             this.app = admin.initializeApp({
                 credential: admin.credential.cert({
-                    projectId: process.env.FIREBASE_PROJECT_ID,
-                    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/gm, '\n'),
-                    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+                    projectId: functions.config().extfirebase.projectid,
+                    privateKey: functions.config().extfirebase.privatekey?.replace(/\\n/gm, '\n'),
+                    clientEmail: functions.config().extfirebase.clientemail,
                 }),
             });
         }
