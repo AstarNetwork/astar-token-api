@@ -3,13 +3,26 @@ export interface DappItem {
     iconUrl: string;
     description: string;
     descriptionMarkdown?: string;
-    url?: string;
+    url: string;
     address: string;
-    license?: string;
+    license: string;
     videoUrl?: string;
-    tags?: string[];
-    forumUrl?: string;
+    tags: string[];
+    forumUrl: string;
     authorContact?: string;
-    gitHubUrl?: string;
-    imagesUrl?: string[];
+    gitHubUrl: string;
+    imagesUrl: string[];
+}
+
+export interface NewDappItem extends DappItem {
+    iconFile: FileInfo;
+    images: FileInfo[];
+    senderAddress: string;
+    signature: string;
+}
+
+export interface FileInfo {
+    name: string;
+    base64content: string;
+    contentType: string;
 }

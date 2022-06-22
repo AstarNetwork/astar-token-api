@@ -1,11 +1,22 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
-import { u32, u128, Option } from '@polkadot/types';
+import { u32, u128, Option, Struct, Enum } from '@polkadot/types';
 import { PalletBalancesAccountData } from '@polkadot/types/lookup';
-import { Header } from '@polkadot/types/interfaces';
+import { Header, AccountId, DispatchError } from '@polkadot/types/interfaces';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
+import { ISubmittableResult, ITuple } from '@polkadot/types/types';
 import BN from 'bn.js';
 import { AprCalculationData } from '../models/AprCalculationData';
 import { networks } from '../networks';
 import { EraRewardAndStake } from '../types/DappsStaking';
+
+interface DappInfo extends Struct {
+    developer: AccountId;
+}
+
+interface SmartContract extends Enum {
+    readonly Evm: string;
+    readonly Wasm: string;
+}
 
 export interface IAstarApi {
     getTotalSupply(): Promise<u128>;
@@ -14,6 +25,8 @@ export interface IAstarApi {
     getAprCalculationData(): Promise<AprCalculationData>;
     getTvl(): Promise<BN>;
     getChainName(): Promise<string>;
+    getTransactionFromHex(transactionHex: string): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>>;
+    sendTransaction(transaction: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<string>;
 }
 
 export class BaseApi implements IAstarApi {
@@ -72,6 +85,59 @@ export class BaseApi implements IAstarApi {
         await this.connect();
 
         return (await this._api.rpc.system.chain()).toString() || 'development-dapps';
+    }
+
+    public async sendTransaction(transaction: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<string> {
+        return new Promise((resolve, reject) => {
+            try {
+                transaction.send((result) => {
+                    if (result.isFinalized) {
+                        let message = '';
+                        result.events
+                            .filter((record): boolean => !!record.event && record.event.section !== 'democracy')
+                            .map(({ event: { data, method, section } }) => {
+                                if (section === 'system' && method === 'ExtrinsicFailed') {
+                                    const [dispatchError] = data as unknown as ITuple<[DispatchError]>;
+                                    message = dispatchError.type.toString();
+
+                                    if (dispatchError.isModule) {
+                                        try {
+                                            const mod = dispatchError.asModule;
+                                            const error = dispatchError.registry.findMetaError(mod);
+
+                                            message = `${error.section}.${error.name}`;
+                                        } catch (error) {
+                                            // swallow
+                                            console.error(error);
+                                        }
+                                    } else if (dispatchError.isToken) {
+                                        message = `${dispatchError.type}.${dispatchError.asToken.type}`;
+                                    }
+
+                                    reject(message);
+                                } else if (section === 'utility' && method === 'BatchInterrupted') {
+                                    const anyData = data as any;
+                                    const error = anyData[1].registry.findMetaError(anyData[1].asModule);
+                                    let message = `${error.section}.${error.name}`;
+                                    message = `action: ${section}.${method} ${message}`;
+                                    reject(message);
+                                }
+                            });
+                        resolve('');
+                    }
+                });
+            } catch (e) {
+                reject(e);
+            }
+        });
+    }
+
+    public async getTransactionFromHex(
+        transactionHex: string,
+    ): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>> {
+        await this.connect();
+
+        return this._api.tx(transactionHex);
     }
 
     protected async connect() {

@@ -1,3 +1,5 @@
+import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto';
+import { u8aToHex } from '@polkadot/util';
 import { injectable, inject } from 'inversify';
 import { ethers } from 'ethers';
 import { aprToApy } from 'apr-tools';
@@ -5,12 +7,19 @@ import { IApiFactory } from '../client/ApiFactory';
 import { AprCalculationData } from '../models/AprCalculationData';
 import { networks, NetworkType } from '../networks';
 import { defaultAmountWithDecimals, getSubscanUrl, getSubscanOption } from '../utils';
+import { DappItem, NewDappItem } from '../models/Dapp';
 import axios from 'axios';
+import { sign } from 'crypto';
+import { IFirebaseService } from './FirebaseService';
+import { DappsStakingController } from '../controllers/DappsStakingController';
+import { BaseApi } from '../client/BaseApi';
+import { SubmittableExtrinsics } from '@polkadot/api/types/submittable';
 
 export interface IDappsStakingService {
     calculateApr(network?: NetworkType): Promise<number>;
     calculateApy(network?: NetworkType): Promise<number>;
     getEarned(network?: NetworkType, address?: string): Promise<number>;
+    registerDapp(dapp: NewDappItem, network?: NetworkType): Promise<DappItem>;
 }
 
 // Ref: https://github.com/PlasmNetwork/Astar/blob/5b01ef3c2ca608126601c1bd04270ed08ece69c4/runtime/shiden/src/lib.rs#L435
@@ -29,7 +38,10 @@ const TS_FIRST_BLOCK = {
  * Dapps staking calculation service.
  */
 export class DappsStakingService implements IDappsStakingService {
-    constructor(@inject('factory') private _apiFactory: IApiFactory) {}
+    constructor(
+        @inject('factory') private _apiFactory: IApiFactory,
+        @inject('FirebaseService') private _firebase: IFirebaseService,
+    ) {}
 
     public async calculateApr(network = 'astar'): Promise<number> {
         try {
@@ -101,6 +113,23 @@ export class DappsStakingService implements IDappsStakingService {
         } catch (e) {
             console.error(e);
             throw new Error('Something went wrong. Most likely there is an error fetching data from Subscan API.');
+        }
+    }
+
+    public async registerDapp(dapp: NewDappItem, network: NetworkType = 'astar'): Promise<DappItem> {
+        try {
+            const api = this._apiFactory.getApiInstance(network);
+            const transaction = await api.getTransactionFromHex(dapp.signature);
+
+            if (transaction.method.method === 'register' && transaction.method.section === 'dappsStaking') {
+                await api.sendTransaction(transaction);
+                return this._firebase.registerDapp(dapp, network);
+            } else {
+                throw new Error('The given transaction is not supported.');
+            }
+        } catch (e) {
+            console.error('registration error', e);
+            throw new Error(`Unable to register dApp because of the following error: ${e}`);
         }
     }
 }
