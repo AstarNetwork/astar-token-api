@@ -121,9 +121,8 @@ export class DappsStakingService implements IDappsStakingService {
             const api = this._apiFactory.getApiInstance(network);
             const transaction = await api.getTransactionFromHex(dapp.signature);
 
-            // TODO check. Not sure if this validation is enough
             if (transaction.method.method === 'register' && transaction.method.section === 'dappsStaking') {
-                const hash = await api.sendTransaction(transaction);
+                await api.sendTransaction(transaction);
                 return this._firebase.registerDapp(dapp, network);
             } else {
                 throw new Error('The given transaction is not supported.');
