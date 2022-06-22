@@ -88,9 +88,9 @@ export class BaseApi implements IAstarApi {
     }
 
     public async sendTransaction(transaction: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<string> {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             try {
-                const hash = await transaction.send((result) => {
+                transaction.send((result) => {
                     if (result.isFinalized) {
                         let message = '';
                         result.events
@@ -123,7 +123,7 @@ export class BaseApi implements IAstarApi {
                                     reject(message);
                                 }
                             });
-                        resolve(hash.toString());
+                        resolve('');
                     }
                 });
             } catch (e) {
@@ -138,10 +138,6 @@ export class BaseApi implements IAstarApi {
         await this.connect();
 
         return this._api.tx(transactionHex);
-    }
-
-    private getAddressEnum(address: string) {
-        return { Evm: address };
     }
 
     protected async connect() {
