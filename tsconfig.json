@@ -16,6 +16,6 @@
         "strictPropertyInitialization": false,
         "removeComments": true
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "swagger.js"],
     "exclude": ["node_modules", "build", "dist", "scripts", "tests"]
 }
