@@ -71,7 +71,7 @@ export class AstarApiMock implements IAstarApi {
         return null;
     }
 
-    public async sendTransaction(transaction: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<string>{
+    public async sendTransaction(transaction: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<string> {
         return Promise.resolve('123');
     }
 }
