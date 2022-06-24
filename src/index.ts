@@ -1,3 +1,7 @@
+// Fix for breaking change introduced in polkadot js v7.x
+// https://polkadot.js.org/docs/api/FAQ/#since-upgrading-to-the-7x-series-typescript-augmentation-is-missing
+import '@polkadot/api-augment';
+// Fix end
 import express from 'express';
 import bodyParser from 'body-parser';
 import * as functions from 'firebase-functions';

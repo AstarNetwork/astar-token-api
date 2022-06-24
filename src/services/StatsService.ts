@@ -1,6 +1,5 @@
 import { PalletBalancesAccountData } from '@polkadot/types/lookup';
-import { formatBalance } from '@polkadot/util';
-import BN from 'bn.js';
+import { formatBalance, BN } from '@polkadot/util';
 import { injectable, inject } from 'inversify';
 import { IApiFactory } from '../client/ApiFactory';
 import { TokenStats } from '../models/TokenStats';
