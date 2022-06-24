@@ -123,11 +123,11 @@ export class DappsStakingController extends ControllerBase implements IControlle
             body('license').not().isEmpty().trim().escape(),
             body('address').not().isEmpty().trim().escape(),
             body('tags').isArray({ min: 1 }),
-            body('tags.*').isString(), // validate if tags array elements are strings
-            body('forumUrl').isURL(),
-            body('gitHubUrl').isURL(),
+            body('tags.*').not().isEmpty().trim().escape(), // validate if tags array elements are strings
+            body('forumUrl').not().isEmpty().isURL(),
+            body('gitHubUrl').not().isEmpty().isURL(),
             body('iconFile').not().isEmpty(),
-            body('iconFile.name').isString(),
+            body('iconFile.name').not().isEmpty().isString(),
             body('iconFile.contentType').isString(),
             body('iconFile.base64content').isString(),
             body('images').isArray({ min: 4 }),
