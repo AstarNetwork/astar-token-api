@@ -117,19 +117,19 @@ export class DappsStakingService implements IDappsStakingService {
     }
 
     public async registerDapp(dapp: NewDappItem, network: NetworkType = 'astar'): Promise<DappItem> {
-        try {
-            const api = this._apiFactory.getApiInstance(network);
-            const transaction = await api.getTransactionFromHex(dapp.signature);
+        const api = this._apiFactory.getApiInstance(network);
+        const transaction = await api.getTransactionFromHex(dapp.signature);
 
-            if (transaction.method.method === 'register' && transaction.method.section === 'dappsStaking') {
+        if (transaction.method.method === 'register' && transaction.method.section === 'dappsStaking') {
+            try {
                 await api.sendTransaction(transaction);
                 return this._firebase.registerDapp(dapp, network);
-            } else {
-                throw new Error('The given transaction is not supported.');
+            } catch (e) {
+                console.error('registration error', e);
+                throw new Error(`Unable to register dApp because of the following error: ${e}`);
             }
-        } catch (e) {
-            console.error('registration error', e);
-            throw new Error(`Unable to register dApp because of the following error: ${e}`);
+        } else {
+            throw new Error('The given transaction is not supported.');
         }
     }
 }

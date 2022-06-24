@@ -88,9 +88,9 @@ export class BaseApi implements IAstarApi {
     }
 
     public async sendTransaction(transaction: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<string> {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
-                transaction.send((result) => {
+                await transaction.send((result) => {
                     if (result.isFinalized) {
                         let message = '';
                         result.events
