@@ -1,5 +1,3 @@
-import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto';
-import { u8aToHex } from '@polkadot/util';
 import { injectable, inject } from 'inversify';
 import { ethers } from 'ethers';
 import { aprToApy } from 'apr-tools';
@@ -9,11 +7,8 @@ import { networks, NetworkType } from '../networks';
 import { defaultAmountWithDecimals, getSubscanUrl, getSubscanOption } from '../utils';
 import { DappItem, NewDappItem } from '../models/Dapp';
 import axios from 'axios';
-import { sign } from 'crypto';
 import { IFirebaseService } from './FirebaseService';
-import { DappsStakingController } from '../controllers/DappsStakingController';
-import { BaseApi } from '../client/BaseApi';
-import { SubmittableExtrinsics } from '@polkadot/api/types/submittable';
+import { IAstarApi, Transaction } from '../client/BaseApi';
 
 export interface IDappsStakingService {
     calculateApr(network?: NetworkType): Promise<number>;
@@ -121,7 +116,7 @@ export class DappsStakingService implements IDappsStakingService {
             const api = this._apiFactory.getApiInstance(network);
             const transaction = await api.getTransactionFromHex(dapp.signature);
 
-            if (transaction.method.method === 'register' && transaction.method.section === 'dappsStaking') {
+            if (await this.canExectuteTransaction(transaction, dapp.signature, api)) {
                 await api.sendTransaction(transaction);
                 return this._firebase.registerDapp(dapp, network);
             } else {
@@ -131,5 +126,34 @@ export class DappsStakingService implements IDappsStakingService {
             console.error('registration error', e);
             throw new Error(`Unable to register dApp because of the following error: ${e}`);
         }
+    }
+
+    private isRegisterCall(section: string, method: string): boolean {
+        return section === 'dappsStaking' && method === 'register';
+    }
+
+    private isEthCall(transaction: Transaction): boolean {
+        return transaction.method.section === 'ethCall' && transaction.method.method === 'call';
+    }
+
+    private async canExectuteTransaction(transaction: Transaction, tx: string, api: IAstarApi): Promise<boolean> {
+        if (this.isRegisterCall(transaction.method.section, transaction.method.method)) {
+            return true;
+        }
+
+        if (this.isEthCall(transaction)) {
+            // Remove first 10 bytes from transaction (tx parameter)
+            // first 4 bytes are pallet id (ethCall in our case)
+            // second 4 bytes are method id (call in our case)
+            // third 2 bytes - not sure about them
+            // at the end we need to remove 12 chars from tx string (additional two are 0x from the beginning)
+            const charsToRemove = 12;
+            const callTx = `0x${tx.substr(charsToRemove)}`;
+            const call = await api.getCallFromHex(callTx);
+
+            return this.isRegisterCall(call.section, call.method);
+        }
+
+        return false;
     }
 }
