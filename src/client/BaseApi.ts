@@ -1,7 +1,7 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { u32, u128, Option, Struct, Enum } from '@polkadot/types';
 import { PalletBalancesAccountData } from '@polkadot/types/lookup';
-import { Header, AccountId, DispatchError } from '@polkadot/types/interfaces';
+import { Header, AccountId, DispatchError, Call } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { ISubmittableResult, ITuple } from '@polkadot/types/types';
 import BN from 'bn.js';
@@ -18,6 +18,8 @@ interface SmartContract extends Enum {
     readonly Wasm: string;
 }
 
+export type Transaction = SubmittableExtrinsic<'promise', ISubmittableResult>;
+
 export interface IAstarApi {
     getTotalSupply(): Promise<u128>;
     getBalances(addresses: string[]): Promise<PalletBalancesAccountData[]>;
@@ -25,8 +27,9 @@ export interface IAstarApi {
     getAprCalculationData(): Promise<AprCalculationData>;
     getTvl(): Promise<BN>;
     getChainName(): Promise<string>;
-    getTransactionFromHex(transactionHex: string): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>>;
-    sendTransaction(transaction: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<string>;
+    getTransactionFromHex(transactionHex: string): Promise<Transaction>;
+    sendTransaction(transaction: Transaction): Promise<string>;
+    getCallFromHex(callHex: string): Promise<Call>;
 }
 
 export class BaseApi implements IAstarApi {
@@ -87,7 +90,7 @@ export class BaseApi implements IAstarApi {
         return (await this._api.rpc.system.chain()).toString() || 'development-dapps';
     }
 
-    public async sendTransaction(transaction: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<string> {
+    public async sendTransaction(transaction: Transaction): Promise<string> {
         return new Promise(async (resolve, reject) => {
             try {
                 await transaction.send((result) => {
@@ -132,12 +135,16 @@ export class BaseApi implements IAstarApi {
         });
     }
 
-    public async getTransactionFromHex(
-        transactionHex: string,
-    ): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>> {
+    public async getTransactionFromHex(transactionHex: string): Promise<Transaction> {
         await this.connect();
 
         return this._api.tx(transactionHex);
+    }
+
+    public async getCallFromHex(callHex: string): Promise<Call> {
+        await this.connect();
+
+        return this._api.createType('Call', callHex);
     }
 
     protected async connect() {
