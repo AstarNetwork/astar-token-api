@@ -51,7 +51,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 #swagger.description = 'Retrieves current token price'
                 #swagger.parameters['symbol'] = {
                     in: 'path',
-                    description: 'Token symbol (eg. ASTR or SDN',
+                    description: 'Token symbol (eg. ASTR or SDN)',
                     required: true
                 }
             */
