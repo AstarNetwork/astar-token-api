@@ -1,11 +1,25 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
-import { u32, u128, Option } from '@polkadot/types';
+import { u32, u128, Option, Struct, Enum } from '@polkadot/types';
 import { PalletBalancesAccountData } from '@polkadot/types/lookup';
-import { Header } from '@polkadot/types/interfaces';
+import { Header, AccountId, DispatchError, Call } from '@polkadot/types/interfaces';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
+import { ISubmittableResult, ITuple } from '@polkadot/types/types';
+import { Null, Result } from '@polkadot/types-codec';
 import BN from 'bn.js';
 import { AprCalculationData } from '../models/AprCalculationData';
 import { networks } from '../networks';
 import { EraRewardAndStake } from '../types/DappsStaking';
+
+interface DappInfo extends Struct {
+    developer: AccountId;
+}
+
+interface SmartContract extends Enum {
+    readonly Evm: string;
+    readonly Wasm: string;
+}
+
+export type Transaction = SubmittableExtrinsic<'promise', ISubmittableResult>;
 
 export interface IAstarApi {
     getTotalSupply(): Promise<u128>;
@@ -14,6 +28,9 @@ export interface IAstarApi {
     getAprCalculationData(): Promise<AprCalculationData>;
     getTvl(): Promise<BN>;
     getChainName(): Promise<string>;
+    getTransactionFromHex(transactionHex: string): Promise<Transaction>;
+    sendTransaction(transaction: Transaction): Promise<string>;
+    getCallFromHex(callHex: string): Promise<Call>;
 }
 
 export class BaseApi implements IAstarApi {
@@ -74,6 +91,56 @@ export class BaseApi implements IAstarApi {
         return (await this._api.rpc.system.chain()).toString() || 'development-dapps';
     }
 
+    public async sendTransaction(transaction: Transaction): Promise<string> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                await transaction.send((result) => {
+                    if (result.isFinalized) {
+                        let message = '';
+                        result.events
+                            .filter((record): boolean => !!record.event && record.event.section !== 'democracy')
+                            .map(({ event: { data, method, section } }) => {
+                                if (section === 'system' && method === 'ExtrinsicFailed') {
+                                    const [dispatchError] = data as unknown as ITuple<[DispatchError]>;
+                                    message = dispatchError.type.toString();
+                                    message = this.getErrorMessage(dispatchError);
+                                    reject(message);
+                                } else if (section === 'ethCall' && method === 'Executed') {
+                                    const [, dispatchError] = data as unknown as ITuple<[Result<Null, DispatchError>]>;
+
+                                    if (dispatchError && dispatchError.isErr) {
+                                        message = this.getErrorMessage(dispatchError.asErr);
+                                        reject(message);
+                                    }
+                                } else if (section === 'utility' && method === 'BatchInterrupted') {
+                                    const anyData = data as any;
+                                    const error = anyData[1].registry.findMetaError(anyData[1].asModule);
+                                    let message = `${error.section}.${error.name}`;
+                                    message = `action: ${section}.${method} ${message}`;
+                                    reject(message);
+                                }
+                            });
+                        resolve('');
+                    }
+                });
+            } catch (e) {
+                reject(e);
+            }
+        });
+    }
+
+    public async getTransactionFromHex(transactionHex: string): Promise<Transaction> {
+        await this.connect();
+
+        return this._api.tx(transactionHex);
+    }
+
+    public async getCallFromHex(callHex: string): Promise<Call> {
+        await this.connect();
+
+        return this._api.createType('Call', callHex);
+    }
+
     protected async connect() {
         // establish node connection with the endpoint
         if (!this._api) {
@@ -84,5 +151,24 @@ export class BaseApi implements IAstarApi {
         }
 
         return this._api;
+    }
+
+    private getErrorMessage(dispatchError: DispatchError): string {
+        let message = '';
+        if (dispatchError.isModule) {
+            try {
+                const mod = dispatchError.asModule;
+                const error = dispatchError.registry.findMetaError(mod);
+
+                message = `${error.section}.${error.name}`;
+            } catch (error) {
+                // swallow
+                console.error(error);
+            }
+        } else if (dispatchError.isToken) {
+            message = `${dispatchError.type}.${dispatchError.asToken.type}`;
+        }
+
+        return message;
     }
 }

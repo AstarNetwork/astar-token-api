@@ -1,8 +1,10 @@
+import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { u32, u64, u128 } from '@polkadot/types';
 import { TypeRegistry } from '@polkadot/types/create';
 import { PalletBalancesAccountData } from '@polkadot/types/lookup';
+import { ISubmittableResult } from '@polkadot/types/types';
 import BN from 'bn.js';
-import { IAstarApi } from '../../src/client/AstarApi';
+import { IAstarApi } from '../../src/client/BaseApi';
 import { AprCalculationData } from '../../src/models/AprCalculationData';
 
 /**
@@ -57,5 +59,19 @@ export class AstarApiMock implements IAstarApi {
 
     public async getTvl(): Promise<BN> {
         return new BN('3663434542155463868491065208');
+    }
+
+    public async getChainName(): Promise<string> {
+        return Promise.resolve('development');
+    }
+
+    public async getTransactionFromHex(
+        _transactionHex: string,
+    ): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>> {
+        return null;
+    }
+
+    public async sendTransaction(transaction: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<string> {
+        return Promise.resolve('123');
     }
 }

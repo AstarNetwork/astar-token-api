@@ -2,6 +2,7 @@
 // TODO move to common library
 
 import BN from 'bn.js';
+import * as functions from 'firebase-functions';
 import { BigNumber, formatFixed } from '@ethersproject/bignumber';
 import { isString } from '@polkadot/util';
 import { AxiosRequestConfig, AxiosRequestHeaders } from 'axios';
@@ -61,7 +62,7 @@ export const getSubscanUrl = (network: string): string => {
 };
 
 export const getSubscanOption = () => {
-    const apiKey = String(process.env.SUBSCAN_API_KEY);
+    const apiKey = String(functions.config().subscan.apikey);
     const options: AxiosRequestConfig = {};
     if (apiKey) {
         options.headers = { 'X-API-Key': apiKey };
