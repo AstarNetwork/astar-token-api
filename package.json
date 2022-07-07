@@ -22,8 +22,6 @@
     },
     "main": "build/index.js",
     "scripts": {
-        "start": " yarn swagger-autogen api.astar.network && yarn run serve",
-        "serve": "node build/index.js",
         "serve:firebase": "npm run build && firebase emulators:start --only functions",
         "shell:firebase": "npm run build && firebase functions:shell",
         "build": "yarn run build:swagger && tsc --project tsconfig.json",

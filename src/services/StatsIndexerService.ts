@@ -2,6 +2,7 @@ import axios from 'axios';
 import { ethers } from 'ethers';
 import { inject, injectable } from 'inversify';
 import { IApiFactory } from '../client/ApiFactory';
+import { ContainerTypes } from '../containertypes';
 import { NetworkType } from '../networks';
 import { getDateUTC, getDateYyyyMmDd, getSubscanUrl, getSubscanOption } from '../utils';
 
@@ -33,7 +34,7 @@ const API_URLS_TVL = {
  * Fetches statistics from external data source
  */
 export class StatsIndexerService implements IStatsIndexerService {
-    constructor(@inject('factory') private _apiFactory: IApiFactory) {}
+    constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory) {}
 
     public async getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]> {
         if (network !== 'astar' && network !== 'shiden') {

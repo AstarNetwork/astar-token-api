@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import { injectable, inject } from 'inversify';
+import { ContainerTypes } from '../containertypes';
 import { NetworkType } from '../networks';
 import { IStatsIndexerService, PeriodType } from '../services/StatsIndexerService';
 import { IStatsService } from '../services/StatsService';
@@ -9,8 +10,8 @@ import { IControllerBase } from './IControllerBase';
 @injectable()
 export class TokenStatsController extends ControllerBase implements IControllerBase {
     constructor(
-        @inject('StatsService') private _statsService: IStatsService,
-        @inject('StatsIndexerService') private _indexerService: IStatsIndexerService,
+        @inject(ContainerTypes.StatsService) private _statsService: IStatsService,
+        @inject(ContainerTypes.StatsIndexerService) private _indexerService: IStatsIndexerService,
     ) {
         super();
     }

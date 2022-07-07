@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { injectable, inject } from 'inversify';
+import { ContainerTypes } from '../containertypes';
 import { NetworkType } from '../networks';
 import { IDappsStakingService } from '../services/DappsStakingService';
 import { IFirebaseService } from '../services/FirebaseService';
@@ -11,9 +12,9 @@ import { IControllerBase } from './IControllerBase';
 @injectable()
 export class DappsStakingController extends ControllerBase implements IControllerBase {
     constructor(
-        @inject('DappsStakingService') private _stakingService: IDappsStakingService,
-        @inject('StatsIndexerService') private _indexerService: IStatsIndexerService,
-        @inject('FirebaseService') private _firebaseService: IFirebaseService,
+        @inject(ContainerTypes.DappsStakingService) private _stakingService: IDappsStakingService,
+        @inject(ContainerTypes.StatsIndexerService) private _indexerService: IStatsIndexerService,
+        @inject(ContainerTypes.FirebaseService) private _firebaseService: IFirebaseService,
     ) {
         super();
     }

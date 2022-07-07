@@ -9,6 +9,7 @@ import { DappItem, NewDappItem } from '../models/Dapp';
 import axios from 'axios';
 import { IFirebaseService } from './FirebaseService';
 import { IAstarApi, Transaction } from '../client/BaseApi';
+import { ContainerTypes } from '../containertypes';
 
 export interface IDappsStakingService {
     calculateApr(network?: NetworkType): Promise<number>;
@@ -34,8 +35,8 @@ const TS_FIRST_BLOCK = {
  */
 export class DappsStakingService implements IDappsStakingService {
     constructor(
-        @inject('factory') private _apiFactory: IApiFactory,
-        @inject('FirebaseService') private _firebase: IFirebaseService,
+        @inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory,
+        @inject(ContainerTypes.FirebaseService) private _firebase: IFirebaseService,
     ) {}
 
     public async calculateApr(network = 'astar'): Promise<number> {

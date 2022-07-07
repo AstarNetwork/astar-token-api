@@ -1,12 +1,13 @@
 import express, { Request, Response } from 'express';
 import { injectable, inject } from 'inversify';
+import { ContainerTypes } from '../containertypes';
 import { NetworkType } from '../networks';
 import { IStatsIndexerService, PeriodType } from '../services/StatsIndexerService';
 import { IControllerBase } from './IControllerBase';
 
 @injectable()
 export class NodeController implements IControllerBase {
-    constructor(@inject('StatsIndexerService') private _indexerService: IStatsIndexerService) {}
+    constructor(@inject(ContainerTypes.StatsIndexerService) private _indexerService: IStatsIndexerService) {}
 
     public register(app: express.Application): void {
         /**
