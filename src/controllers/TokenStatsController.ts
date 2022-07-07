@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import { injectable, inject } from 'inversify';
 import { ContainerTypes } from '../containertypes';
 import { NetworkType } from '../networks';
+import { IPriceProvider } from '../services/IPriceProvider';
 import { IStatsIndexerService, PeriodType } from '../services/StatsIndexerService';
 import { IStatsService } from '../services/StatsService';
 import { ControllerBase } from './ControllerBase';
@@ -12,6 +13,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
     constructor(
         @inject(ContainerTypes.StatsService) private _statsService: IStatsService,
         @inject(ContainerTypes.StatsIndexerService) private _indexerService: IStatsIndexerService,
+        @inject(ContainerTypes.PriceProviderWithFailover) private _priceProvider: IPriceProvider,
     ) {
         super();
     }
@@ -36,6 +38,25 @@ export class TokenStatsController extends ControllerBase implements IControllerB
             // #swagger.ignore = true
             try {
                 res.json(await this._statsService.getTokenStats(req.params.network as NetworkType));
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
+        });
+
+        /**
+         * @description Token current price route v1.
+         */
+        app.route('/api/v1/token/price/:symbol').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retrieves current token price'
+                #swagger.parameters['symbol'] = {
+                    in: 'path',
+                    description: 'Token symbol (eg. ASTR or SDN',
+                    required: true
+                }
+            */
+            try {
+                res.json(await this._priceProvider.getUsdPrice(req.params.symbol));
             } catch (err) {
                 this.handleError(res, err as Error);
             }

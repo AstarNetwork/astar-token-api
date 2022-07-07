@@ -16,6 +16,10 @@ import { NodeController } from './controllers/NodeController';
 import { AstarApi2 } from './client/AstarApi2';
 import { FirebaseService, IFirebaseService } from './services/FirebaseService';
 import { ContainerTypes } from './containertypes';
+import { IPriceProvider } from './services/IPriceProvider';
+import { DiaDataPriceProvider } from './services/DiaDataPriceProvider';
+import { CoinGeckoPriceProvider } from './services/CoinGeckoPriceProvider';
+import { PriceProviderWithFailover } from './services/PriceProviderWithFailover';
 
 const container = new Container();
 
@@ -43,6 +47,12 @@ container.bind<IStatsService>(ContainerTypes.StatsService).to(StatsService).inSi
 container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingService).inSingletonScope();
 container.bind<IStatsIndexerService>(ContainerTypes.StatsIndexerService).to(StatsIndexerService).inSingletonScope();
 container.bind<IFirebaseService>(ContainerTypes.FirebaseService).to(FirebaseService).inSingletonScope();
+container.bind<IPriceProvider>(ContainerTypes.PriceProvider).to(DiaDataPriceProvider).inSingletonScope();
+container.bind<IPriceProvider>(ContainerTypes.PriceProvider).to(CoinGeckoPriceProvider).inSingletonScope();
+container
+    .bind<IPriceProvider>(ContainerTypes.PriceProviderWithFailover)
+    .to(PriceProviderWithFailover)
+    .inSingletonScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);
