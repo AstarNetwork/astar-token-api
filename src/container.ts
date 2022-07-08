@@ -15,38 +15,44 @@ import { IStatsIndexerService, StatsIndexerService } from './services/StatsIndex
 import { NodeController } from './controllers/NodeController';
 import { AstarApi2 } from './client/AstarApi2';
 import { FirebaseService, IFirebaseService } from './services/FirebaseService';
-
-export const ContainerTypes = {
-    Controller: 'Controller',
-    StatsService: 'StatsService',
-};
+import { ContainerTypes } from './containertypes';
+import { IPriceProvider } from './services/IPriceProvider';
+import { DiaDataPriceProvider } from './services/DiaDataPriceProvider';
+import { CoinGeckoPriceProvider } from './services/CoinGeckoPriceProvider';
+import { PriceProviderWithFailover } from './services/PriceProviderWithFailover';
 
 const container = new Container();
 
 // data access
 container
-    .bind<IAstarApi>('api')
+    .bind<IAstarApi>(ContainerTypes.Api)
     .toConstantValue(new AstarApi2(networks.shiden.endpoint))
     .whenTargetNamed(networks.shiden.name);
 container
-    .bind<IAstarApi>('api')
+    .bind<IAstarApi>(ContainerTypes.Api)
     .toConstantValue(new AstarApi2(networks.astar.endpoint))
     .whenTargetNamed(networks.astar.name);
 container
-    .bind<IAstarApi>('api')
+    .bind<IAstarApi>(ContainerTypes.Api)
     .toConstantValue(new AstarApi2(networks.shibuya.endpoint))
     .whenTargetNamed(networks.shibuya.name);
 container
-    .bind<IAstarApi>('api')
+    .bind<IAstarApi>(ContainerTypes.Api)
     .toConstantValue(new AstarApi2(networks.development.endpoint))
     .whenTargetNamed(networks.development.name);
-container.bind<IApiFactory>('factory').to(ApiFactory).inSingletonScope();
+container.bind<IApiFactory>(ContainerTypes.ApiFactory).to(ApiFactory).inSingletonScope();
 
 // services registration
-container.bind<IStatsService>('StatsService').to(StatsService).inSingletonScope();
-container.bind<IDappsStakingService>('DappsStakingService').to(DappsStakingService).inSingletonScope();
-container.bind<IStatsIndexerService>('StatsIndexerService').to(StatsIndexerService).inSingletonScope();
-container.bind<IFirebaseService>('FirebaseService').to(FirebaseService).inSingletonScope();
+container.bind<IStatsService>(ContainerTypes.StatsService).to(StatsService).inSingletonScope();
+container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingService).inSingletonScope();
+container.bind<IStatsIndexerService>(ContainerTypes.StatsIndexerService).to(StatsIndexerService).inSingletonScope();
+container.bind<IFirebaseService>(ContainerTypes.FirebaseService).to(FirebaseService).inSingletonScope();
+container.bind<IPriceProvider>(ContainerTypes.PriceProvider).to(DiaDataPriceProvider).inSingletonScope();
+container.bind<IPriceProvider>(ContainerTypes.PriceProvider).to(CoinGeckoPriceProvider).inSingletonScope();
+container
+    .bind<IPriceProvider>(ContainerTypes.PriceProviderWithFailover)
+    .to(PriceProviderWithFailover)
+    .inSingletonScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);

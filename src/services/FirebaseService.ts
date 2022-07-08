@@ -2,6 +2,7 @@ import admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import { inject, injectable } from 'inversify';
 import { IApiFactory } from '../client/ApiFactory';
+import { ContainerTypes } from '../containertypes';
 import { DappItem, FileInfo, NewDappItem } from '../models/Dapp';
 import { NetworkType } from '../networks';
 
@@ -14,7 +15,7 @@ export interface IFirebaseService {
 export class FirebaseService implements IFirebaseService {
     private app: admin.app.App;
 
-    constructor(@inject('factory') private _apiFactory: IApiFactory) {}
+    constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory) {}
 
     public async getDapps(network: NetworkType = 'astar'): Promise<DappItem[]> {
         this.initApp();

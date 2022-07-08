@@ -2,6 +2,7 @@ import { PalletBalancesAccountData } from '@polkadot/types/lookup';
 import { formatBalance, BN } from '@polkadot/util';
 import { injectable, inject } from 'inversify';
 import { IApiFactory } from '../client/ApiFactory';
+import { ContainerTypes } from '../containertypes';
 import { TokenStats } from '../models/TokenStats';
 import { NetworkType } from '../networks';
 import { addressesToExclude } from './AddressesToExclude';
@@ -15,7 +16,7 @@ export interface IStatsService {
  * Token statistics calculation service.
  */
 export class StatsService implements IStatsService {
-    constructor(@inject('factory') private _apiFactory: IApiFactory) {}
+    constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory) {}
 
     /**
      * Calculates token circulation supply by substracting sum of all token holder accounts

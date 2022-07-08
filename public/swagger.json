@@ -12,6 +12,25 @@
     "https"
   ],
   "paths": {
+    "/api/v1/token/price/{symbol}": {
+      "get": {
+        "description": "Retrieves current token price",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Token symbol (eg. ASTR or SDN)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/{network}/token/stats": {
       "get": {
         "description": "Retrieves token statistics for a given network.",
