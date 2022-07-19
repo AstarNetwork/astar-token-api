@@ -10,4 +10,6 @@ export const addressesToExclude = [
     'afw8fXAg3NbcBebzexMDs4EPoy33riHZNjBp1tW2EUrYEn6',
     'Vwj9isYwHuTasLhWqcqCKNRrQmBUGgR5ZWJJmUepTmVhTf1',
     'XvXU2FRdupPdJHAsknPsTSdAHzsEi9jtta8XhxCmVPLcgpd',
+    'ZWHAWhnDvz5sMoYkfYSBsuvRk4ye4QbuVeW3sziVaphV4BX',
+    'aWjX2FaSeChakGo1u3mnXZ9X2mNeAWEPybT4rPdnqyjn2zL',
 ];
