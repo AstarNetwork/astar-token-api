@@ -152,19 +152,24 @@ export class BaseApi implements IAstarApi {
             localApi = this._api;
         }
 
-        return await localApi.isReadyOrError.then((api: ApiPromise) => {
-            // Connection suceed
-            this._api = api;
-            return api;
-        }, async () => {
-            // Connection failed.
-            localApi.disconnect(); //Stop reconnecting to failed endpoint.
-            const nextNetworkIndex = this.getNetxtNetworkIndex(currentIndex);
-            console.warn(`Connection to ${this.endpoints[currentIndex]} failed. Falling back to ${this.endpoints[nextNetworkIndex]}`);
+        return await localApi.isReadyOrError.then(
+            (api: ApiPromise) => {
+                // Connection suceed
+                this._api = api;
+                return api;
+            },
+            async () => {
+                // Connection failed.
+                localApi.disconnect(); //Stop reconnecting to failed endpoint.
+                const nextNetworkIndex = this.getNetxtNetworkIndex(currentIndex);
+                console.warn(
+                    `Connection to ${this.endpoints[currentIndex]} failed. Falling back to ${this.endpoints[nextNetworkIndex]}`,
+                );
 
-            // Failover to next endpoint.
-            return await this.connect(nextNetworkIndex);
-        });
+                // Failover to next endpoint.
+                return await this.connect(nextNetworkIndex);
+            },
+        );
     }
 
     private getNetxtNetworkIndex(currentIndex: number): number {
