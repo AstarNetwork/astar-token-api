@@ -39,27 +39,27 @@ export class BaseApi implements IAstarApi {
     constructor(private endpoints = networks.astar.endpoints) {}
 
     public async getTotalSupply(): Promise<u128> {
-        await this.connect();
+        await this.ensureConnection();
 
         return await this._api.query.balances.totalIssuance();
     }
 
     public async getBalances(addresses: string[]): Promise<PalletBalancesAccountData[]> {
-        await this.connect();
+        await this.ensureConnection();
         const balances = await this._api.query.system.account.multi(addresses);
 
         return balances.map((balance) => balance.data);
     }
 
     public async getChainDecimals(): Promise<number> {
-        await this.connect();
+        await this.ensureConnection();
         const decimals = this._api.registry.chainDecimals;
 
         return decimals[0];
     }
 
     public async getAprCalculationData(): Promise<AprCalculationData> {
-        await this.connect();
+        await this.ensureConnection();
         const results = await Promise.all([
             this._api.consts.blockReward.rewardAmount,
             this._api.query.timestamp.now(),
@@ -86,7 +86,7 @@ export class BaseApi implements IAstarApi {
     }
 
     public async getChainName(): Promise<string> {
-        await this.connect();
+        await this.ensureConnection();
 
         return (await this._api.rpc.system.chain()).toString() || 'development-dapps';
     }
@@ -130,18 +130,18 @@ export class BaseApi implements IAstarApi {
     }
 
     public async getTransactionFromHex(transactionHex: string): Promise<Transaction> {
-        await this.connect();
+        await this.ensureConnection();
 
         return this._api.tx(transactionHex);
     }
 
     public async getCallFromHex(callHex: string): Promise<Call> {
-        await this.connect();
+        await this.ensureConnection();
 
         return this._api.createType('Call', callHex);
     }
 
-    protected async connect(networkIndex?: number): Promise<ApiPromise> {
+    protected async ensureConnection(networkIndex?: number): Promise<ApiPromise> {
         let localApi: ApiPromise;
         const currentIndex = networkIndex ?? 0;
 
@@ -167,7 +167,7 @@ export class BaseApi implements IAstarApi {
                 );
 
                 // Failover to next endpoint.
-                return await this.connect(nextNetworkIndex);
+                return await this.ensureConnection(nextNetworkIndex);
             },
         );
     }

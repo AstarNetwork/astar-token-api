@@ -13,7 +13,7 @@ export class AstarApi2 extends BaseApi implements IAstarApi {
 
     // Method override to take into account individual claim storage changes.
     public async getAprCalculationData(): Promise<AprCalculationData> {
-        await this.connect();
+        await this.ensureConnection();
         const results = await Promise.all([
             this._api.consts.blockReward.rewardAmount,
             this._api.query.timestamp.now(),
@@ -34,7 +34,7 @@ export class AstarApi2 extends BaseApi implements IAstarApi {
 
     // Method override to take into account individual claim storage changes.
     public async getTvl(): Promise<BN> {
-        await this.connect();
+        await this.ensureConnection();
         const era = await this._api.query.dappsStaking.currentEra();
         const result = await this._api.query.dappsStaking.generalEraInfo<Option<EraInfo>>(era);
         const tvl = result.unwrap().locked;
