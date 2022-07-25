@@ -161,7 +161,7 @@ export class BaseApi implements IAstarApi {
             async () => {
                 // Connection failed.
                 localApi.disconnect(); //Stop reconnecting to failed endpoint.
-                const nextNetworkIndex = this.getNetxtNetworkIndex(currentIndex);
+                const nextNetworkIndex = this.getNextNetworkIndex(currentIndex);
                 console.warn(
                     `Connection to ${this.endpoints[currentIndex]} failed. Falling back to ${this.endpoints[nextNetworkIndex]}`,
                 );
@@ -172,7 +172,7 @@ export class BaseApi implements IAstarApi {
         );
     }
 
-    private getNetxtNetworkIndex(currentIndex: number): number {
+    private getNextNetworkIndex(currentIndex: number): number {
         return (currentIndex + 1) % this.endpoints.length;
     }
 
