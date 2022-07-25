@@ -7,8 +7,8 @@ import { networks } from '../networks';
 import { AprCalculationData } from '../models/AprCalculationData';
 
 export class AstarApi2 extends BaseApi implements IAstarApi {
-    constructor(endpoint = networks.astar.endpoint) {
-        super(endpoint);
+    constructor(endpoints = networks.astar.endpoints) {
+        super(endpoints);
     }
 
     // Method override to take into account individual claim storage changes.

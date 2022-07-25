@@ -36,7 +36,7 @@ export interface IAstarApi {
 export class BaseApi implements IAstarApi {
     protected _api: ApiPromise;
 
-    constructor(private endpoint = networks.astar.endpoint) {}
+    constructor(private endpoints = networks.astar.endpoints) {}
 
     public async getTotalSupply(): Promise<u128> {
         await this.connect();
@@ -141,16 +141,34 @@ export class BaseApi implements IAstarApi {
         return this._api.createType('Call', callHex);
     }
 
-    protected async connect() {
-        // establish node connection with the endpoint
-        if (!this._api) {
-            const provider = new WsProvider(this.endpoint);
-            const api = new ApiPromise({ provider });
-            const apiInst = await api.isReady;
-            this._api = apiInst;
+    protected async connect(networkIndex?: number): Promise<ApiPromise> {
+        let localApi: ApiPromise;
+        const currentIndex = networkIndex ?? 0;
+
+        if (!this._api || networkIndex) {
+            const provider = new WsProvider(this.endpoints[currentIndex]);
+            localApi = new ApiPromise({ provider });
+        } else {
+            localApi = this._api;
         }
 
-        return this._api;
+        return await localApi.isReadyOrError.then((api: ApiPromise) => {
+            // Connection suceed
+            this._api = api;
+            return api;
+        }, async () => {
+            // Connection failed.
+            localApi.disconnect(); //Stop reconnecting to failed endpoint.
+            const nextNetworkIndex = this.getNetxtNetworkIndex(currentIndex);
+            console.warn(`Connection to ${this.endpoints[currentIndex]} failed. Falling back to ${this.endpoints[nextNetworkIndex]}`);
+
+            // Failover to next endpoint.
+            return await this.connect(nextNetworkIndex);
+        });
+    }
+
+    private getNetxtNetworkIndex(currentIndex: number): number {
+        return (currentIndex + 1) % this.endpoints.length;
     }
 
     private getErrorMessage(dispatchError: DispatchError): string {

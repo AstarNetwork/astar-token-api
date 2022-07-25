@@ -26,19 +26,19 @@ const container = new Container();
 // data access
 container
     .bind<IAstarApi>(ContainerTypes.Api)
-    .toConstantValue(new AstarApi2(networks.shiden.endpoint))
+    .toConstantValue(new AstarApi2(networks.shiden.endpoints))
     .whenTargetNamed(networks.shiden.name);
 container
     .bind<IAstarApi>(ContainerTypes.Api)
-    .toConstantValue(new AstarApi2(networks.astar.endpoint))
+    .toConstantValue(new AstarApi2(networks.astar.endpoints))
     .whenTargetNamed(networks.astar.name);
 container
     .bind<IAstarApi>(ContainerTypes.Api)
-    .toConstantValue(new AstarApi2(networks.shibuya.endpoint))
+    .toConstantValue(new AstarApi2(networks.shibuya.endpoints))
     .whenTargetNamed(networks.shibuya.name);
 container
     .bind<IAstarApi>(ContainerTypes.Api)
-    .toConstantValue(new AstarApi2(networks.development.endpoint))
+    .toConstantValue(new AstarApi2(networks.development.endpoints))
     .whenTargetNamed(networks.development.name);
 container.bind<IApiFactory>(ContainerTypes.ApiFactory).to(ApiFactory).inSingletonScope();
 
