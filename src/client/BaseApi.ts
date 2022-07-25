@@ -36,30 +36,30 @@ export interface IAstarApi {
 export class BaseApi implements IAstarApi {
     protected _api: ApiPromise;
 
-    constructor(private endpoint = networks.astar.endpoint) {}
+    constructor(private endpoints = networks.astar.endpoints) {}
 
     public async getTotalSupply(): Promise<u128> {
-        await this.connect();
+        await this.ensureConnection();
 
         return await this._api.query.balances.totalIssuance();
     }
 
     public async getBalances(addresses: string[]): Promise<PalletBalancesAccountData[]> {
-        await this.connect();
+        await this.ensureConnection();
         const balances = await this._api.query.system.account.multi(addresses);
 
         return balances.map((balance) => balance.data);
     }
 
     public async getChainDecimals(): Promise<number> {
-        await this.connect();
+        await this.ensureConnection();
         const decimals = this._api.registry.chainDecimals;
 
         return decimals[0];
     }
 
     public async getAprCalculationData(): Promise<AprCalculationData> {
-        await this.connect();
+        await this.ensureConnection();
         const results = await Promise.all([
             this._api.consts.blockReward.rewardAmount,
             this._api.query.timestamp.now(),
@@ -86,7 +86,7 @@ export class BaseApi implements IAstarApi {
     }
 
     public async getChainName(): Promise<string> {
-        await this.connect();
+        await this.ensureConnection();
 
         return (await this._api.rpc.system.chain()).toString() || 'development-dapps';
     }
@@ -130,27 +130,50 @@ export class BaseApi implements IAstarApi {
     }
 
     public async getTransactionFromHex(transactionHex: string): Promise<Transaction> {
-        await this.connect();
+        await this.ensureConnection();
 
         return this._api.tx(transactionHex);
     }
 
     public async getCallFromHex(callHex: string): Promise<Call> {
-        await this.connect();
+        await this.ensureConnection();
 
         return this._api.createType('Call', callHex);
     }
 
-    protected async connect() {
-        // establish node connection with the endpoint
-        if (!this._api) {
-            const provider = new WsProvider(this.endpoint);
-            const api = new ApiPromise({ provider });
-            const apiInst = await api.isReady;
-            this._api = apiInst;
+    protected async ensureConnection(networkIndex?: number): Promise<ApiPromise> {
+        let localApi: ApiPromise;
+        const currentIndex = networkIndex ?? 0;
+
+        if (!this._api || networkIndex) {
+            const provider = new WsProvider(this.endpoints[currentIndex]);
+            localApi = new ApiPromise({ provider });
+        } else {
+            localApi = this._api;
         }
 
-        return this._api;
+        return await localApi.isReadyOrError.then(
+            (api: ApiPromise) => {
+                // Connection suceed
+                this._api = api;
+                return api;
+            },
+            async () => {
+                // Connection failed.
+                localApi.disconnect(); //Stop reconnecting to failed endpoint.
+                const nextNetworkIndex = this.getNetxtNetworkIndex(currentIndex);
+                console.warn(
+                    `Connection to ${this.endpoints[currentIndex]} failed. Falling back to ${this.endpoints[nextNetworkIndex]}`,
+                );
+
+                // Failover to next endpoint.
+                return await this.ensureConnection(nextNetworkIndex);
+            },
+        );
+    }
+
+    private getNetxtNetworkIndex(currentIndex: number): number {
+        return (currentIndex + 1) % this.endpoints.length;
     }
 
     private getErrorMessage(dispatchError: DispatchError): string {
