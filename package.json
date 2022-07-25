@@ -24,7 +24,7 @@
     "scripts": {
         "serve:firebase": "npm run build && firebase emulators:start --only functions",
         "shell:firebase": "npm run build && firebase functions:shell",
-        "build": "yarn run build:swagger && tsc --project tsconfig.json",
+        "build": "tsc --project tsconfig.json",
         "dev": "yarn swagger-autogen && ts-node-dev -r dotenv/config src/index.ts",
         "build:swagger": "yarn swagger-autogen api.astar.network",
         "lint": "eslint '*/**/*.{js,ts}' --quiet --fix && prettier -w .",
