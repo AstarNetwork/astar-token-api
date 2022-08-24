@@ -112,6 +112,13 @@ export class DappsStakingService implements IDappsStakingService {
         }
     }
 
+    /**
+     * Registers dapp by sending a signed transaction to a node and writing to Firebase.
+     * @deprecated Not to be used since UI will not do dapp registration to a node. Just add data to Firebase.
+     * @param dapp The dapp instance which contains signed transaction
+     * @param network The network to use.
+     * @returns Registered dapp instance
+     */
     public async registerDapp(dapp: NewDappItem, network: NetworkType = 'astar'): Promise<DappItem> {
         try {
             const api = this._apiFactory.getApiInstance(network);

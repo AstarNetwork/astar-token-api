@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { injectable, inject } from 'inversify';
+import container from '../container';
 import { ContainerTypes } from '../containertypes';
 import { NetworkType } from '../networks';
 import { IDappsStakingService } from '../services/DappsStakingService';
@@ -12,7 +13,6 @@ import { IControllerBase } from './IControllerBase';
 @injectable()
 export class DappsStakingController extends ControllerBase implements IControllerBase {
     constructor(
-        @inject(ContainerTypes.DappsStakingService) private _stakingService: IDappsStakingService,
         @inject(ContainerTypes.StatsIndexerService) private _indexerService: IStatsIndexerService,
         @inject(ContainerTypes.FirebaseService) private _firebaseService: IFirebaseService,
     ) {
@@ -33,7 +33,9 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 }
             */
             try {
-                res.json(await this._stakingService.calculateApr(req.params.network as NetworkType));
+                const network = req.params.network as NetworkType;
+                const stakingService = container.getNamed<IDappsStakingService>(ContainerTypes.DappsStakingService, network);
+                res.json(await stakingService.calculateApr(network));
             } catch (err) {
                 this.handleError(res, err as Error);
             }
@@ -52,7 +54,9 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 }
             */
             try {
-                res.json(await this._stakingService.calculateApy(req.params.network as NetworkType));
+                const network = req.params.network as NetworkType;
+                const stakingService = container.getNamed<IDappsStakingService>(ContainerTypes.DappsStakingService, network);
+                res.json(await stakingService.calculateApy(network));
             } catch (err) {
                 this.handleError(res, err as Error);
             }
@@ -100,9 +104,9 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     required: true,
                 }
             */
-            res.json(
-                await this._stakingService.getEarned(req.params.network as NetworkType, req.params.address as string),
-            );
+            const network = req.params.network as NetworkType;
+            const stakingService = container.getNamed<IDappsStakingService>(ContainerTypes.DappsStakingService, network);   
+            res.json(await stakingService.getEarned(network, req.params.address as string));
         });
 
         app.route('/api/v1/:network/dapps-staking/dapps').get(async (req: Request, res: Response) => {
@@ -153,7 +157,9 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 }
 
                 try {
-                    const response = await this._stakingService.registerDapp(
+                    const network = req.params.network as NetworkType;
+                    const stakingService = container.getNamed<IDappsStakingService>(ContainerTypes.DappsStakingService, network);
+                    const response = await stakingService.registerDapp(
                         req.body,
                         req.params.network as NetworkType,
                     );

@@ -20,6 +20,7 @@ import { IPriceProvider } from './services/IPriceProvider';
 import { DiaDataPriceProvider } from './services/DiaDataPriceProvider';
 import { CoinGeckoPriceProvider } from './services/CoinGeckoPriceProvider';
 import { PriceProviderWithFailover } from './services/PriceProviderWithFailover';
+import { DappsStakingServiceV2 } from './services/DappsStakingServiceV2';
 
 const container = new Container();
 
@@ -44,7 +45,10 @@ container.bind<IApiFactory>(ContainerTypes.ApiFactory).to(ApiFactory).inSingleto
 
 // services registration
 container.bind<IStatsService>(ContainerTypes.StatsService).to(StatsService).inSingletonScope();
-container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingService).inSingletonScope();
+container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingService).inSingletonScope().whenTargetNamed(networks.astar.name);
+container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingService).inSingletonScope().whenTargetNamed(networks.shiden.name);
+container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingServiceV2).inSingletonScope().whenTargetNamed(networks.shibuya.name);
+container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingServiceV2).inSingletonScope().whenTargetNamed(networks.development.name);
 container.bind<IStatsIndexerService>(ContainerTypes.StatsIndexerService).to(StatsIndexerService).inSingletonScope();
 container.bind<IFirebaseService>(ContainerTypes.FirebaseService).to(FirebaseService).inSingletonScope();
 container.bind<IPriceProvider>(ContainerTypes.PriceProvider).to(DiaDataPriceProvider).inSingletonScope();
