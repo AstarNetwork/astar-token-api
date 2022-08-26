@@ -9,12 +9,19 @@ import cors from 'cors';
 import container from './container';
 import { IControllerBase } from './controllers/IControllerBase';
 import { ContainerTypes } from './containertypes';
+import { IDappsStakingService } from './services/DappsStakingService';
+import { DappsStakingService2 } from './services/DappsStakingService2';
+import { networks } from './networks';
 
 const app = express();
 app.use(express.json({ limit: '5mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
+
+// Having this registrations in container.ts makes Jest to fail to run tests with 'Jest encountered an unexpected token' error.
+container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingService2).inSingletonScope().whenTargetNamed(networks.shibuya.name);
+container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingService2).inSingletonScope().whenTargetNamed(networks.development.name);
 
 // Get all controllers and register all endpoints.
 const controllers: IControllerBase[] = container.getAll<IControllerBase>(ContainerTypes.Controller);

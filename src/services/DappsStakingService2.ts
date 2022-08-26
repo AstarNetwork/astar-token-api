@@ -9,7 +9,7 @@ import { DappsStakingService, IDappsStakingService } from "./DappsStakingService
 import { IFirebaseService } from "./FirebaseService";
 
 @injectable()
-export class DappsStakingServiceV2 extends DappsStakingService implements IDappsStakingService {
+export class DappsStakingService2 extends DappsStakingService implements IDappsStakingService {
   constructor(
     @inject(ContainerTypes.ApiFactory) apiFactory: IApiFactory,
     @inject(ContainerTypes.FirebaseService) firebase: IFirebaseService,
