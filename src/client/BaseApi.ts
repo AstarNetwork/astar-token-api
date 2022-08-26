@@ -153,7 +153,9 @@ export class BaseApi implements IAstarApi {
 
     public async getRegisteredDapp(dappAddress: string): Promise<DappInfo | undefined> {
         await this.ensureConnection();
-        const dapp = await this._api.query.dappsStaking.registeredDapps<Option<DappInfo>>(this.getAddressEnum(dappAddress));
+        const dapp = await this._api.query.dappsStaking.registeredDapps<Option<DappInfo>>(
+            this.getAddressEnum(dappAddress),
+        );
 
         return dapp.unwrapOrDefault();
     }

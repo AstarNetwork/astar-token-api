@@ -8,12 +8,12 @@ const getDateString = (date: Date): string => {
 };
 
 let apiFactory: IApiFactory;
-    
+
 beforeEach(() => {
     // mock system date/time (new Date())
     jest.useFakeTimers('modern');
     jest.setSystemTime(new Date(1647734400000)); //2022-03-20
-    
+
     apiFactory = new ApiFactory();
     apiFactory.getApiInstance = jest.fn().mockReturnValue(new AstarApiMock());
 });

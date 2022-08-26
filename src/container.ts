@@ -45,8 +45,16 @@ container.bind<IApiFactory>(ContainerTypes.ApiFactory).to(ApiFactory).inSingleto
 
 // services registration
 container.bind<IStatsService>(ContainerTypes.StatsService).to(StatsService).inSingletonScope();
-container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingService).inSingletonScope().whenTargetNamed(networks.astar.name);
-container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingService).inSingletonScope().whenTargetNamed(networks.shiden.name);
+container
+    .bind<IDappsStakingService>(ContainerTypes.DappsStakingService)
+    .to(DappsStakingService)
+    .inSingletonScope()
+    .whenTargetNamed(networks.astar.name);
+container
+    .bind<IDappsStakingService>(ContainerTypes.DappsStakingService)
+    .to(DappsStakingService)
+    .inSingletonScope()
+    .whenTargetNamed(networks.shiden.name);
 // Moved lines below to index.ts because of problem with Jest.
 // container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingServiceV2).inSingletonScope().whenTargetNamed(networks.shibuya.name);
 // container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingServiceV2).inSingletonScope().whenTargetNamed(networks.development.name);

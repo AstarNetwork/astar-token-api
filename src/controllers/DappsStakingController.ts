@@ -34,7 +34,10 @@ export class DappsStakingController extends ControllerBase implements IControlle
             */
             try {
                 const network = req.params.network as NetworkType;
-                const stakingService = container.getNamed<IDappsStakingService>(ContainerTypes.DappsStakingService, network);
+                const stakingService = container.getNamed<IDappsStakingService>(
+                    ContainerTypes.DappsStakingService,
+                    network,
+                );
                 res.json(await stakingService.calculateApr(network));
             } catch (err) {
                 this.handleError(res, err as Error);
@@ -55,7 +58,10 @@ export class DappsStakingController extends ControllerBase implements IControlle
             */
             try {
                 const network = req.params.network as NetworkType;
-                const stakingService = container.getNamed<IDappsStakingService>(ContainerTypes.DappsStakingService, network);
+                const stakingService = container.getNamed<IDappsStakingService>(
+                    ContainerTypes.DappsStakingService,
+                    network,
+                );
                 res.json(await stakingService.calculateApy(network));
             } catch (err) {
                 this.handleError(res, err as Error);
@@ -105,7 +111,10 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 }
             */
             const network = req.params.network as NetworkType;
-            const stakingService = container.getNamed<IDappsStakingService>(ContainerTypes.DappsStakingService, network);   
+            const stakingService = container.getNamed<IDappsStakingService>(
+                ContainerTypes.DappsStakingService,
+                network,
+            );
             res.json(await stakingService.getEarned(network, req.params.address as string));
         });
 
@@ -158,11 +167,11 @@ export class DappsStakingController extends ControllerBase implements IControlle
 
                 try {
                     const network = req.params.network as NetworkType;
-                    const stakingService = container.getNamed<IDappsStakingService>(ContainerTypes.DappsStakingService, network);
-                    const response = await stakingService.registerDapp(
-                        req.body,
-                        req.params.network as NetworkType,
+                    const stakingService = container.getNamed<IDappsStakingService>(
+                        ContainerTypes.DappsStakingService,
+                        network,
                     );
+                    const response = await stakingService.registerDapp(req.body, req.params.network as NetworkType);
                     res.json(response);
                 } catch (e) {
                     this.handleError(res, e as Error);
