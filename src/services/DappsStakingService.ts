@@ -35,13 +35,13 @@ const TS_FIRST_BLOCK = {
  */
 export class DappsStakingService implements IDappsStakingService {
     constructor(
-        @inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory,
-        @inject(ContainerTypes.FirebaseService) private _firebase: IFirebaseService,
+        @inject(ContainerTypes.ApiFactory) protected apiFactory: IApiFactory,
+        @inject(ContainerTypes.FirebaseService) protected firebase: IFirebaseService,
     ) {}
 
     public async calculateApr(network = 'astar'): Promise<number> {
         try {
-            const api = this._apiFactory.getApiInstance(network);
+            const api = this.apiFactory.getApiInstance(network);
             const data = await api.getAprCalculationData();
             const decimals = await api.getChainDecimals();
 
@@ -121,12 +121,12 @@ export class DappsStakingService implements IDappsStakingService {
      */
     public async registerDapp(dapp: NewDappItem, network: NetworkType = 'astar'): Promise<DappItem> {
         try {
-            const api = this._apiFactory.getApiInstance(network);
+            const api = this.apiFactory.getApiInstance(network);
             const transaction = await api.getTransactionFromHex(dapp.signature);
 
             if (await this.canExectuteTransaction(transaction, dapp.signature, api)) {
                 await api.sendTransaction(transaction);
-                return this._firebase.registerDapp(dapp, network);
+                return this.firebase.registerDapp(dapp, network);
             } else {
                 throw new Error('The given transaction is not supported.');
             }
