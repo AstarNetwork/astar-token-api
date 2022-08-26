@@ -25,14 +25,18 @@ export class DappsStakingServiceV2 extends DappsStakingService implements IDapps
      */
   public async registerDapp(dapp: NewDappItem, network: NetworkType = 'astar'): Promise<DappItem> {
     const isValidRequest = await this.validateRegistrationRequest(dapp.signature, dapp.senderAddress, dapp.address, network);
-    return Promise.resolve({} as DappItem);
+    
+    if(isValidRequest) {
+      return this.firebase.registerDapp(dapp, network);
+    } else {
+      throw new Error('Provided signature is not valid');
+    }
   }
 
   /**
      * Validates dapp registration request taking into account the following criteria:
      *  - Sender signature is valid
-     *  - senderAddress is whitelisted for dapp staking
-     *  - sender didn't register dapp before
+     *  - dapp is already registered for dapps staking
      * @param signature Requester signature.
      * @param senderAddress Requester address.
      * @param dappAddress Dapp address.
@@ -46,27 +50,22 @@ export class DappsStakingServiceV2 extends DappsStakingService implements IDapps
       const api = this.apiFactory.getApiInstance(network);
 
       // Check signature
-      const signedMessage = await api.getRegisterDappPayload(dappAddress);
-      const isValidSignature = await this.isValidSignature(signedMessage, signature, senderAddress);
-      console.log(isValidSignature);
+      const signedMessage = await api.getRegisterDappPayload(dappAddress, senderAddress);
+      const isValidSignature = await this.isValidSignature(signedMessage, signature, senderAddress);      
+    
+      if (isValidSignature) {
+          // Check if sender is preapproved developer
+          const api = this.apiFactory.getApiInstance(network);
+          const registeredDapp = await api.getRegisteredDapp(dappAddress);
 
-      return isValidSignature;
-      // if (isValidSignature) {
-      //     // Check if sender is preapproved developer
-      //     const api = this.apiFactory.getApiInstance(network);
-      //     const preapprovedDevelopers = await api.getPreapprovedDevelopers();
+          if (registeredDapp) {
+            return registeredDapp.state.toString() === 'Registered' && registeredDapp.developer.toString() === senderAddress;
+          } else {
+            throw new Error(`The dapp ${dappAddress} is not registered with developer account ${senderAddress}`);
+          }
+      }
 
-      //     if (preapprovedDevelopers.has(senderAddress)) {
-      //         // Check if developer has already registered dapp.
-      //         const registeredDapps = await api.getRegisteredDapps();
-
-      //         if (!registeredDapps.has(dappAddress)) {
-      //             return true;
-      //         }
-      //     }
-      // }
-
-      // return false;
+      return false;
   }
 
   /**
