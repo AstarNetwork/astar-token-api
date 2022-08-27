@@ -1,6 +1,5 @@
 import { IApiFactory, ApiFactory } from '../../src/client/ApiFactory';
 import { DappsStakingService } from '../../src/services/DappsStakingService';
-import { DappsStakingService2 } from '../../src/services/DappsStakingService2';
 import { IFirebaseService } from '../../src/services/FirebaseService';
 import { AstarApiMock } from './AstarApiMock';
 import { FirebaseServiceMock } from './FirebaseServiceMock';

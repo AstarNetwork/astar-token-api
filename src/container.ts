@@ -20,7 +20,6 @@ import { IPriceProvider } from './services/IPriceProvider';
 import { DiaDataPriceProvider } from './services/DiaDataPriceProvider';
 import { CoinGeckoPriceProvider } from './services/CoinGeckoPriceProvider';
 import { PriceProviderWithFailover } from './services/PriceProviderWithFailover';
-import { DappsStakingService2 } from './services/DappsStakingService2';
 
 const container = new Container();
 
@@ -56,8 +55,8 @@ container
     .inSingletonScope()
     .whenTargetNamed(networks.shiden.name);
 // Moved lines below to index.ts because of problem with Jest.
-// container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingServiceV2).inSingletonScope().whenTargetNamed(networks.shibuya.name);
-// container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingServiceV2).inSingletonScope().whenTargetNamed(networks.development.name);
+// container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingService2).inSingletonScope().whenTargetNamed(networks.shibuya.name);
+// container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingService2).inSingletonScope().whenTargetNamed(networks.development.name);
 container.bind<IStatsIndexerService>(ContainerTypes.StatsIndexerService).to(StatsIndexerService).inSingletonScope();
 container.bind<IFirebaseService>(ContainerTypes.FirebaseService).to(FirebaseService).inSingletonScope();
 container.bind<IPriceProvider>(ContainerTypes.PriceProvider).to(DiaDataPriceProvider).inSingletonScope();

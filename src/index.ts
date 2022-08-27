@@ -9,9 +9,9 @@ import cors from 'cors';
 import container from './container';
 import { IControllerBase } from './controllers/IControllerBase';
 import { ContainerTypes } from './containertypes';
-import { IDappsStakingService } from './services/DappsStakingService';
 import { DappsStakingService2 } from './services/DappsStakingService2';
 import { networks } from './networks';
+import { IDappsStakingService } from './services/DappsStakingService';
 
 const app = express();
 app.use(express.json({ limit: '5mb' }));

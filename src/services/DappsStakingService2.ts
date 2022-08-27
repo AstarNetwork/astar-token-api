@@ -9,6 +9,9 @@ import { DappsStakingService, IDappsStakingService } from './DappsStakingService
 import { IFirebaseService } from './FirebaseService';
 
 @injectable()
+/**
+ * Implements a new dapp registration logic.
+ */
 export class DappsStakingService2 extends DappsStakingService implements IDappsStakingService {
     constructor(
         @inject(ContainerTypes.ApiFactory) apiFactory: IApiFactory,
@@ -41,7 +44,7 @@ export class DappsStakingService2 extends DappsStakingService implements IDappsS
     /**
      * Validates dapp registration request taking into account the following criteria:
      *  - Sender signature is valid
-     *  - dapp is already registered for dapps staking
+     *  - dapp is already registered for dapps staking on a node
      * @param signature Requester signature.
      * @param senderAddress Requester address.
      * @param dappAddress Dapp address.
@@ -54,12 +57,12 @@ export class DappsStakingService2 extends DappsStakingService implements IDappsS
     ): Promise<boolean> {
         const api = this.apiFactory.getApiInstance(network);
 
-        // Check signature
+        // Build signed payload and check signature
         const signedMessage = await api.getRegisterDappPayload(dappAddress, senderAddress);
         const isValidSignature = await this.isValidSignature(signedMessage, signature, senderAddress);
 
         if (isValidSignature) {
-            // Check if sender is preapproved developer
+            // Check if dapp and sender are already registered to a node.
             const api = this.apiFactory.getApiInstance(network);
             const registeredDapp = await api.getRegisteredDapp(dappAddress);
 

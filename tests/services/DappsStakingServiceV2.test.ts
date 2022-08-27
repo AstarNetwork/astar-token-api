@@ -4,7 +4,7 @@ import { AstarApiMock } from './AstarApiMock';
 import { FirebaseServiceMock } from './FirebaseServiceMock';
 
 /**
- * Wrapper around DappsStakingService so protected methods can be tested
+ * Wrapper around DappsStakingService so protected methods can be tested.
  */
 class DappStakingServiceWrapper extends DappsStakingService2 {
     constructor() {
@@ -33,7 +33,7 @@ describe('DappsStakingServiceV2', () => {
     const sender = 'XLoLJBQoMPHMLXYhdFobSpH5GujRoUH8d1sUtaEtoBG7zaS';
     const dapp = '0x0000000000000000000000000000000000000001';
 
-    it('validates dapp registration request', async () => {
+    it('properly validates dapp registration request', async () => {
         const service = new DappStakingServiceWrapper();
 
         const result = await service.validateRegistrationRequest(signature, sender, dapp);
