@@ -6,6 +6,8 @@ import { Container } from 'inversify';
 import { IControllerBase } from './controllers/IControllerBase';
 import { TokenStatsController } from './controllers/TokenStatsController';
 import { IStatsService, StatsService } from './services/StatsService';
+import { ITxQueryService, TxQueryService } from './services/TxQueryService';
+import { TxQueryController } from './controllers/TxQueryController';
 import { IAstarApi } from './client/BaseApi';
 import { networks } from './networks';
 import { ApiFactory, IApiFactory } from './client/ApiFactory';
@@ -44,6 +46,7 @@ container.bind<IApiFactory>(ContainerTypes.ApiFactory).to(ApiFactory).inSingleto
 
 // services registration
 container.bind<IStatsService>(ContainerTypes.StatsService).to(StatsService).inSingletonScope();
+container.bind<ITxQueryService>(ContainerTypes.TxQueryService).to(TxQueryService).inSingletonScope();
 container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingService).inSingletonScope();
 container.bind<IStatsIndexerService>(ContainerTypes.StatsIndexerService).to(StatsIndexerService).inSingletonScope();
 container.bind<IFirebaseService>(ContainerTypes.FirebaseService).to(FirebaseService).inSingletonScope();
@@ -58,5 +61,6 @@ container
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(DappsStakingController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(NodeController);
+container.bind<IControllerBase>(ContainerTypes.Controller).to(TxQueryController);
 
 export default container;

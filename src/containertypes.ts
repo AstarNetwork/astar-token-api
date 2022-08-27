@@ -8,4 +8,5 @@ export const ContainerTypes = {
     FirebaseService: 'FirebaseService',
     PriceProvider: 'PriceProvider',
     PriceProviderWithFailover: 'PriceProviderWithFailover',
+    TxQueryService: 'TxQueryService',
 };

@@ -9,6 +9,8 @@ export const networks = {
             'wss://astar-rpc.dwellir.com',
         ],
         evmRpc: 'https://evm.astar.network',
+        evmId: '592',
+        token: 'ASTR',
     },
     shiden: {
         name: 'shiden',
@@ -19,15 +21,21 @@ export const networks = {
             'wss://shiden-rpc.dwellir.com',
         ],
         evmRpc: 'https://evm.shiden.astar.network',
+        evmId: '336',
+        token: 'SDN',
     },
     shibuya: {
         name: 'shibuya',
         endpoints: ['wss://rpc.shibuya.astar.network', 'wss://shibuya-rpc.dwellir.com'],
         evmRpc: 'https://evm.shibuya.astar.network',
+        evmId: '81',
+        token: 'SBY',
     },
     development: {
         name: 'development',
         endpoints: ['ws://localhost:9944'],
         evmRpc: '',
+        evmId: '',
+        token: '',
     },
 };
