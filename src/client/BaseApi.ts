@@ -10,7 +10,7 @@ import { AprCalculationData } from '../models/AprCalculationData';
 import { networks } from '../networks';
 import { EraRewardAndStake } from '../types/DappsStaking';
 
-interface DappInfo extends Struct {
+export interface DappInfo extends Struct {
     developer: AccountId;
     state: string;
 }

@@ -35,8 +35,8 @@ const TS_FIRST_BLOCK = {
  */
 export class DappsStakingService implements IDappsStakingService {
     constructor(
-        @inject(ContainerTypes.ApiFactory) protected apiFactory: IApiFactory,
-        @inject(ContainerTypes.FirebaseService) protected firebase: IFirebaseService,
+        @inject(ContainerTypes.ApiFactory) private apiFactory: IApiFactory,
+        @inject(ContainerTypes.FirebaseService) private firebase: IFirebaseService,
     ) {}
 
     public async calculateApr(network = 'astar'): Promise<number> {

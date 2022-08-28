@@ -14,10 +14,10 @@ import { IFirebaseService } from './FirebaseService';
  */
 export class DappsStakingService2 extends DappsStakingService implements IDappsStakingService {
     constructor(
-        @inject(ContainerTypes.ApiFactory) apiFactory: IApiFactory,
-        @inject(ContainerTypes.FirebaseService) firebase: IFirebaseService,
+        @inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory,
+        @inject(ContainerTypes.FirebaseService) private _firebase: IFirebaseService,
     ) {
-        super(apiFactory, firebase);
+        super(_apiFactory, _firebase);
     }
 
     /**
@@ -35,7 +35,7 @@ export class DappsStakingService2 extends DappsStakingService implements IDappsS
         );
 
         if (isValidRequest) {
-            return this.firebase.registerDapp(dapp, network);
+            return this._firebase.registerDapp(dapp, network);
         } else {
             throw new Error('Provided signature is not valid');
         }
@@ -55,7 +55,7 @@ export class DappsStakingService2 extends DappsStakingService implements IDappsS
         dappAddress: string,
         network: NetworkType,
     ): Promise<boolean> {
-        const api = this.apiFactory.getApiInstance(network);
+        const api = this._apiFactory.getApiInstance(network);
 
         // Build signed payload and check signature
         const signedMessage = await api.getRegisterDappPayload(dappAddress, senderAddress);
@@ -63,7 +63,7 @@ export class DappsStakingService2 extends DappsStakingService implements IDappsS
 
         if (isValidSignature) {
             // Check if dapp and sender are already registered to a node.
-            const api = this.apiFactory.getApiInstance(network);
+            const api = this._apiFactory.getApiInstance(network);
             const registeredDapp = await api.getRegisteredDapp(dappAddress);
 
             if (registeredDapp) {
