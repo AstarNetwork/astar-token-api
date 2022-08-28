@@ -1,9 +1,10 @@
-import { createWeb3Instance, fetchEvmTransferDetails } from './../modules/tx-query/utils/index';
 import axios from 'axios';
 import { injectable } from 'inversify';
 import { TransferDetails } from '../models/TxQuery';
-import { networks, NetworkType } from '../networks';
+import { NetworkType } from '../networks';
 import { getSubscanOption, getSubscanUrl } from '../utils';
+import { createWeb3Instance, fetchEvmTransferDetails } from './../modules/tx-query/utils/index';
+import { networks } from './../networks';
 
 export interface ITxQueryService {
     fetchTransferDetails(network: NetworkType, hash: string): Promise<TransferDetails | undefined>;
@@ -14,26 +15,30 @@ export interface ITxQueryService {
  * Transaction query service
  */
 export class TxQueryService implements ITxQueryService {
+    public async fetchSubscan({ network, hash, type }: { network: NetworkType; hash: string; type: string }) {
+        const base = getSubscanUrl(network);
+        const option = getSubscanOption();
+        const url = base + '/api/scan/extrinsic';
+        const { data } = await axios.post(
+            url,
+            {
+                hash,
+            },
+            option,
+        );
+        return data.data;
+    }
     /**
      * Fetch the transfer transaction detail of a given hash
      * @param network NetworkType (astar, shiden or shibuya)
      * @param hash transaction hash
      * @returns data object of the transaction detail
      */
-    public async fetchTransferDetails(network: NetworkType, hash: string): Promise<TransferDetails | undefined> {
+    public async fetchTransferDetails(network: NetworkType, hash: string): Promise<TransferDetails> {
         try {
-            const base = getSubscanUrl(network);
-            const option = getSubscanOption();
-            const url = base + '/api/scan/extrinsic';
-
-            const { data } = await axios.post(
-                url,
-                {
-                    hash,
-                },
-                option,
-            );
-            const isEvmTransfer = !data.data;
+            const type = 'transfer';
+            const data = await this.fetchSubscan({ network, hash, type });
+            const isEvmTransfer = !data;
             if (isEvmTransfer) {
                 const rpc = networks[network].evmRpc;
                 const web3 = createWeb3Instance(rpc);
@@ -42,8 +47,8 @@ export class TxQueryService implements ITxQueryService {
                     web3,
                 });
             } else {
-                const timestamp = data.data.block_timestamp;
-                const { from, to, success, asset_symbol, amount } = data.data.transfer;
+                const timestamp = data.block_timestamp;
+                const { from, to, success, asset_symbol, amount } = data.transfer;
                 const chain = Object.values(networks).find((it) => it.name === network);
                 const nativeToken = chain?.token || '';
                 const symbol = asset_symbol || nativeToken;
@@ -51,6 +56,7 @@ export class TxQueryService implements ITxQueryService {
             }
         } catch (e) {
             console.error(e);
+            throw new Error('Something went wrong');
         }
     }
 }

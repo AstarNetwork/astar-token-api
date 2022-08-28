@@ -1,16 +1,22 @@
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { u32, u64, u128 } from '@polkadot/types';
 import { TypeRegistry } from '@polkadot/types/create';
+import { Call } from '@polkadot/types/interfaces';
 import { PalletBalancesAccountData } from '@polkadot/types/lookup';
 import { ISubmittableResult } from '@polkadot/types/types';
 import BN from 'bn.js';
 import { IAstarApi } from '../../src/client/BaseApi';
 import { AprCalculationData } from '../../src/models/AprCalculationData';
+import { NetworkType } from '../../src/networks';
+import { transferExtrinsicData } from '../mock/TxQueryService';
 
 /**
  * Astar Polkadot API mock.
  */
 export class AstarApiMock implements IAstarApi {
+    getCallFromHex(callHex: string): Promise<Call> {
+        throw new Error('Method not implemented.');
+    }
     public async getTotalSupply(): Promise<u128> {
         return new u128(new TypeRegistry(), '100000000000000000000');
     }
@@ -73,5 +79,13 @@ export class AstarApiMock implements IAstarApi {
 
     public async sendTransaction(transaction: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<string> {
         return Promise.resolve('123');
+    }
+
+    public async fetchSubscan({ network, hash, type }: { network: NetworkType; hash: string; type: string }) {
+        let mockedData;
+        if (type === 'transfer') {
+            mockedData = transferExtrinsicData;
+        }
+        return Promise.resolve(mockedData);
     }
 }
