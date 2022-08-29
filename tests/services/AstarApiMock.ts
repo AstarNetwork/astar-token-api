@@ -4,7 +4,7 @@ import { TypeRegistry } from '@polkadot/types/create';
 import { PalletBalancesAccountData } from '@polkadot/types/lookup';
 import { ISubmittableResult } from '@polkadot/types/types';
 import BN from 'bn.js';
-import { IAstarApi } from '../../src/client/BaseApi';
+import { DappInfo, IAstarApi } from '../../src/client/BaseApi';
 import { AprCalculationData } from '../../src/models/AprCalculationData';
 
 /**
@@ -73,5 +73,13 @@ export class AstarApiMock implements IAstarApi {
 
     public async sendTransaction(transaction: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<string> {
         return Promise.resolve('123');
+    }
+
+    public async getRegisterDappPayload(dappAddress: string, developerAddress: string): Promise<string> {
+        return Promise.resolve(`Payload for dapp ${dappAddress} and developer ${developerAddress}`);
+    }
+
+    public async getRegisteredDapp(dappAddress: string): Promise<DappInfo | undefined> {
+        return undefined;
     }
 }

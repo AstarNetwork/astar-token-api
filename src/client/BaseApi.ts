@@ -10,8 +10,9 @@ import { AprCalculationData } from '../models/AprCalculationData';
 import { networks } from '../networks';
 import { EraRewardAndStake } from '../types/DappsStaking';
 
-interface DappInfo extends Struct {
+export interface DappInfo extends Struct {
     developer: AccountId;
+    state: string;
 }
 
 interface SmartContract extends Enum {
@@ -31,6 +32,8 @@ export interface IAstarApi {
     getTransactionFromHex(transactionHex: string): Promise<Transaction>;
     sendTransaction(transaction: Transaction): Promise<string>;
     getCallFromHex(callHex: string): Promise<Call>;
+    getRegisterDappPayload(dappAddress: string, developerAddress: string): Promise<string>;
+    getRegisteredDapp(dappAddress: string): Promise<DappInfo | undefined>;
 }
 
 export class BaseApi implements IAstarApi {
@@ -141,6 +144,22 @@ export class BaseApi implements IAstarApi {
         return this._api.createType('Call', callHex);
     }
 
+    public async getRegisterDappPayload(dappAddress: string, developerAddress: string): Promise<string> {
+        await this.ensureConnection();
+        const payload = this._api.tx.dappsStaking.register(developerAddress, this.getAddressEnum(dappAddress)).toHex();
+
+        return payload;
+    }
+
+    public async getRegisteredDapp(dappAddress: string): Promise<DappInfo | undefined> {
+        await this.ensureConnection();
+        const dapp = await this._api.query.dappsStaking.registeredDapps<Option<DappInfo>>(
+            this.getAddressEnum(dappAddress),
+        );
+
+        return dapp.unwrapOrDefault();
+    }
+
     protected async ensureConnection(networkIndex?: number): Promise<ApiPromise> {
         let localApi: ApiPromise;
         const currentIndex = networkIndex ?? 0;
@@ -193,5 +212,9 @@ export class BaseApi implements IAstarApi {
         }
 
         return message;
+    }
+
+    private getAddressEnum(address: string) {
+        return { Evm: address };
     }
 }
