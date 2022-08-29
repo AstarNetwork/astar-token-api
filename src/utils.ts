@@ -62,7 +62,7 @@ export const getSubscanUrl = (network: string): string => {
 };
 
 export const getSubscanOption = () => {
-    const apiKey = String(functions.config().subscan.apikey || '');
+    const apiKey = String(functions.config().subscan.apikey);
     const options: AxiosRequestConfig = {};
     if (apiKey) {
         options.headers = { 'X-API-Key': apiKey };
