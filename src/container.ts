@@ -1,5 +1,6 @@
 // Import required by Inversify IoC, otherwise 'Reflect.hasOwnMetadata is not a function' exception is thrown
 // during types resolution.
+// `import 'reflect-metadata'` must be in the top of this file
 import 'reflect-metadata';
 
 import { Container } from 'inversify';
@@ -7,6 +8,7 @@ import { IControllerBase } from './controllers/IControllerBase';
 import { TokenStatsController } from './controllers/TokenStatsController';
 import { IStatsService, StatsService } from './services/StatsService';
 import { ITxQueryService, TxQueryService } from './services/TxQueryService';
+import { SubscanService, ISubscanService } from './services/SubscanService';
 import { TxQueryController } from './controllers/TxQueryController';
 import { IAstarApi } from './client/BaseApi';
 import { networks } from './networks';
@@ -56,6 +58,7 @@ container
     .bind<IPriceProvider>(ContainerTypes.PriceProviderWithFailover)
     .to(PriceProviderWithFailover)
     .inSingletonScope();
+container.bind<ISubscanService>(ContainerTypes.SubscanService).to(SubscanService).inSingletonScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);

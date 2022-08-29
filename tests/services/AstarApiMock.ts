@@ -7,8 +7,6 @@ import { ISubmittableResult } from '@polkadot/types/types';
 import BN from 'bn.js';
 import { IAstarApi } from '../../src/client/BaseApi';
 import { AprCalculationData } from '../../src/models/AprCalculationData';
-import { NetworkType } from '../../src/networks';
-import { transferExtrinsicData } from '../mock/TxQueryService';
 
 /**
  * Astar Polkadot API mock.
@@ -79,13 +77,5 @@ export class AstarApiMock implements IAstarApi {
 
     public async sendTransaction(transaction: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<string> {
         return Promise.resolve('123');
-    }
-
-    public async fetchSubscan({ network, hash, type }: { network: NetworkType; hash: string; type: string }) {
-        let mockedData;
-        if (type === 'transfer') {
-            mockedData = transferExtrinsicData;
-        }
-        return Promise.resolve(mockedData);
     }
 }

@@ -1,15 +1,13 @@
-import axios from 'axios';
 import { inject, injectable } from 'inversify';
 import { ContainerTypes } from '../containertypes';
 import { TransferDetails } from '../models/TxQuery';
 import { NetworkType } from '../networks';
-import { getSubscanUrl } from '../utils';
 import { createWeb3Instance, fetchEvmTransferDetails } from './../modules/tx-query/utils/index';
 import { networks } from './../networks';
-import { IFirebaseService } from './FirebaseService';
+import { ISubscanService } from './SubscanService';
 
 export interface ITxQueryService {
-    fetchTransferDetails(network: NetworkType, hash: string): Promise<TransferDetails | undefined>;
+    fetchTransferDetails(network: NetworkType, hash: string): Promise<TransferDetails>;
 }
 
 @injectable()
@@ -17,22 +15,8 @@ export interface ITxQueryService {
  * Transaction query service
  */
 export class TxQueryService implements ITxQueryService {
-    constructor(@inject(ContainerTypes.FirebaseService) private _firebase: IFirebaseService) {}
+    constructor(@inject(ContainerTypes.SubscanService) private _subscan: ISubscanService) {}
 
-    public async fetchSubscan({ network, hash, type }: { network: NetworkType; hash: string; type: string }) {
-        const base = getSubscanUrl(network);
-        // const option = getSubscanOption();
-        const option = this._firebase.getSubscanOption();
-        const url = base + '/api/scan/extrinsic';
-        const { data } = await axios.post(
-            url,
-            {
-                hash,
-            },
-            option,
-        );
-        return data.data;
-    }
     /**
      * Fetch the transfer transaction detail of a given hash
      * @param network NetworkType (astar, shiden or shibuya)
@@ -42,7 +26,7 @@ export class TxQueryService implements ITxQueryService {
     public async fetchTransferDetails(network: NetworkType, hash: string): Promise<TransferDetails> {
         try {
             const type = 'transfer';
-            const data = await this.fetchSubscan({ network, hash, type });
+            const data = await this._subscan.fetchSubscan({ network, hash, type });
             const isEvmTransfer = !data;
             if (isEvmTransfer) {
                 const rpc = networks[network].evmRpc;

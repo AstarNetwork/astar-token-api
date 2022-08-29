@@ -9,4 +9,5 @@ export const ContainerTypes = {
     PriceProvider: 'PriceProvider',
     PriceProviderWithFailover: 'PriceProviderWithFailover',
     TxQueryService: 'TxQueryService',
+    SubscanService: 'SubscanService',
 };
