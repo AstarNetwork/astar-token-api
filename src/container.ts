@@ -1,11 +1,15 @@
 // Import required by Inversify IoC, otherwise 'Reflect.hasOwnMetadata is not a function' exception is thrown
 // during types resolution.
+// `import 'reflect-metadata'` must be in the top of this file
 import 'reflect-metadata';
 
 import { Container } from 'inversify';
 import { IControllerBase } from './controllers/IControllerBase';
 import { TokenStatsController } from './controllers/TokenStatsController';
 import { IStatsService, StatsService } from './services/StatsService';
+import { ITxQueryService, TxQueryService } from './services/TxQueryService';
+import { SubscanService, ISubscanService } from './services/SubscanService';
+import { TxQueryController } from './controllers/TxQueryController';
 import { IAstarApi } from './client/BaseApi';
 import { networks } from './networks';
 import { ApiFactory, IApiFactory } from './client/ApiFactory';
@@ -45,6 +49,7 @@ container.bind<IApiFactory>(ContainerTypes.ApiFactory).to(ApiFactory).inSingleto
 
 // services registration
 container.bind<IStatsService>(ContainerTypes.StatsService).to(StatsService).inSingletonScope();
+
 container
     .bind<IDappsStakingService>(ContainerTypes.DappsStakingService)
     .to(DappsStakingService)
@@ -65,6 +70,7 @@ container
     .to(DappsStakingService2)
     .inSingletonScope()
     .whenTargetNamed(networks.development.name);
+
 container.bind<IStatsIndexerService>(ContainerTypes.StatsIndexerService).to(StatsIndexerService).inSingletonScope();
 container.bind<IFirebaseService>(ContainerTypes.FirebaseService).to(FirebaseService).inSingletonScope();
 container.bind<IPriceProvider>(ContainerTypes.PriceProvider).to(DiaDataPriceProvider).inSingletonScope();
@@ -73,10 +79,14 @@ container
     .bind<IPriceProvider>(ContainerTypes.PriceProviderWithFailover)
     .to(PriceProviderWithFailover)
     .inSingletonScope();
+container.bind<ISubscanService>(ContainerTypes.SubscanService).to(SubscanService).inSingletonScope();
+container.bind<ITxQueryService>(ContainerTypes.TxQueryService).to(TxQueryService).inSingletonScope();
+container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingService).inSingletonScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(DappsStakingController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(NodeController);
+container.bind<IControllerBase>(ContainerTypes.Controller).to(TxQueryController);
 
 export default container;

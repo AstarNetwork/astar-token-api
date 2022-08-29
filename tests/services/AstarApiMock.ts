@@ -1,6 +1,7 @@
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { u32, u64, u128 } from '@polkadot/types';
 import { TypeRegistry } from '@polkadot/types/create';
+import { Call } from '@polkadot/types/interfaces';
 import { PalletBalancesAccountData } from '@polkadot/types/lookup';
 import { ISubmittableResult } from '@polkadot/types/types';
 import BN from 'bn.js';
@@ -11,6 +12,9 @@ import { AprCalculationData } from '../../src/models/AprCalculationData';
  * Astar Polkadot API mock.
  */
 export class AstarApiMock implements IAstarApi {
+    getCallFromHex(callHex: string): Promise<Call> {
+        throw new Error('Method not implemented.');
+    }
     public async getTotalSupply(): Promise<u128> {
         return new u128(new TypeRegistry(), '100000000000000000000');
     }
