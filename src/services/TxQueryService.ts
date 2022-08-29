@@ -1,10 +1,12 @@
 import axios from 'axios';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
+import { ContainerTypes } from '../containertypes';
 import { TransferDetails } from '../models/TxQuery';
 import { NetworkType } from '../networks';
-import { getSubscanOption, getSubscanUrl } from '../utils';
+import { getSubscanUrl } from '../utils';
 import { createWeb3Instance, fetchEvmTransferDetails } from './../modules/tx-query/utils/index';
 import { networks } from './../networks';
+import { IFirebaseService } from './FirebaseService';
 
 export interface ITxQueryService {
     fetchTransferDetails(network: NetworkType, hash: string): Promise<TransferDetails | undefined>;
@@ -15,9 +17,12 @@ export interface ITxQueryService {
  * Transaction query service
  */
 export class TxQueryService implements ITxQueryService {
+    constructor(@inject(ContainerTypes.FirebaseService) private _firebase: IFirebaseService) {}
+
     public async fetchSubscan({ network, hash, type }: { network: NetworkType; hash: string; type: string }) {
         const base = getSubscanUrl(network);
-        const option = getSubscanOption();
+        // const option = getSubscanOption();
+        const option = this._firebase.getSubscanOption();
         const url = base + '/api/scan/extrinsic';
         const { data } = await axios.post(
             url,

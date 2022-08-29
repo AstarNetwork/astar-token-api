@@ -1,3 +1,4 @@
+import { AxiosRequestConfig } from 'axios';
 import admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import { inject, injectable } from 'inversify';
@@ -9,6 +10,7 @@ import { NetworkType } from '../networks';
 export interface IFirebaseService {
     getDapps(network: NetworkType): Promise<DappItem[]>;
     registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem>;
+    getSubscanOption(): AxiosRequestConfig;
 }
 
 @injectable()
@@ -103,5 +105,15 @@ export class FirebaseService implements IFirebaseService {
         const collectionKey = `${chain.toString().toLowerCase()}-dapps`.replace(' ', '-');
 
         return collectionKey;
+    }
+
+    public getSubscanOption(): AxiosRequestConfig {
+        const apiKey = String(functions.config().subscan.apikey || '');
+        const options: AxiosRequestConfig = {};
+        if (apiKey) {
+            options.headers = { 'X-API-Key': apiKey };
+        }
+
+        return options;
     }
 }
