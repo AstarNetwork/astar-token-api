@@ -1,4 +1,3 @@
-import { AxiosRequestConfig } from 'axios';
 import admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import { inject, injectable } from 'inversify';

@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { TxQueryService } from '../../src/services/TxQueryService';
 import { ISubscanService } from './../../src/services/SubscanService';
 import { SubscanServiceMock } from './SubscanServiceMock';
@@ -11,7 +12,6 @@ describe('fetch the transaction details', () => {
 
     it('return the transfer details', async () => {
         const service = new TxQueryService(subscanMock);
-        // const hash = '0x66b432feb410848602bfbdf5be34eff4124c820f3ab2492c59768dd4c58';
         const hash = '0x66b432feb410848602bfbdf5be34eff4124c820f3ab2492c59768dd4c58e92a0';
         const result = await service.fetchTransferDetails('shiden', hash);
         const { amount, from, to, symbol, timestamp, isSuccess } = result;
