@@ -81,7 +81,6 @@ container
     .inSingletonScope();
 container.bind<ISubscanService>(ContainerTypes.SubscanService).to(SubscanService).inSingletonScope();
 container.bind<ITxQueryService>(ContainerTypes.TxQueryService).to(TxQueryService).inSingletonScope();
-container.bind<IDappsStakingService>(ContainerTypes.DappsStakingService).to(DappsStakingService).inSingletonScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);
