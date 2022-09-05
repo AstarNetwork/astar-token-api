@@ -25,6 +25,8 @@ import { DiaDataPriceProvider } from './services/DiaDataPriceProvider';
 import { CoinGeckoPriceProvider } from './services/CoinGeckoPriceProvider';
 import { PriceProviderWithFailover } from './services/PriceProviderWithFailover';
 import { DappsStakingService2 } from './services/DappsStakingService2';
+import { IMonthlyActiveWalletsService, MonthlyActiveWalletsService } from './services/MonthlyActiveWalletsService';
+import { MonthlyActiveWalletsController } from './controllers/MonthlyActiveWalletsController';
 
 const container = new Container();
 
@@ -81,11 +83,16 @@ container
     .inSingletonScope();
 container.bind<ISubscanService>(ContainerTypes.SubscanService).to(SubscanService).inSingletonScope();
 container.bind<ITxQueryService>(ContainerTypes.TxQueryService).to(TxQueryService).inSingletonScope();
+container
+    .bind<IMonthlyActiveWalletsService>(ContainerTypes.MonthlyActiveWalletsService)
+    .to(MonthlyActiveWalletsService)
+    .inSingletonScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(DappsStakingController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(NodeController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TxQueryController);
+container.bind<IControllerBase>(ContainerTypes.Controller).to(MonthlyActiveWalletsController);
 
 export default container;
