@@ -54,8 +54,8 @@ export class MonthlyActiveWalletsService implements IMonthlyActiveWalletsService
     }
 
     public async getMonthlyData(numberOfMonths = 12, network: NetworkType): Promise<UsersCount[]> {
-        if(numberOfMonths <1) {
-          throw new Error('Number of months must be greater or equal to 1');
+        if (numberOfMonths < 1) {
+            throw new Error('Number of months must be greater or equal to 1');
         }
         this.checkNetwork(network);
 
