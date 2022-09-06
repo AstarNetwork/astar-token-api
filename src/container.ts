@@ -57,7 +57,7 @@ container
     .whenTargetNamed(networks.astar.name);
 container
     .bind<IDappsStakingService>(ContainerTypes.DappsStakingService)
-    .to(DappsStakingService)
+    .to(DappsStakingService2)
     .inSingletonScope()
     .whenTargetNamed(networks.shiden.name);
 container
