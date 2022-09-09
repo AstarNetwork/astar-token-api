@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "1.0.0",
+    "version": "1.0.1",
     "title": "Astar token statistics API",
     "description": "Provides network statistic information."
   },
@@ -307,6 +307,110 @@
             "required": true,
             "type": "string",
             "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/tx/transfer": {
+      "get": {
+        "description": "Return the transfer transaction detail of a given hash",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya"
+          },
+          {
+            "name": "hash",
+            "in": "query",
+            "description": "Transaction hash",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/maw/daily/{period}": {
+      "get": {
+        "description": "Retreives daily wallets statistics in CSV format",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar"
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 7 days, 30 days"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/maw/daily/unique/{period}": {
+      "get": {
+        "description": "Retreives daily unique wallets statistics.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar"
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 7 days, 30 days"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/maw/monthly/{numberOfMonths}": {
+      "get": {
+        "description": "Retreives monthly wallets statistics in CSV format",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar"
+          },
+          {
+            "name": "numberOfMonths",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Max. number of months to retrieve (greater than 0)"
           }
         ],
         "responses": {

@@ -5,11 +5,13 @@ const endpointsFiles = [
     'src/controllers/TokenStatsController.ts',
     'src/controllers/DappsStakingController.ts',
     'src/controllers/NodeController.ts',
+    'src/controllers/TxQueryController.ts',
+    'src/controllers/MonthlyActiveWalletsController.ts',
 ];
 
 const getDocumentation = (host) => ({
     info: {
-        version: '1.0.0',
+        version: '1.0.1',
         title: 'Astar token statistics API',
         description: 'Provides network statistic information.',
     },
