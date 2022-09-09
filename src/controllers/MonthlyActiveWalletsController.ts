@@ -17,7 +17,7 @@ export class MonthlyActiveWalletsController extends ControllerBase implements IC
     public register(app: express.Application): void {
         app.route('/api/v1/:network/maw/daily/:period').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retreives daily wallets statistics for last 30days in CSV format'
+                #swagger.description = 'Retreives daily wallets statistics in CSV format'
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar',
@@ -25,7 +25,7 @@ export class MonthlyActiveWalletsController extends ControllerBase implements IC
                 }
                 #swagger.parameters['period'] = {
                     in: 'path',
-                    description: 'The period type.  Supported values: 7 days 30 days',
+                    description: 'The period type.  Supported values: 7 days, 30 days',
                     required: true,
                 }
             */
@@ -48,7 +48,7 @@ export class MonthlyActiveWalletsController extends ControllerBase implements IC
 
         app.route('/api/v1/:network/maw/daily/unique/:period').get(async (req: Request, res: Response) => {
             /*
-              #swagger.description = 'Retreives daily wallets statistics for last 30days in CSV format'
+              #swagger.description = 'Retreives daily unique wallets statistics.'
               #swagger.parameters['network'] = {
                   in: 'path',
                   description: 'The network name. Supported networks: astar',
@@ -56,7 +56,7 @@ export class MonthlyActiveWalletsController extends ControllerBase implements IC
               }
               #swagger.parameters['period'] = {
                     in: 'path',
-                    description: 'The period type.  Supported values: 7 days 30 days',
+                    description: 'The period type.  Supported values: 7 days, 30 days',
                     required: true,
                 }
           */
@@ -73,7 +73,7 @@ export class MonthlyActiveWalletsController extends ControllerBase implements IC
 
         app.route('/api/v1/:network/maw/monthly/:numberOfMonths').get(async (req: Request, res: Response) => {
             /*
-            #swagger.description = 'Retreives daily wallets statistics for last 30days in CSV format'
+            #swagger.description = 'Retreives monthly wallets statistics in CSV format'
             #swagger.parameters['network'] = {
                 in: 'path',
                 description: 'The network name. Supported networks: astar',
@@ -81,7 +81,7 @@ export class MonthlyActiveWalletsController extends ControllerBase implements IC
             }
             #swagger.parameters['numberOfMonths'] = {
                 in: 'path',
-                description: 'Max. number of months to retrieve',
+                description: 'Max. number of months to retrieve (greater than 0)',
                 required: true,
             }
         */
