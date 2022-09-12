@@ -54,7 +54,7 @@ container.bind<IStatsService>(ContainerTypes.StatsService).to(StatsService).inSi
 
 container
     .bind<IDappsStakingService>(ContainerTypes.DappsStakingService)
-    .to(DappsStakingService)
+    .to(DappsStakingService2)
     .inSingletonScope()
     .whenTargetNamed(networks.astar.name);
 container
