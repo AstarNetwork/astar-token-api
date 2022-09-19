@@ -83,12 +83,6 @@ export class DappsStakingService implements IDappsStakingService {
     }
 
     private getAverageBlocksPerMins(data: AprCalculationData): number {
-        // const currentTs = Math.floor(data.timeStamp.toNumber() / 1000);
-        // const minsChainRunning = (currentTs - TS_FIRST_BLOCK[chainId]) / 60;
-        // const avgBlocksPerMin = data.latestBlock.toNumber() / minsChainRunning;
-
-        // return avgBlocksPerMin;
-
         const spentSecs = data.timeStamp.sub(data.tsBlock7EraAgo).divn(1000).toNumber();
         const min = 60;
         return min / (spentSecs / (data.latestBlock.toNumber() - data.block7EraAgo.toNumber()));
