@@ -47,10 +47,16 @@ export class AstarApiMock implements IAstarApi {
 
     public async getAprCalculationData(): Promise<AprCalculationData> {
         const blockRewards = new u128(new TypeRegistry(), '266400000000000000000');
-        const timeStamp = new u64(new TypeRegistry(), '1643779416196');
-        const latestBlock = new u32(new TypeRegistry(), '325833');
+        const timeStamp = new u64(new TypeRegistry(), '1663656384177');
+        const latestBlock = new u32(new TypeRegistry(), '1898332');
         const developerRewardPercentage = 0.01;
         const blockPerEra = new u32(new TypeRegistry(), '7200');
+        const adjustablePercent = 0.45;
+        const baseStakerPercent = 0.2;
+        const idealDappsStakingTvl = 0.6000000000000001;
+        const totalIssuance = 7489316530.548266;
+        const block7EraAgo = new u32(new TypeRegistry(), '1847932');
+        const tsBlock7EraAgo = new u64(new TypeRegistry(), '1663037112230');
 
         return {
             blockRewards,
@@ -58,6 +64,12 @@ export class AstarApiMock implements IAstarApi {
             latestBlock,
             developerRewardPercentage,
             blockPerEra,
+            block7EraAgo,
+            tsBlock7EraAgo,
+            baseStakerPercent,
+            adjustablePercent,
+            idealDappsStakingTvl,
+            totalIssuance,
         };
     }
 

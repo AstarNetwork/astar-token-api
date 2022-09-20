@@ -46,17 +46,22 @@ export class DappsStakingService implements IDappsStakingService {
             const decimals = await api.getChainDecimals();
 
             const blockRewards = Number(defaultAmountWithDecimals(data.blockRewards, decimals));
-            const averageBlocksPerMinute = this.getAverageBlocksPerMins(network, data);
+            const eraRewards = data.blockPerEra.toNumber() * blockRewards;
+            const averageBlocksPerMinute = this.getAverageBlocksPerMins(data);
             const averageBlocksPerDay = averageBlocksPerMinute * 60 * 24;
             const dailyEraRate = averageBlocksPerDay / data.blockPerEra.toNumber();
-            const eraRewards = data.blockPerEra.toNumber() * blockRewards;
+
             const annualRewards = eraRewards * dailyEraRate * 365.25;
 
             const tvl = await api.getTvl();
             const totalStaked = Number(ethers.utils.formatUnits(tvl.toString(), decimals));
-            const stakerBlockReward = (1 - data.developerRewardPercentage) * DAPPS_REWARD_RATE;
+            const tvlPercentage = totalStaked / data.totalIssuance;
+            const adjustableStakerPercentage =
+                Math.min(1, tvlPercentage / data.idealDappsStakingTvl) * data.adjustablePercent;
+            const stakerBlockReward = adjustableStakerPercentage + data.baseStakerPercent;
             const stakerApr = (annualRewards / totalStaked) * stakerBlockReward * 100;
 
+            if (stakerApr === Infinity) return 0;
             return stakerApr;
         } catch (e) {
             console.error(e);
@@ -77,12 +82,10 @@ export class DappsStakingService implements IDappsStakingService {
         }
     }
 
-    private getAverageBlocksPerMins(chainId: string, data: AprCalculationData): number {
-        const currentTs = Math.floor(data.timeStamp.toNumber() / 1000);
-        const minsChainRunning = (currentTs - TS_FIRST_BLOCK[chainId]) / 60;
-        const avgBlocksPerMin = data.latestBlock.toNumber() / minsChainRunning;
-
-        return avgBlocksPerMin;
+    private getAverageBlocksPerMins(data: AprCalculationData): number {
+        const spentSecs = data.timeStamp.sub(data.tsBlock7EraAgo).divn(1000).toNumber();
+        const min = 60;
+        return min / (spentSecs / (data.latestBlock.toNumber() - data.block7EraAgo.toNumber()));
     }
 
     public async getEarned(network: NetworkType = 'astar', address: string): Promise<number> {

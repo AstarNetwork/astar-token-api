@@ -20,6 +20,6 @@ describe('getApr', () => {
         const result = await service.calculateApr();
         const roundedResult = Math.round(result * 10000) / 10000;
 
-        expect(roundedResult).toBe(9.2977);
+        expect(roundedResult).toBe(10.5872);
     });
 });
