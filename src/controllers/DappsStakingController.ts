@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { body, validationResult } from 'express-validator';
+import { body, oneOf, check, validationResult } from 'express-validator';
 import { injectable, inject } from 'inversify';
 import container from '../container';
 import { ContainerTypes } from '../containertypes';
@@ -131,25 +131,36 @@ export class DappsStakingController extends ControllerBase implements IControlle
         });
 
         app.route('/api/v1/:network/dapps-staking/register').post(
-            body('name').not().isEmpty().trim().escape(),
-            body('description').not().isEmpty().trim().escape(),
+            body('name').notEmpty().trim().escape(),
+            body('description').notEmpty().trim().escape(),
             body('url').isURL(),
-            body('license').not().isEmpty().trim().escape(),
-            body('address').not().isEmpty().trim().escape(),
-            body('tags').isArray({ min: 1 }),
-            body('tags.*').not().isEmpty().trim().escape(), // validate if tags array elements are strings
-            body('forumUrl').not().isEmpty().isURL(),
-            body('gitHubUrl').not().isEmpty().isURL(),
-            body('iconFile').not().isEmpty(),
-            body('iconFile.name').not().isEmpty().isString(),
-            body('iconFile.contentType').isString(),
-            body('iconFile.base64content').isString(),
+            body('license').notEmpty().trim().isIn(['GPL-3.0', 'MIT', 'GNU']),
+            body('address').notEmpty().trim().escape(),
+            body('iconFile').notEmpty(),
+            body('iconFile.name').notEmpty().isString(),
+            body('iconFile.contentType').isString().escape(),
+            body('iconFile.base64content').isString().escape(),
             body('images').isArray({ min: 4 }),
-            body('images.*.name').isString(),
-            body('images.*.contentType').isString(),
-            body('images.*.base64content').isString(),
-            body('senderAddress').not().isEmpty().trim().escape(),
-            body('signature').not().isEmpty().trim().escape(),
+            body('images.*.name').isString().escape(),
+            body('images.*.contentType').isString().escape(),
+            body('images.*.base64content').isString().escape(),
+            body('senderAddress').notEmpty().trim().escape(),
+            body('signature').notEmpty().trim().escape(),
+            body('developers').isArray({ min: 2 }).withMessage('At least 2 developers are required'),
+            body('developers.*.name').notEmpty().isString().escape(),
+            body('developers.*.iconFile').notEmpty().isString().escape(),
+            // Validate if at least one url is present.
+            oneOf([
+                body('developers.*.twitterAccountUrl', 'Twitter').isURL(),
+                body('developers.*.linkedInAccountUrl', 'LinkedIn').isURL(),
+            ]),
+            body('communities').isArray({ min: 1 }).withMessage('At least 1 community is required'),
+            body('communities.*.type').isIn(['Twitter', 'Reddit', 'Facebook', 'TikTok', 'YouTube', 'Instagram']),
+            body('communities.*.handle').notEmpty().isURL(),
+            body('platforms').isArray({ min: 1 }),
+            body('platforms.*').isIn(['mac', 'windows', 'ios', 'android']),
+            body('contractType').notEmpty().isIn(['wasm+evm', 'wasm', 'evm']),
+            body('mainCategory').notEmpty().isIn(['defi', 'nft', 'tooling', 'utility', 'others']),
             async (req: Request, res: Response) => {
                 /*
                     #swagger.description = 'Registers a new dapp'
