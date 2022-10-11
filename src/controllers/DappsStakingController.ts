@@ -146,7 +146,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
             */
 
             const data = await this._firebaseService.getDapp(req.params.address, req.params.network as NetworkType);
-            
+
             if (data) {
                 res.json(data);
             } else {
@@ -174,10 +174,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
             body('developers.*.name').notEmpty().isString().escape(),
             body('developers.*.iconFile').notEmpty().isString().escape(),
             // Validate if at least one developer url is present.
-            oneOf([
-                body('developers.*.twitterAccountUrl').isURL(),
-                body('developers.*.linkedInAccountUrl').isURL(),
-            ]),
+            oneOf([body('developers.*.twitterAccountUrl').isURL(), body('developers.*.linkedInAccountUrl').isURL()]),
             body('communities').isArray({ min: 1 }).withMessage('At least 1 community is required'),
             body('communities.*.type').isIn(['Twitter', 'Reddit', 'Facebook', 'TikTok', 'YouTube', 'Instagram']),
             body('communities.*.handle').notEmpty().isURL(),

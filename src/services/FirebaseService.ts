@@ -41,7 +41,7 @@ export class FirebaseService implements IFirebaseService {
         const query = admin.firestore().collection(collectionKey).doc(address);
         const data = await query.get();
 
-        return data.exists ? data.data() as NewDappItem : undefined;
+        return data.exists ? (data.data() as NewDappItem) : undefined;
     }
 
     public async registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem> {
