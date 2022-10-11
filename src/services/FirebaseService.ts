@@ -63,16 +63,16 @@ export class FirebaseService implements IFirebaseService {
         const firebasePayload = {
             name: dapp.name,
             iconUrl: dapp.iconUrl,
-            description: dapp.description,
-            url: dapp.url,
             address: dapp.address,
-            license: dapp.license,
-            videoUrl: dapp.videoUrl ? dapp.videoUrl : '',
-            tags: dapp.tags,
-            forumUrl: dapp.forumUrl,
-            authorContact: dapp.authorContact,
-            gitHubUrl: dapp.gitHubUrl,
+            url: dapp.url,
             imagesUrl: dapp.imagesUrl,
+            developers: dapp.developers,
+            description: dapp.description,
+            communities: dapp.communities,
+            platforms: dapp.platforms,
+            contractType: dapp.contractType,
+            mainCategory: dapp.mainCategory,
+            license: dapp.license,
         } as DappItem;
         await admin.firestore().collection(collectionKey).doc(dapp.address).set(firebasePayload);
 
