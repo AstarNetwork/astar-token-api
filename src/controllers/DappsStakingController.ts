@@ -130,6 +130,30 @@ export class DappsStakingController extends ControllerBase implements IControlle
             res.json(await this._firebaseService.getDapps(req.params.network as NetworkType));
         });
 
+        app.route('/api/v1/:network/dapps-staking/dapps/:address').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retrieves dapp with the given address'
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, development',
+                    required: true
+                }
+                #swagger.parameters['address'] = {
+                    in: 'path',
+                    description: 'The dapp address',
+                    required: true
+                }
+            */
+
+            const data = await this._firebaseService.getDapp(req.params.address, req.params.network as NetworkType);
+            
+            if (data) {
+                res.json(data);
+            } else {
+                this.handleNotFound(res);
+            }
+        });
+
         app.route('/api/v1/:network/dapps-staking/register').post(
             body('name').notEmpty().trim().escape(),
             body('description').notEmpty().trim().escape(),
@@ -149,7 +173,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
             body('developers').isArray({ min: 2 }).withMessage('At least 2 developers are required'),
             body('developers.*.name').notEmpty().isString().escape(),
             body('developers.*.iconFile').notEmpty().isString().escape(),
-            // Validate if at least one url is present.
+            // Validate if at least one developer url is present.
             oneOf([
                 body('developers.*.twitterAccountUrl', 'Twitter').isURL(),
                 body('developers.*.linkedInAccountUrl', 'LinkedIn').isURL(),
