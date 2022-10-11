@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { body, oneOf, check, validationResult } from 'express-validator';
+import { body, oneOf, validationResult } from 'express-validator';
 import { injectable, inject } from 'inversify';
 import container from '../container';
 import { ContainerTypes } from '../containertypes';
@@ -175,8 +175,8 @@ export class DappsStakingController extends ControllerBase implements IControlle
             body('developers.*.iconFile').notEmpty().isString().escape(),
             // Validate if at least one developer url is present.
             oneOf([
-                body('developers.*.twitterAccountUrl', 'Twitter').isURL(),
-                body('developers.*.linkedInAccountUrl', 'LinkedIn').isURL(),
+                body('developers.*.twitterAccountUrl').isURL(),
+                body('developers.*.linkedInAccountUrl').isURL(),
             ]),
             body('communities').isArray({ min: 1 }).withMessage('At least 1 community is required'),
             body('communities.*.type').isIn(['Twitter', 'Reddit', 'Facebook', 'TikTok', 'YouTube', 'Instagram']),
