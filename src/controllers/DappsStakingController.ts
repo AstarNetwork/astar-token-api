@@ -3,6 +3,7 @@ import { body, oneOf, validationResult } from 'express-validator';
 import { injectable, inject } from 'inversify';
 import container from '../container';
 import { ContainerTypes } from '../containertypes';
+import { Developer } from '../models/Dapp';
 import { NetworkType } from '../networks';
 import { IDappsStakingService } from '../services/DappsStakingService';
 import { IFirebaseService } from '../services/FirebaseService';
@@ -178,7 +179,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
             body('developers.*.name').notEmpty().isString().escape(),
             body('developers.*.iconFile').notEmpty().isString().escape(),
             // Validate if at least one developer url is present.
-            oneOf([body('developers.*.twitterAccountUrl').isURL(), body('developers.*.linkedInAccountUrl').isURL()]),
+            body('developers.*').custom((developer: Developer) => validateDeveloperLinks(developer)),
             body('communities').isArray({ min: 1 }).withMessage('At least 1 community is required'),
             body('communities.*.type').isIn(['Twitter', 'Reddit', 'Facebook', 'TikTok', 'YouTube', 'Instagram']),
             body('communities.*.handle').notEmpty().isURL(),
@@ -215,4 +216,24 @@ export class DappsStakingController extends ControllerBase implements IControlle
             },
         );
     }
+}
+
+export function validateDeveloperLinks(developer: Developer): boolean {
+    const httpRegex =
+        /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/;
+
+    const isValid = {
+        twitter: true,
+        linkedIn: true,
+    };
+
+    if (developer.twitterAccountUrl) {
+        isValid.twitter = httpRegex.test(developer.twitterAccountUrl);
+    }
+
+    if (developer.linkedInAccountUrl) {
+        isValid.linkedIn = httpRegex.test(developer.linkedInAccountUrl);
+    }
+
+    return Boolean(developer.twitterAccountUrl || developer.linkedInAccountUrl) && isValid.linkedIn && isValid.twitter;
 }
