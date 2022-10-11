@@ -3,6 +3,7 @@ import * as functions from 'firebase-functions';
 import { inject, injectable } from 'inversify';
 import { IApiFactory } from '../client/ApiFactory';
 import { ContainerTypes } from '../containertypes';
+import { Guard } from '../guard';
 import { DappItem, FileInfo, NewDappItem } from '../models/Dapp';
 import { NetworkType } from '../networks';
 
@@ -35,8 +36,9 @@ export class FirebaseService implements IFirebaseService {
     }
 
     public async getDapp(address: string, network: NetworkType): Promise<NewDappItem | undefined> {
-        this.initApp();
+        Guard.ThrowIfUndefined('address', address);
 
+        this.initApp();
         const collectionKey = await this.getCollectionKey(network);
         const query = admin.firestore().collection(collectionKey).doc(address);
         const data = await query.get();
