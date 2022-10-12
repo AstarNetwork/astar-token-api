@@ -3,11 +3,13 @@ import * as functions from 'firebase-functions';
 import { inject, injectable } from 'inversify';
 import { IApiFactory } from '../client/ApiFactory';
 import { ContainerTypes } from '../containertypes';
+import { Guard } from '../guard';
 import { DappItem, FileInfo, NewDappItem } from '../models/Dapp';
 import { NetworkType } from '../networks';
 
 export interface IFirebaseService {
     getDapps(network: NetworkType): Promise<DappItem[]>;
+    getDapp(address: string, network: NetworkType): Promise<NewDappItem | undefined>;
     registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem>;
 }
 
@@ -33,6 +35,17 @@ export class FirebaseService implements IFirebaseService {
         return result;
     }
 
+    public async getDapp(address: string, network: NetworkType): Promise<NewDappItem | undefined> {
+        Guard.ThrowIfUndefined('address', address);
+
+        this.initApp();
+        const collectionKey = await this.getCollectionKey(network);
+        const query = admin.firestore().collection(collectionKey).doc(address);
+        const data = await query.get();
+
+        return data.exists ? (data.data() as NewDappItem) : undefined;
+    }
+
     public async registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem> {
         this.initApp();
         const collectionKey = await this.getCollectionKey(network);
@@ -52,16 +65,16 @@ export class FirebaseService implements IFirebaseService {
         const firebasePayload = {
             name: dapp.name,
             iconUrl: dapp.iconUrl,
-            description: dapp.description,
-            url: dapp.url,
             address: dapp.address,
-            license: dapp.license,
-            videoUrl: dapp.videoUrl ? dapp.videoUrl : '',
-            tags: dapp.tags,
-            forumUrl: dapp.forumUrl,
-            authorContact: dapp.authorContact,
-            gitHubUrl: dapp.gitHubUrl,
+            url: dapp.url,
             imagesUrl: dapp.imagesUrl,
+            developers: dapp.developers,
+            description: dapp.description,
+            communities: dapp.communities,
+            platforms: dapp.platforms,
+            contractType: dapp.contractType,
+            mainCategory: dapp.mainCategory,
+            license: dapp.license,
         } as DappItem;
         await admin.firestore().collection(collectionKey).doc(dapp.address).set(firebasePayload);
 
