@@ -43,7 +43,15 @@ export class FirebaseService implements IFirebaseService {
         const query = admin.firestore().collection(collectionKey).doc(address);
         const data = await query.get();
 
-        return data.exists ? (data.data() as NewDappItem) : undefined;
+        if (data.exists) {
+            const dapp = data.data() as NewDappItem;
+            dapp.iconFile = await this.getFileInfo(decodeURI(dapp.iconUrl), collectionKey);
+            dapp.images = await Promise.all(dapp.imagesUrl.map(x => this.getFileInfo(decodeURI(x), collectionKey)))
+
+            return dapp;
+        } else {
+            return undefined;
+        }
     }
 
     public async registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem> {
@@ -86,8 +94,8 @@ export class FirebaseService implements IFirebaseService {
             .storage()
             .bucket(functions.config().extfirebase.bucket)
             .file(`${collectionKey}/${contractAddress}_${fileInfo.name}`);
-        const buffer = Buffer.from(fileInfo.base64content, 'base64');
-        await file.save(buffer, { contentType: fileInfo.contentType });
+        const buffer = Buffer.from(this.decode(fileInfo.base64content), 'base64');
+        await file.save(buffer, { contentType: this.decode(fileInfo.contentType) });
         file.makePublic();
 
         return file.publicUrl();
@@ -116,5 +124,31 @@ export class FirebaseService implements IFirebaseService {
         const collectionKey = `${chain.toString().toLowerCase()}-dapps`.replace(' ', '-');
 
         return collectionKey;
+    }
+
+    private async getFileInfo(url: string, collectionKey: string): Promise<FileInfo> {
+        const fileName = url.split('%2F').at(-1);
+        const file = admin
+            .storage()
+            .bucket(functions.config().extfirebase.bucket)
+            .file(`${collectionKey}/${fileName}`);
+        const meta = await file.getMetadata();
+        const content = await file.download();
+        const base64 = content[0].toString('base64');
+        const contentType = meta[0].contentType;
+        return {
+            name: fileName ?? '',
+            contentType: this.decode(contentType),
+            base64content: this.decode(base64),
+        }
+    }
+
+    /**
+     * Firebase encodes '/' as &#x2F; before storing to the db, becasue '/' is special caracter,
+     * so we need to fix this before sending to a client.
+     * @param data Data to be decoded.
+     */
+    private decode(data: string): string {
+        return data.split('&#x2F;').join('/');
     }
 }
