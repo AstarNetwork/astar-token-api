@@ -45,8 +45,13 @@ export class FirebaseService implements IFirebaseService {
 
         if (data.exists) {
             const dapp = data.data() as NewDappItem;
-            dapp.iconFile = await this.getFileInfo(decodeURI(dapp.iconUrl), collectionKey);
-            dapp.images = await Promise.all(dapp.imagesUrl.map(x => this.getFileInfo(decodeURI(x), collectionKey)))
+            const icon = await this.getFileInfo(dapp.iconUrl, collectionKey);
+            if (icon) {
+                dapp.iconFile = icon;
+            }
+
+            const images = await Promise.all(dapp.imagesUrl.map((x) => this.getFileInfo(x, collectionKey)));
+            dapp.images = images.filter((x) => x !== null) as FileInfo[];
 
             return dapp;
         } else {
@@ -126,20 +131,26 @@ export class FirebaseService implements IFirebaseService {
         return collectionKey;
     }
 
-    private async getFileInfo(url: string, collectionKey: string): Promise<FileInfo> {
-        const fileName = url.split('%2F').at(-1);
-        const file = admin
-            .storage()
-            .bucket(functions.config().extfirebase.bucket)
-            .file(`${collectionKey}/${fileName}`);
-        const meta = await file.getMetadata();
-        const content = await file.download();
-        const base64 = content[0].toString('base64');
-        const contentType = meta[0].contentType;
-        return {
-            name: fileName ?? '',
-            contentType: this.decode(contentType),
-            base64content: this.decode(base64),
+    private async getFileInfo(url: string, collectionKey: string): Promise<FileInfo | null> {
+        const fileName = decodeURI(url).split('%2F').at(-1)?.split('?')[0];
+
+        try {
+            const file = admin
+                .storage()
+                .bucket(functions.config().extfirebase.bucket)
+                .file(`${collectionKey}/${fileName}`);
+
+            const meta = await file.getMetadata();
+            const content = await file.download();
+            const base64 = content[0].toString('base64');
+            const contentType = meta[0].contentType;
+            return {
+                name: fileName ?? '',
+                contentType: this.decode(contentType),
+                base64content: this.decode(base64),
+            };
+        } catch {
+            return null;
         }
     }
 
