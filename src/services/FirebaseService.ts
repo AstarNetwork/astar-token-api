@@ -40,20 +40,35 @@ export class FirebaseService implements IFirebaseService {
 
         this.initApp();
         const collectionKey = await this.getCollectionKey(network);
-        const query = admin.firestore().collection(collectionKey).doc(address);
+        const query = admin
+            .firestore()
+            .collection(collectionKey)
+            .orderBy('address')
+            .startAt(address.toUpperCase())
+            .endAt(address.toLowerCase + '\uf8ff');
         const data = await query.get();
 
-        if (data.exists) {
-            const dapp = data.data() as NewDappItem;
-            const icon = await this.getFileInfo(dapp.iconUrl, collectionKey);
-            if (icon) {
-                dapp.iconFile = icon;
+        if (!data.empty) {
+            // TODO fix this and filter data on Firebase side.
+            // A problem here is that Firebase search is case sensitive and because of that
+            // there is no way to get dapp by address.
+            for (let i = 0; i < data.docs.length; i++) {
+                const dapp = data.docs[i].data() as NewDappItem;
+
+                if (dapp.address.toLowerCase() === address.toLowerCase()) {
+                    const icon = await this.getFileInfo(dapp.iconUrl, collectionKey);
+                    if (icon) {
+                        dapp.iconFile = icon;
+                    }
+
+                    const images = dapp.imagesUrl
+                        ? await Promise.all(dapp.imagesUrl.map((x) => this.getFileInfo(x, collectionKey)))
+                        : [];
+                    dapp.images = images.filter((x) => x !== null) as FileInfo[];
+
+                    return dapp;
+                }
             }
-
-            const images = await Promise.all(dapp.imagesUrl.map((x) => this.getFileInfo(x, collectionKey)));
-            dapp.images = images.filter((x) => x !== null) as FileInfo[];
-
-            return dapp;
         } else {
             return undefined;
         }
@@ -88,6 +103,7 @@ export class FirebaseService implements IFirebaseService {
             contractType: dapp.contractType,
             mainCategory: dapp.mainCategory,
             license: dapp.license,
+            tags: dapp.tags,
         } as DappItem;
         await admin.firestore().collection(collectionKey).doc(dapp.address).set(firebasePayload);
 
