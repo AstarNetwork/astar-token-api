@@ -79,14 +79,17 @@ export class FirebaseService implements IFirebaseService {
         const collectionKey = await this.getCollectionKey(network);
 
         // upload icon file
-        const iconUrl = await this.uploadImage(dapp.iconFile, collectionKey, dapp.address);
-        dapp.iconUrl = iconUrl;
+        if (dapp.iconFile) {
+            dapp.iconUrl = await this.uploadImage(dapp.iconFile, collectionKey, dapp.address);
+        }
 
         // upload images
         dapp.imagesUrl = [];
         for (const image of dapp.images) {
-            const imageUrl = await this.uploadImage(image, collectionKey, dapp.address);
-            dapp.imagesUrl.push(imageUrl);
+            if (image) {
+                const imageUrl = await this.uploadImage(image, collectionKey, dapp.address);
+                dapp.imagesUrl.push(imageUrl);
+            }
         }
 
         //upload document
