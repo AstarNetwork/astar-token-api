@@ -40,10 +40,38 @@ export class FirebaseService implements IFirebaseService {
 
         this.initApp();
         const collectionKey = await this.getCollectionKey(network);
-        const query = admin.firestore().collection(collectionKey).doc(address);
+        const query = admin
+            .firestore()
+            .collection(collectionKey)
+            .orderBy('address')
+            .startAt(address.toUpperCase())
+            .endAt(address.toLowerCase + '\uf8ff');
         const data = await query.get();
 
-        return data.exists ? (data.data() as NewDappItem) : undefined;
+        if (!data.empty) {
+            // TODO fix this and filter data on Firebase side.
+            // A problem here is that Firebase search is case sensitive and because of that
+            // there is no way to get dapp by address.
+            for (let i = 0; i < data.docs.length; i++) {
+                const dapp = data.docs[i].data() as NewDappItem;
+
+                if (dapp.address.toLowerCase() === address.toLowerCase()) {
+                    const icon = await this.getFileInfo(dapp.iconUrl, collectionKey);
+                    if (icon) {
+                        dapp.iconFile = icon;
+                    }
+
+                    const images = dapp.imagesUrl
+                        ? await Promise.all(dapp.imagesUrl.map((x) => this.getFileInfo(x, collectionKey)))
+                        : [];
+                    dapp.images = images.filter((x) => x !== null) as FileInfo[];
+
+                    return dapp;
+                }
+            }
+        } else {
+            return undefined;
+        }
     }
 
     public async registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem> {
@@ -51,14 +79,17 @@ export class FirebaseService implements IFirebaseService {
         const collectionKey = await this.getCollectionKey(network);
 
         // upload icon file
-        const iconUrl = await this.uploadImage(dapp.iconFile, collectionKey, dapp.address);
-        dapp.iconUrl = iconUrl;
+        if (dapp.iconFile) {
+            dapp.iconUrl = await this.uploadImage(dapp.iconFile, collectionKey, dapp.address);
+        }
 
         // upload images
         dapp.imagesUrl = [];
         for (const image of dapp.images) {
-            const imageUrl = await this.uploadImage(image, collectionKey, dapp.address);
-            dapp.imagesUrl.push(imageUrl);
+            if (image) {
+                const imageUrl = await this.uploadImage(image, collectionKey, dapp.address);
+                dapp.imagesUrl.push(imageUrl);
+            }
         }
 
         //upload document
@@ -75,6 +106,7 @@ export class FirebaseService implements IFirebaseService {
             contractType: dapp.contractType,
             mainCategory: dapp.mainCategory,
             license: dapp.license,
+            tags: dapp.tags,
         } as DappItem;
         await admin.firestore().collection(collectionKey).doc(dapp.address).set(firebasePayload);
 
@@ -86,8 +118,8 @@ export class FirebaseService implements IFirebaseService {
             .storage()
             .bucket(functions.config().extfirebase.bucket)
             .file(`${collectionKey}/${contractAddress}_${fileInfo.name}`);
-        const buffer = Buffer.from(fileInfo.base64content, 'base64');
-        await file.save(buffer, { contentType: fileInfo.contentType });
+        const buffer = Buffer.from(this.decode(fileInfo.base64content), 'base64');
+        await file.save(buffer, { contentType: this.decode(fileInfo.contentType) });
         file.makePublic();
 
         return file.publicUrl();
@@ -116,5 +148,37 @@ export class FirebaseService implements IFirebaseService {
         const collectionKey = `${chain.toString().toLowerCase()}-dapps`.replace(' ', '-');
 
         return collectionKey;
+    }
+
+    private async getFileInfo(url: string, collectionKey: string): Promise<FileInfo | null> {
+        const fileName = decodeURI(url).split('%2F').at(-1)?.split('?')[0];
+
+        try {
+            const file = admin
+                .storage()
+                .bucket(functions.config().extfirebase.bucket)
+                .file(`${collectionKey}/${fileName}`);
+
+            const meta = await file.getMetadata();
+            const content = await file.download();
+            const base64 = content[0].toString('base64');
+            const contentType = meta[0].contentType;
+            return {
+                name: fileName ?? '',
+                contentType: this.decode(contentType),
+                base64content: this.decode(base64),
+            };
+        } catch {
+            return null;
+        }
+    }
+
+    /**
+     * Firebase encodes '/' as &#x2F; before storing to the db, becasue '/' is special caracter,
+     * so we need to fix this before sending to a client.
+     * @param data Data to be decoded.
+     */
+    private decode(data: string): string {
+        return data.split('&#x2F;').join('/');
     }
 }
