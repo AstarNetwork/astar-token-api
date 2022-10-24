@@ -222,20 +222,20 @@ export class BaseApi implements IAstarApi {
         } else if (this.isValidAddressPolkadotAddress(address)) {
             return { Wasm: address };
         } else {
-            throw new Error(`Invalid contract address ${address}. The address should be in EVM or WASM format.`)
+            throw new Error(`Invalid contract address ${address}. The address should be in EVM or WASM format.`);
         }
     }
 
-    private isValidAddressPolkadotAddress (address: string, prefix?: number): boolean {
+    private isValidAddressPolkadotAddress(address: string, prefix?: number): boolean {
         try {
-          if (prefix) {
-            return checkAddress(address, prefix)[0];
-          } else {
-            encodeAddress(isHex(address) ? hexToU8a(address) : decodeAddress(address));
-            return true;
-          }
+            if (prefix) {
+                return checkAddress(address, prefix)[0];
+            } else {
+                encodeAddress(isHex(address) ? hexToU8a(address) : decodeAddress(address));
+                return true;
+            }
         } catch (error) {
-          return false;
+            return false;
         }
-      };
+    }
 }
