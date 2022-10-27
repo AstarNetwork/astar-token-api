@@ -102,7 +102,6 @@ export class FirebaseService implements IFirebaseService {
             developers: dapp.developers,
             description: dapp.description,
             communities: dapp.communities,
-            platforms: dapp.platforms,
             contractType: dapp.contractType,
             mainCategory: dapp.mainCategory,
             license: dapp.license,
