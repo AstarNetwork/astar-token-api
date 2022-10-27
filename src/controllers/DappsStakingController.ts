@@ -183,8 +183,6 @@ export class DappsStakingController extends ControllerBase implements IControlle
             body('communities').isArray({ min: 1 }).withMessage('At least 1 community is required'),
             body('communities.*.type').isIn(['Twitter', 'Reddit', 'Facebook', 'TikTok', 'YouTube', 'Instagram']),
             body('communities.*.handle').notEmpty().isURL(),
-            body('platforms').isArray({ min: 1 }),
-            body('platforms.*').isIn(['mac', 'windows', 'ios', 'android']),
             body('contractType').notEmpty().isIn(['wasm+evm', 'wasm', 'evm']),
             body('mainCategory').notEmpty().isIn(['defi', 'nft', 'tooling', 'utility', 'others']),
             async (req: Request, res: Response) => {
