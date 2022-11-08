@@ -6,6 +6,7 @@ import { ContainerTypes } from '../containertypes';
 import { Developer } from '../models/Dapp';
 import { NetworkType } from '../networks';
 import { IDappsStakingService } from '../services/DappsStakingService';
+import { IDappsStakingStatsService } from '../services/DappsStakingStatsService';
 import { IFirebaseService } from '../services/FirebaseService';
 import { IStatsIndexerService, PeriodType } from '../services/StatsIndexerService';
 import { ControllerBase } from './ControllerBase';
@@ -16,6 +17,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
     constructor(
         @inject(ContainerTypes.StatsIndexerService) private _indexerService: IStatsIndexerService,
         @inject(ContainerTypes.FirebaseService) private _firebaseService: IFirebaseService,
+        @inject(ContainerTypes.DappsStakingStatsService) private _statsService: IDappsStakingStatsService,
     ) {
         super();
     }
@@ -213,6 +215,50 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 }
             },
         );
+
+        app.route('/api/v1/:network/dapps-staking/stats/dapp/:contractAddress').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retrieves number of calls and unique users per era statistics.'
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden',
+                    required: true
+                }
+                #swagger.parameters['contractAddress'] = {
+                    in: 'path',
+                    description: 'Contract address to get stats for',
+                    required: true
+                }
+            */
+            res.json(
+                await this._statsService.getContractStatistics(
+                    req.params.network as NetworkType,
+                    req.params.contractAddress,
+                ),
+            );
+        });
+
+        app.route('/api/v1/:network/dapps-staking/stats/user/:userAddress').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retrieves user transactions.'
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden',
+                    required: true
+                }
+                #swagger.parameters['userAddress'] = {
+                    in: 'path',
+                    description: 'User address to get stats for',
+                    required: true
+                }
+            */
+            res.json(
+                await this._statsService.getUserEvents(
+                    req.params.network as NetworkType,
+                    req.params.userAddress,
+                ),
+            );
+        });
     }
 }
 

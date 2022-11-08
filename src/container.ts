@@ -27,6 +27,7 @@ import { PriceProviderWithFailover } from './services/PriceProviderWithFailover'
 import { DappsStakingService2 } from './services/DappsStakingService2';
 import { IMonthlyActiveWalletsService, MonthlyActiveWalletsService } from './services/MonthlyActiveWalletsService';
 import { MonthlyActiveWalletsController } from './controllers/MonthlyActiveWalletsController';
+import { DappsStakingStatsService, IDappsStakingStatsService } from './services/DappsStakingStatsService';
 
 const container = new Container();
 
@@ -87,6 +88,10 @@ container
     .bind<IMonthlyActiveWalletsService>(ContainerTypes.MonthlyActiveWalletsService)
     .to(MonthlyActiveWalletsService)
     .inSingletonScope();
+container
+    .bind<IDappsStakingStatsService>(ContainerTypes.DappsStakingStatsService)
+    .to(DappsStakingStatsService)
+    .inRequestScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);
