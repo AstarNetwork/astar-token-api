@@ -216,8 +216,9 @@ export class DappsStakingController extends ControllerBase implements IControlle
             },
         );
 
-        app.route('/api/v1/:network/dapps-staking/stats/dapp/:contractAddress').get(async (req: Request, res: Response) => {
-            /*
+        app.route('/api/v1/:network/dapps-staking/stats/dapp/:contractAddress').get(
+            async (req: Request, res: Response) => {
+                /*
                 #swagger.description = 'Retrieves number of calls and unique users per era statistics.'
                 #swagger.parameters['network'] = {
                     in: 'path',
@@ -230,13 +231,14 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     required: true
                 }
             */
-            res.json(
-                await this._statsService.getContractStatistics(
-                    req.params.network as NetworkType,
-                    req.params.contractAddress,
-                ),
-            );
-        });
+                res.json(
+                    await this._statsService.getContractStatistics(
+                        req.params.network as NetworkType,
+                        req.params.contractAddress,
+                    ),
+                );
+            },
+        );
 
         app.route('/api/v1/:network/dapps-staking/stats/user/:userAddress').get(async (req: Request, res: Response) => {
             /*
@@ -252,12 +254,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     required: true
                 }
             */
-            res.json(
-                await this._statsService.getUserEvents(
-                    req.params.network as NetworkType,
-                    req.params.userAddress,
-                ),
-            );
+            res.json(await this._statsService.getUserEvents(req.params.network as NetworkType, req.params.userAddress));
         });
     }
 }
