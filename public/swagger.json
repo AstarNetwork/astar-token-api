@@ -249,6 +249,32 @@
         }
       }
     },
+    "/api/v1/{network}/dapps-staking/dapps/{address}": {
+      "get": {
+        "description": "Retrieves dapp with the given address",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya, development"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The dapp address"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/{network}/dapps-staking/register": {
       "post": {
         "description": "Registers a new dapp",
@@ -267,6 +293,58 @@
           },
           "400": {
             "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/dapps-staking/stats/dapp/{contractAddress}": {
+      "get": {
+        "description": "Retrieves number of calls and unique users per era statistics.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden"
+          },
+          {
+            "name": "contractAddress",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Contract address to get stats for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/dapps-staking/stats/user/{userAddress}": {
+      "get": {
+        "description": "Retrieves user transactions.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden"
+          },
+          {
+            "name": "userAddress",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "User address to get stats for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
