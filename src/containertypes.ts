@@ -11,4 +11,5 @@ export const ContainerTypes = {
     TxQueryService: 'TxQueryService',
     SubscanService: 'SubscanService',
     MonthlyActiveWalletsService: 'MonthlyActiveWalletsService',
+    DappsStakingStatsService: 'DappsStakingStatsService',
 };
