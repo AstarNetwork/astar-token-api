@@ -36,6 +36,7 @@ export interface FileInfo {
 export interface Developer {
     twitterAccountUrl: string;
     linkedInAccountUrl: string;
+    githubAccountUrl: string;
     iconFile: string;
     name: string;
 }

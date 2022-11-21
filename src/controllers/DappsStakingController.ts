@@ -274,6 +274,7 @@ export function validateDeveloperLinks(developer: Developer): boolean {
     const isValid = {
         twitter: true,
         linkedIn: true,
+        gitHub: true,
     };
 
     if (developer.twitterAccountUrl) {
@@ -284,5 +285,14 @@ export function validateDeveloperLinks(developer: Developer): boolean {
         isValid.linkedIn = httpRegex.test(developer.linkedInAccountUrl);
     }
 
-    return Boolean(developer.twitterAccountUrl || developer.linkedInAccountUrl) && isValid.linkedIn && isValid.twitter;
+    if (developer.githubAccountUrl) {
+        isValid.gitHub = httpRegex.test(developer.githubAccountUrl);
+    }
+
+    return (
+        Boolean(developer.twitterAccountUrl || developer.linkedInAccountUrl || developer.githubAccountUrl) &&
+        isValid.linkedIn &&
+        isValid.twitter &&
+        isValid.gitHub
+    );
 }
