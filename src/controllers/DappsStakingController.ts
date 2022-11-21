@@ -183,7 +183,15 @@ export class DappsStakingController extends ControllerBase implements IControlle
             // Validate if at least one developer url is present.
             body('developers.*').custom((developer: Developer) => validateDeveloperLinks(developer)),
             body('communities').isArray({ min: 1 }).withMessage('At least 1 community is required'),
-            body('communities.*.type').isIn(['Twitter', 'Reddit', 'Facebook', 'TikTok', 'YouTube', 'Instagram']),
+            body('communities.*.type').isIn([
+                'Twitter',
+                'Reddit',
+                'Facebook',
+                'TikTok',
+                'YouTube',
+                'Instagram',
+                'Discord',
+            ]),
             body('communities.*.handle').notEmpty().isURL(),
             body('contractType').notEmpty().isIn(['wasm+evm', 'wasm', 'evm']),
             body('mainCategory').notEmpty().isIn(['defi', 'nft', 'tooling', 'utility', 'others']),
@@ -266,6 +274,7 @@ export function validateDeveloperLinks(developer: Developer): boolean {
     const isValid = {
         twitter: true,
         linkedIn: true,
+        gitHub: true,
     };
 
     if (developer.twitterAccountUrl) {
@@ -276,5 +285,14 @@ export function validateDeveloperLinks(developer: Developer): boolean {
         isValid.linkedIn = httpRegex.test(developer.linkedInAccountUrl);
     }
 
-    return Boolean(developer.twitterAccountUrl || developer.linkedInAccountUrl) && isValid.linkedIn && isValid.twitter;
+    if (developer.githubAccountUrl) {
+        isValid.gitHub = httpRegex.test(developer.githubAccountUrl);
+    }
+
+    return (
+        Boolean(developer.twitterAccountUrl || developer.linkedInAccountUrl || developer.githubAccountUrl) &&
+        isValid.linkedIn &&
+        isValid.twitter &&
+        isValid.gitHub
+    );
 }
