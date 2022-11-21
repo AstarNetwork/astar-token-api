@@ -183,7 +183,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
             // Validate if at least one developer url is present.
             body('developers.*').custom((developer: Developer) => validateDeveloperLinks(developer)),
             body('communities').isArray({ min: 1 }).withMessage('At least 1 community is required'),
-            body('communities.*.type').isIn(['Twitter', 'Reddit', 'Facebook', 'TikTok', 'YouTube', 'Instagram']),
+            body('communities.*.type').isIn(['Twitter', 'Reddit', 'Facebook', 'TikTok', 'YouTube', 'Instagram', 'Discord']),
             body('communities.*.handle').notEmpty().isURL(),
             body('contractType').notEmpty().isIn(['wasm+evm', 'wasm', 'evm']),
             body('mainCategory').notEmpty().isIn(['defi', 'nft', 'tooling', 'utility', 'others']),
