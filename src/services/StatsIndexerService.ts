@@ -7,6 +7,7 @@ import { NetworkType } from '../networks';
 import { getDateUTC, getDateYyyyMmDd, getSubscanUrl, getSubscanOption } from '../utils';
 
 export type PeriodType = '7 days' | '30 days' | '90 days' | '1 year';
+export type PeriodTypeEra = '7 eras' | '30 eras' | '90 eras' | 'all';
 export type Pair = { date: number; value: number };
 export type DateRange = { start: Date; end: Date };
 
