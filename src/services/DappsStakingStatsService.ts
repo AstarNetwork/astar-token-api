@@ -5,14 +5,14 @@ import { ContainerTypes } from '../containertypes';
 import { NetworkType } from '../networks';
 
 const API_URLS = {
-    astar: 'https://api.subquery.network/sq/bobo-k2/astar-dapp-staking',
+    astar: 'https://api.subquery.network/sq/bobo-k2/astar-dapp-staking-v2',
     shiden: 'https://api.subquery.network/sq/bobo-k2/shiden-dapp-staking',
 };
 
 interface ContractStats {
-    era: number;
-    numberOfCalls: number;
-    uniqueActiveUsers: number;
+    era: string;
+    numberOfCalls: string;
+    uniqueActiveUsers: string;
 }
 
 interface ContractStatsResponse {
@@ -77,7 +77,7 @@ export class DappsStakingStatsService implements IDappsStakingStatsService {
 
         if (calls.length > 0) {
             // Handle missing contract statistics from era 1 to first contact call era
-            for (let era = expectedEra; era < calls[0].era; era++) {
+            for (let era = expectedEra; era < parseInt(calls[0].era); era++) {
                 result.push(this.getEmptyContractStats(era));
                 expectedEra++;
             }
@@ -85,7 +85,7 @@ export class DappsStakingStatsService implements IDappsStakingStatsService {
             // Add era statistics from API and handle missing eras inside API data
             for (let i = 0; i < calls.length; i++) {
                 const call = calls[i];
-                if ((expectedEra = call.era)) {
+                if (expectedEra === parseInt(call.era)) {
                     result.push(call);
                 } else {
                     result.push(this.getEmptyContractStats(expectedEra));
@@ -120,6 +120,8 @@ export class DappsStakingStatsService implements IDappsStakingStatsService {
                   timestamp,
                   contractAddress,
                   transaction,
+                  transactionHash,
+                  transactionSuccess,
                   amount
                 }
               }
@@ -131,9 +133,9 @@ export class DappsStakingStatsService implements IDappsStakingStatsService {
 
     private getEmptyContractStats(era: number): ContractStats {
         return {
-            era,
-            numberOfCalls: 0,
-            uniqueActiveUsers: 0,
+            era: era.toString(),
+            numberOfCalls: '0',
+            uniqueActiveUsers: '0',
         };
     }
 }
