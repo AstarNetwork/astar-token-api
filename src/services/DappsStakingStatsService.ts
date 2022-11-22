@@ -142,7 +142,7 @@ export class DappsStakingStatsService extends ServiceBase implements IDappsStaki
                       lessThanOrEqualTo: "${range.end.getTime()}"
                     }
                   }
-                }
+                },
               }) {
                 nodes {
                   timestamp,

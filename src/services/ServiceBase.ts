@@ -1,4 +1,4 @@
-import { injectable } from "inversify";
+import { injectable } from 'inversify';
 
 export type PeriodType = '7 days' | '30 days' | '90 days' | '1 year';
 export type PeriodTypeEra = '7 eras' | '30 eras' | '90 eras' | 'all';

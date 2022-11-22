@@ -17,7 +17,7 @@ export interface IStatsIndexerService {
     getPrice(network: NetworkType, period: PeriodType): Promise<Pair[]>;
 
     getTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
-    
+
     getHolders(network: NetworkType): Promise<number>;
 }
 
