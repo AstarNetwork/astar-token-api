@@ -297,7 +297,7 @@
         }
       }
     },
-    "/api/v1/{network}/dapps-staking/stats/dapp/{contractAddress}": {
+    "/api/v1/{network}/dapps-staking/stats/dapp/{contractAddress}/{period}": {
       "get": {
         "description": "Retrieves number of calls and unique users per era statistics.",
         "parameters": [
@@ -314,6 +314,13 @@
             "required": true,
             "type": "string",
             "description": "Contract address to get stats for"
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Period to get stats for. Supported periods: 7 eras, 30 eras, 90 eras, all"
           }
         ],
         "responses": {
@@ -323,7 +330,7 @@
         }
       }
     },
-    "/api/v1/{network}/dapps-staking/stats/user/{userAddress}": {
+    "/api/v1/{network}/dapps-staking/stats/user/{userAddress}/{period}": {
       "get": {
         "description": "Retrieves user transactions.",
         "parameters": [
@@ -340,6 +347,13 @@
             "required": true,
             "type": "string",
             "description": "User address to get stats for"
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
           }
         ],
         "responses": {
