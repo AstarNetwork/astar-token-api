@@ -8,7 +8,8 @@ import { NetworkType } from '../networks';
 import { IDappsStakingService } from '../services/DappsStakingService';
 import { IDappsStakingStatsService } from '../services/DappsStakingStatsService';
 import { IFirebaseService } from '../services/FirebaseService';
-import { IStatsIndexerService, PeriodType, PeriodTypeEra } from '../services/StatsIndexerService';
+import { PeriodType, PeriodTypeEra } from '../services/ServiceBase';
+import { IStatsIndexerService } from '../services/StatsIndexerService';
 import { ControllerBase } from './ControllerBase';
 import { IControllerBase } from './IControllerBase';
 
@@ -248,14 +249,15 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     await this._statsService.getContractStatistics(
                         req.params.network as NetworkType,
                         req.params.contractAddress,
-                        req.params.period as PeriodTypeEra
+                        req.params.period as PeriodTypeEra,
                     ),
                 );
             },
         );
 
-        app.route('/api/v1/:network/dapps-staking/stats/user/:userAddress').get(async (req: Request, res: Response) => {
-            /*
+        app.route('/api/v1/:network/dapps-staking/stats/user/:userAddress/:period').get(
+            async (req: Request, res: Response) => {
+                /*
                 #swagger.description = 'Retrieves user transactions.'
                 #swagger.parameters['network'] = {
                     in: 'path',
@@ -267,9 +269,21 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     description: 'User address to get stats for',
                     required: true
                 }
+                #swagger.parameters['period'] = {
+                    in: 'path',
+                    description: 'The period type. Supported values: 7 days 30 days, 90 days, 1 year',
+                    required: true,
+                }
             */
-            res.json(await this._statsService.getUserEvents(req.params.network as NetworkType, req.params.userAddress));
-        });
+                res.json(
+                    await this._statsService.getUserEvents(
+                        req.params.network as NetworkType,
+                        req.params.userAddress,
+                        req.params.period as PeriodType,
+                    ),
+                );
+            },
+        );
     }
 }
 

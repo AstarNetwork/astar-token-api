@@ -3,7 +3,7 @@ import { inject, injectable } from 'inversify';
 import { IApiFactory } from '../client/ApiFactory';
 import { ContainerTypes } from '../containertypes';
 import { NetworkType } from '../networks';
-import { PeriodTypeEra } from './StatsIndexerService';
+import { PeriodType, PeriodTypeEra, ServiceBase } from './ServiceBase';
 
 const API_URLS = {
     astar: 'https://api.subquery.network/sq/bobo-k2/astar-dapp-staking-v2',
@@ -40,14 +40,25 @@ interface UserEventsResponse {
 }
 
 export interface IDappsStakingStatsService {
-    getContractStatistics(network: NetworkType, contractAddress: string, period: PeriodTypeEra): Promise<ContractStats[]>;
-    getUserEvents(network: NetworkType, userAddress: string): Promise<UserEvent[]>;
+    getContractStatistics(
+        network: NetworkType,
+        contractAddress: string,
+        period: PeriodTypeEra,
+    ): Promise<ContractStats[]>;
+    getUserEvents(network: NetworkType, userAddress: string, period: PeriodType): Promise<UserEvent[]>;
 }
 
 @injectable()
-export class DappsStakingStatsService implements IDappsStakingStatsService {
-    constructor(@inject(ContainerTypes.ApiFactory) private apiFactory: IApiFactory) {}
-    public async getContractStatistics(network: NetworkType, contractAddress: string, period: PeriodTypeEra = '7 eras'): Promise<ContractStats[]> {
+export class DappsStakingStatsService extends ServiceBase implements IDappsStakingStatsService {
+    constructor(@inject(ContainerTypes.ApiFactory) private apiFactory: IApiFactory) {
+        super();
+    }
+
+    public async getContractStatistics(
+        network: NetworkType,
+        contractAddress: string,
+        period: PeriodTypeEra = '7 eras',
+    ): Promise<ContractStats[]> {
         if (!contractAddress || network !== 'astar') {
             return [];
         }
@@ -110,16 +121,27 @@ export class DappsStakingStatsService implements IDappsStakingStatsService {
         return calls;
     }
 
-    public async getUserEvents(network: NetworkType, userAddress: string): Promise<UserEvent[]> {
+    public async getUserEvents(network: NetworkType, userAddress: string, period: PeriodType): Promise<UserEvent[]> {
         if (!userAddress || network !== 'astar') {
             return [];
         }
 
+        const range = this.getDateRange(period);
         const result = await axios.post<UserEventsResponse>(API_URLS[network], {
             query: `query {
               userTransactions(filter: {
                 userAddress: {
                   equalTo: "${userAddress}"
+                },
+                and: {
+                  timestamp: {
+                    greaterThanOrEqualTo: "${range.start.getTime()}"
+                  },
+                  and: {
+                    timestamp: {
+                      lessThanOrEqualTo: "${range.end.getTime()}"
+                    }
+                  }
                 }
               }) {
                 nodes {
@@ -146,13 +168,13 @@ export class DappsStakingStatsService implements IDappsStakingStatsService {
     }
 
     private getEraFromPeriod(period: PeriodTypeEra): number {
-        switch(period) {
+        switch (period) {
             case '7 eras':
                 return 7;
             case '30 eras':
                 return 30;
             case '90 eras':
-                return 90
+                return 90;
             default:
                 return 1000000000;
         }
