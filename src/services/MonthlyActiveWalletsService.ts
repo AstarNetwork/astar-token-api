@@ -2,7 +2,7 @@ import { injectable } from 'inversify';
 import axios from 'axios';
 import { UsersCount, UniqueWalletsCount } from '../models/MonthlyActiveWallets';
 import { NetworkType } from '../networks';
-import { PeriodType } from './StatsIndexerService';
+import { PeriodType } from './ServiceBase';
 
 const ASTAR_INDEXER_URL = 'https://subquery.astar.network/astar';
 

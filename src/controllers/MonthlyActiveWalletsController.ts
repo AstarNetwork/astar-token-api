@@ -4,7 +4,7 @@ import { ContainerTypes } from '../containertypes';
 import { UsersCount } from '../models/MonthlyActiveWallets';
 import { NetworkType } from '../networks';
 import { IMonthlyActiveWalletsService } from '../services/MonthlyActiveWalletsService';
-import { PeriodType } from '../services/StatsIndexerService';
+import { PeriodType } from '../services/ServiceBase';
 import { ControllerBase } from './ControllerBase';
 import { IControllerBase } from './IControllerBase';
 

@@ -2,7 +2,8 @@ import express, { Request, Response } from 'express';
 import { injectable, inject } from 'inversify';
 import { ContainerTypes } from '../containertypes';
 import { NetworkType } from '../networks';
-import { IStatsIndexerService, PeriodType } from '../services/StatsIndexerService';
+import { PeriodType } from '../services/ServiceBase';
+import { IStatsIndexerService } from '../services/StatsIndexerService';
 import { IControllerBase } from './IControllerBase';
 
 @injectable()

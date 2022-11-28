@@ -5,10 +5,7 @@ import { IApiFactory } from '../client/ApiFactory';
 import { ContainerTypes } from '../containertypes';
 import { NetworkType } from '../networks';
 import { getDateUTC, getDateYyyyMmDd, getSubscanUrl, getSubscanOption } from '../utils';
-
-export type PeriodType = '7 days' | '30 days' | '90 days' | '1 year';
-export type Pair = { date: number; value: number };
-export type DateRange = { start: Date; end: Date };
+import { Pair, PeriodType, ServiceBase } from './ServiceBase';
 
 export interface IStatsIndexerService {
     getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
@@ -20,10 +17,10 @@ export interface IStatsIndexerService {
     getPrice(network: NetworkType, period: PeriodType): Promise<Pair[]>;
 
     getTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
+
     getHolders(network: NetworkType): Promise<number>;
 }
 
-const DEFAULT_RANGE_LENGTH_DAYS = 7;
 const API_URLS_TVL = {
     astar: 'https://api.subquery.network/sq/bobo-k2/astar-tvl__Ym9ib',
     shiden: 'https://api.subquery.network/sq/bobo-k2/shiden-statistics-v2',
@@ -33,8 +30,10 @@ const API_URLS_TVL = {
 /**
  * Fetches statistics from external data source
  */
-export class StatsIndexerService implements IStatsIndexerService {
-    constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory) {}
+export class StatsIndexerService extends ServiceBase implements IStatsIndexerService {
+    constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory) {
+        super();
+    }
 
     public async getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]> {
         if (network !== 'astar' && network !== 'shiden') {
@@ -167,19 +166,6 @@ export class StatsIndexerService implements IStatsIndexerService {
         }
     }
 
-    public getDateRange(period: PeriodType): DateRange {
-        const end = new Date();
-        const numberOfDays = this.getPeriodDurationInDays(period);
-
-        const start = new Date();
-        start.setDate(start.getDate() - numberOfDays);
-
-        return {
-            start,
-            end,
-        };
-    }
-
     private async getTvlAstar(period: PeriodType): Promise<Pair[]> {
         const numberOfDays = this.getPeriodDurationInDays(period);
 
@@ -219,19 +205,6 @@ export class StatsIndexerService implements IStatsIndexerService {
             console.error(e);
             return [];
         }
-    }
-
-    private getPeriodDurationInDays(period: PeriodType): number {
-        const parts = period.toString().split(' ');
-        let numberOfDays: number;
-
-        try {
-            numberOfDays = Number(parts[0]) * (parts[1].startsWith('year') ? 365 : 1);
-        } catch {
-            numberOfDays = DEFAULT_RANGE_LENGTH_DAYS;
-        }
-
-        return numberOfDays;
     }
 
     private async getCurrentTvlInUsd(network: NetworkType = 'astar'): Promise<[number, number]> {
