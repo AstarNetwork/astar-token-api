@@ -90,6 +90,9 @@ export class DappsStakingService implements IDappsStakingService {
     }
 
     public async getEarned(network: NetworkType = 'astar', address: string): Promise<number> {
+        if (network === 'rocstar') {
+            return Promise.resolve(0);
+        }
         try {
             // Docs: https://support.subscan.io/#staking-api
             const base = getSubscanUrl(network);

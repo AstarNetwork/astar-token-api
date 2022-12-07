@@ -110,6 +110,9 @@ export class StatsIndexerService extends ServiceBase implements IStatsIndexerSer
     }
 
     public async getTotalTransfers(network: NetworkType): Promise<number> {
+        if (network === 'rocstar') {
+            return Promise.resolve(0);
+        }
         // Docs: https://support.subscan.io/#transfers
         const base = getSubscanUrl(network);
         const url = base + '/api/scan/transfers';
@@ -224,6 +227,9 @@ export class StatsIndexerService extends ServiceBase implements IStatsIndexerSer
     }
 
     public async getHolders(network = 'astar'): Promise<number> {
+        if (network === 'rocstar') {
+            return Promise.resolve(0);
+        }
         try {
             const base = getSubscanUrl(network);
             const url = base + '/api/scan/metadata';
