@@ -19,7 +19,7 @@ export class TxQueryService implements ITxQueryService {
 
     /**
      * Fetch the transfer transaction detail of a given hash
-     * @param network NetworkType (astar, shiden or shibuya)
+     * @param network NetworkType (astar, shiden, rocstar or shibuya)
      * @param hash transaction hash
      * @returns data object of the transaction detail
      */
