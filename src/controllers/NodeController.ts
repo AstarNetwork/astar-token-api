@@ -19,7 +19,7 @@ export class NodeController implements IControllerBase {
                 #swagger.description = 'Retreives total (valid and failed) number of transfers (number of balance.Transfer events).'
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
                     required: true
                 }
             */
@@ -31,7 +31,7 @@ export class NodeController implements IControllerBase {
                 #swagger.description = 'Retreives number of successful transfers (number of balance.Transfer events) per day for a given period.'
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
                     required: true
                 }
                 #swagger.parameters['period'] = {

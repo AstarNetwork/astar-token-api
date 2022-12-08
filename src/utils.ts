@@ -56,6 +56,8 @@ export const getSubscanUrl = (network: string): string => {
             return 'https://shiden.api.subscan.io';
         case 'shibuya':
             return 'https://shibuya.api.subscan.io';
+        case 'rocstar':
+            return 'https://rocstar.api.subscan.io';
         default:
             return 'https://astar.api.subscan.io';
     }

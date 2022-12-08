@@ -46,6 +46,10 @@ container
     .whenTargetNamed(networks.shibuya.name);
 container
     .bind<IAstarApi>(ContainerTypes.Api)
+    .toConstantValue(new AstarApi2(networks.rocstar.endpoints))
+    .whenTargetNamed(networks.rocstar.name);
+container
+    .bind<IAstarApi>(ContainerTypes.Api)
     .toConstantValue(new AstarApi2(networks.development.endpoints))
     .whenTargetNamed(networks.development.name);
 container.bind<IApiFactory>(ContainerTypes.ApiFactory).to(ApiFactory).inSingletonScope();
@@ -68,6 +72,11 @@ container
     .to(DappsStakingService2)
     .inSingletonScope()
     .whenTargetNamed(networks.shibuya.name);
+container
+    .bind<IDappsStakingService>(ContainerTypes.DappsStakingService)
+    .to(DappsStakingService2)
+    .inSingletonScope()
+    .whenTargetNamed(networks.rocstar.name);
 container
     .bind<IDappsStakingService>(ContainerTypes.DappsStakingService)
     .to(DappsStakingService2)

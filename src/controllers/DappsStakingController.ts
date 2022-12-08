@@ -32,7 +32,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 #swagger.description = 'Retrieves dapp staking APR for a given network.'
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
                     required: true
                 }
             */
@@ -56,7 +56,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 #swagger.description = 'Retrieves dapp staking APY for a given network.'
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
                     required: true
                 }
             */
@@ -80,7 +80,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 #swagger.description = 'Retrieves dapps staking TVL for a given network and period.'
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
                     required: true
                 }
                 #swagger.parameters['period'] = {
@@ -105,7 +105,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 #swagger.description = 'Retrieves earned staking rewards for dapps staking'
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
                     required: true
                 }
                 #swagger.parameters['address'] = {
@@ -127,7 +127,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 #swagger.description = 'Retrieves list of dapps registered for dapps staking'
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya, development',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar, development',
                     required: true
                 }
             */
@@ -139,7 +139,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 #swagger.description = 'Retrieves dapp with the given address'
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya, development',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar, development',
                     required: true
                 }
                 #swagger.parameters['address'] = {
@@ -201,7 +201,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     #swagger.description = 'Registers a new dapp'
                     #swagger.parameters['network'] = {
                         in: 'path',
-                        description: 'The network name. Supported networks: astar, shiden, shibuya, development',
+                        description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar, development',
                         required: true
                     }
                 */

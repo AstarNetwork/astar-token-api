@@ -1,4 +1,4 @@
-export type NetworkType = 'astar' | 'shiden' | 'shibuya' | 'development';
+export type NetworkType = 'astar' | 'shiden' | 'shibuya' | 'rocstar' | 'development';
 
 export const networks = {
     astar: {
@@ -29,6 +29,13 @@ export const networks = {
         endpoints: ['wss://rpc.shibuya.astar.network', 'wss://shibuya-rpc.dwellir.com'],
         evmRpc: 'https://evm.shibuya.astar.network',
         evmId: '81',
+        token: 'SBY',
+    },
+    rocstar: {
+        name: 'rocstar',
+        endpoints: ['wss://rocstar.astar.network'],
+        evmRpc: 'https://evm.rocstar.astar.network',
+        evmId: '692',
         token: 'SBY',
     },
     development: {

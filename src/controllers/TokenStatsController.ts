@@ -71,7 +71,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 #swagger.description = 'Retrieves token statistics for a given network.'
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
                     required: true
                 }
             */
@@ -118,7 +118,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 #swagger.description = 'Retrieves token circulation for a given network.'
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
                     required: true
                 }
             */
@@ -141,7 +141,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 #swagger.description = 'Retrieves token price for a given network and period.'
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
                     required: true
                 }
                 #swagger.parameters['period'] = {
@@ -163,7 +163,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 #swagger.description = 'Retrieves token TVL for a given network and period.'
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
                     required: true
                 }
                 #swagger.parameters['period'] = {
@@ -185,7 +185,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                         #swagger.description = 'Retrieves number of token holders'
                         #swagger.parameters['network'] = {
                             in: 'path',
-                            description: 'The network name. Supported networks: astar, shiden, shibuya',
+                            description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
                             required: true
                         }
                     */

@@ -27,6 +27,7 @@ const TS_FIRST_BLOCK = {
     [networks.astar.name]: 1639798585, //  Ref: 2021-12-18 03:36:25 https://astar.subscan.io/block/1
     [networks.shiden.name]: 1625570880, //  Ref: 2021-07-06 11:28:00 https://shiden.subscan.io/block/1
     [networks.shibuya.name]: 1630937640, // Ref: 2021-09-06 14:14:00 https://shibuya.subscan.io/block/1
+    [networks.rocstar.name]: 155845, // Ref: 2022-12-07 03:36:25 https://rocstar.subscan.io/block/1
 };
 
 @injectable()
@@ -89,6 +90,9 @@ export class DappsStakingService implements IDappsStakingService {
     }
 
     public async getEarned(network: NetworkType = 'astar', address: string): Promise<number> {
+        if (network === 'rocstar') {
+            return Promise.resolve(0);
+        }
         try {
             // Docs: https://support.subscan.io/#staking-api
             const base = getSubscanUrl(network);
