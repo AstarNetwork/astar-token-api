@@ -1,4 +1,6 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
+import { isEthereumAddress, checkAddress, decodeAddress, encodeAddress } from '@polkadot/util-crypto';
+import { hexToU8a, isHex } from '@polkadot/util';
 import { u32, u128, Option, Struct, Enum } from '@polkadot/types';
 import { PalletBalancesAccountData } from '@polkadot/types/lookup';
 import { Header, AccountId, DispatchError, Call } from '@polkadot/types/interfaces';
@@ -34,6 +36,7 @@ export interface IAstarApi {
     getCallFromHex(callHex: string): Promise<Call>;
     getRegisterDappPayload(dappAddress: string, developerAddress: string): Promise<string>;
     getRegisteredDapp(dappAddress: string): Promise<DappInfo | undefined>;
+    getCurrentEra(): Promise<number>;
 }
 
 export class BaseApi implements IAstarApi {
@@ -160,6 +163,13 @@ export class BaseApi implements IAstarApi {
         return dapp.unwrapOrDefault();
     }
 
+    public async getCurrentEra(): Promise<number> {
+        await this.ensureConnection();
+        const era = await this._api.query.dappsStaking.currentEra<u32>();
+
+        return era.toNumber();
+    }
+
     protected async ensureConnection(networkIndex?: number): Promise<ApiPromise> {
         let localApi: ApiPromise;
         const currentIndex = networkIndex ?? 0;
@@ -215,6 +225,25 @@ export class BaseApi implements IAstarApi {
     }
 
     private getAddressEnum(address: string) {
-        return { Evm: address };
+        if (isEthereumAddress(address)) {
+            return { Evm: address };
+        } else if (this.isValidAddressPolkadotAddress(address)) {
+            return { Wasm: address };
+        } else {
+            throw new Error(`Invalid contract address ${address}. The address should be in EVM or WASM format.`);
+        }
+    }
+
+    private isValidAddressPolkadotAddress(address: string, prefix?: number): boolean {
+        try {
+            if (prefix) {
+                return checkAddress(address, prefix)[0];
+            } else {
+                encodeAddress(isHex(address) ? hexToU8a(address) : decodeAddress(address));
+                return true;
+            }
+        } catch (error) {
+            return false;
+        }
     }
 }

@@ -27,6 +27,7 @@ const TS_FIRST_BLOCK = {
     [networks.astar.name]: 1639798585, //  Ref: 2021-12-18 03:36:25 https://astar.subscan.io/block/1
     [networks.shiden.name]: 1625570880, //  Ref: 2021-07-06 11:28:00 https://shiden.subscan.io/block/1
     [networks.shibuya.name]: 1630937640, // Ref: 2021-09-06 14:14:00 https://shibuya.subscan.io/block/1
+    [networks.rocstar.name]: 155845, // Ref: 2022-12-07 03:36:25 https://rocstar.subscan.io/block/1
 };
 
 @injectable()
@@ -46,17 +47,22 @@ export class DappsStakingService implements IDappsStakingService {
             const decimals = await api.getChainDecimals();
 
             const blockRewards = Number(defaultAmountWithDecimals(data.blockRewards, decimals));
-            const averageBlocksPerMinute = this.getAverageBlocksPerMins(network, data);
+            const eraRewards = data.blockPerEra.toNumber() * blockRewards;
+            const averageBlocksPerMinute = this.getAverageBlocksPerMins(data);
             const averageBlocksPerDay = averageBlocksPerMinute * 60 * 24;
             const dailyEraRate = averageBlocksPerDay / data.blockPerEra.toNumber();
-            const eraRewards = data.blockPerEra.toNumber() * blockRewards;
+
             const annualRewards = eraRewards * dailyEraRate * 365.25;
 
             const tvl = await api.getTvl();
             const totalStaked = Number(ethers.utils.formatUnits(tvl.toString(), decimals));
-            const stakerBlockReward = (1 - data.developerRewardPercentage) * DAPPS_REWARD_RATE;
+            const tvlPercentage = totalStaked / data.totalIssuance;
+            const adjustableStakerPercentage =
+                Math.min(1, tvlPercentage / data.idealDappsStakingTvl) * data.adjustablePercent;
+            const stakerBlockReward = adjustableStakerPercentage + data.baseStakerPercent;
             const stakerApr = (annualRewards / totalStaked) * stakerBlockReward * 100;
 
+            if (stakerApr === Infinity) return 0;
             return stakerApr;
         } catch (e) {
             console.error(e);
@@ -77,15 +83,16 @@ export class DappsStakingService implements IDappsStakingService {
         }
     }
 
-    private getAverageBlocksPerMins(chainId: string, data: AprCalculationData): number {
-        const currentTs = Math.floor(data.timeStamp.toNumber() / 1000);
-        const minsChainRunning = (currentTs - TS_FIRST_BLOCK[chainId]) / 60;
-        const avgBlocksPerMin = data.latestBlock.toNumber() / minsChainRunning;
-
-        return avgBlocksPerMin;
+    private getAverageBlocksPerMins(data: AprCalculationData): number {
+        const spentSecs = data.timeStamp.sub(data.tsBlock7EraAgo).divn(1000).toNumber();
+        const min = 60;
+        return min / (spentSecs / (data.latestBlock.toNumber() - data.block7EraAgo.toNumber()));
     }
 
     public async getEarned(network: NetworkType = 'astar', address: string): Promise<number> {
+        if (network === 'rocstar') {
+            return Promise.resolve(0);
+        }
         try {
             // Docs: https://support.subscan.io/#staking-api
             const base = getSubscanUrl(network);

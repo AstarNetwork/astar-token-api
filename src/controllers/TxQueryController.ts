@@ -21,7 +21,7 @@ export class TxQueryController extends ControllerBase implements IControllerBase
                 #swagger.description = 'Return the transfer transaction detail of a given hash'
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
                     required: true
                 }
                 #swagger.parameters['hash'] = {

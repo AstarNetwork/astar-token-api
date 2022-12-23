@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "1.0.0",
+    "version": "1.0.1",
     "title": "Astar token statistics API",
     "description": "Provides network statistic information."
   },
@@ -40,7 +40,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           }
         ],
         "responses": {
@@ -59,7 +59,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           }
         ],
         "responses": {
@@ -78,7 +78,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           },
           {
             "name": "period",
@@ -104,7 +104,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           },
           {
             "name": "period",
@@ -130,7 +130,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           }
         ],
         "responses": {
@@ -149,7 +149,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           }
         ],
         "responses": {
@@ -168,7 +168,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           }
         ],
         "responses": {
@@ -187,7 +187,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           },
           {
             "name": "period",
@@ -213,7 +213,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           },
           {
             "name": "address",
@@ -239,7 +239,33 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, development"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/dapps-staking/dapps/{address}": {
+      "get": {
+        "description": "Retrieves dapp with the given address",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The dapp address"
           }
         ],
         "responses": {
@@ -271,6 +297,72 @@
         }
       }
     },
+    "/api/v1/{network}/dapps-staking/stats/dapp/{contractAddress}/{period}": {
+      "get": {
+        "description": "Retrieves number of calls and unique users per era statistics.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden"
+          },
+          {
+            "name": "contractAddress",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Contract address to get stats for"
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Period to get stats for. Supported periods: 7 eras, 30 eras, 90 eras, all"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/dapps-staking/stats/user/{userAddress}/{period}": {
+      "get": {
+        "description": "Retrieves user transactions.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden"
+          },
+          {
+            "name": "userAddress",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "User address to get stats for"
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/{network}/node/tx-perblock/total": {
       "get": {
         "description": "Retreives total (valid and failed) number of transfers (number of balance.Transfer events).",
@@ -280,7 +372,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           }
         ],
         "responses": {
@@ -299,7 +391,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           },
           {
             "name": "period",
@@ -307,6 +399,110 @@
             "required": true,
             "type": "string",
             "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/tx/transfer": {
+      "get": {
+        "description": "Return the transfer transaction detail of a given hash",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
+          },
+          {
+            "name": "hash",
+            "in": "query",
+            "description": "Transaction hash",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/maw/daily/{period}": {
+      "get": {
+        "description": "Retreives daily wallets statistics in CSV format",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar"
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 7 days, 30 days"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/maw/daily/unique/{period}": {
+      "get": {
+        "description": "Retreives daily unique wallets statistics.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar"
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 7 days, 30 days"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/maw/monthly/{numberOfMonths}": {
+      "get": {
+        "description": "Retreives monthly wallets statistics in CSV format",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar"
+          },
+          {
+            "name": "numberOfMonths",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Max. number of months to retrieve (greater than 0)"
           }
         ],
         "responses": {

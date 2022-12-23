@@ -25,6 +25,9 @@ import { DiaDataPriceProvider } from './services/DiaDataPriceProvider';
 import { CoinGeckoPriceProvider } from './services/CoinGeckoPriceProvider';
 import { PriceProviderWithFailover } from './services/PriceProviderWithFailover';
 import { DappsStakingService2 } from './services/DappsStakingService2';
+import { IMonthlyActiveWalletsService, MonthlyActiveWalletsService } from './services/MonthlyActiveWalletsService';
+import { MonthlyActiveWalletsController } from './controllers/MonthlyActiveWalletsController';
+import { DappsStakingStatsService, IDappsStakingStatsService } from './services/DappsStakingStatsService';
 
 const container = new Container();
 
@@ -43,6 +46,10 @@ container
     .whenTargetNamed(networks.shibuya.name);
 container
     .bind<IAstarApi>(ContainerTypes.Api)
+    .toConstantValue(new AstarApi2(networks.rocstar.endpoints))
+    .whenTargetNamed(networks.rocstar.name);
+container
+    .bind<IAstarApi>(ContainerTypes.Api)
     .toConstantValue(new AstarApi2(networks.development.endpoints))
     .whenTargetNamed(networks.development.name);
 container.bind<IApiFactory>(ContainerTypes.ApiFactory).to(ApiFactory).inSingletonScope();
@@ -52,12 +59,12 @@ container.bind<IStatsService>(ContainerTypes.StatsService).to(StatsService).inSi
 
 container
     .bind<IDappsStakingService>(ContainerTypes.DappsStakingService)
-    .to(DappsStakingService)
+    .to(DappsStakingService2)
     .inSingletonScope()
     .whenTargetNamed(networks.astar.name);
 container
     .bind<IDappsStakingService>(ContainerTypes.DappsStakingService)
-    .to(DappsStakingService)
+    .to(DappsStakingService2)
     .inSingletonScope()
     .whenTargetNamed(networks.shiden.name);
 container
@@ -65,6 +72,11 @@ container
     .to(DappsStakingService2)
     .inSingletonScope()
     .whenTargetNamed(networks.shibuya.name);
+container
+    .bind<IDappsStakingService>(ContainerTypes.DappsStakingService)
+    .to(DappsStakingService2)
+    .inSingletonScope()
+    .whenTargetNamed(networks.rocstar.name);
 container
     .bind<IDappsStakingService>(ContainerTypes.DappsStakingService)
     .to(DappsStakingService2)
@@ -81,11 +93,20 @@ container
     .inSingletonScope();
 container.bind<ISubscanService>(ContainerTypes.SubscanService).to(SubscanService).inSingletonScope();
 container.bind<ITxQueryService>(ContainerTypes.TxQueryService).to(TxQueryService).inSingletonScope();
+container
+    .bind<IMonthlyActiveWalletsService>(ContainerTypes.MonthlyActiveWalletsService)
+    .to(MonthlyActiveWalletsService)
+    .inSingletonScope();
+container
+    .bind<IDappsStakingStatsService>(ContainerTypes.DappsStakingStatsService)
+    .to(DappsStakingStatsService)
+    .inRequestScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(DappsStakingController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(NodeController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TxQueryController);
+container.bind<IControllerBase>(ContainerTypes.Controller).to(MonthlyActiveWalletsController);
 
 export default container;

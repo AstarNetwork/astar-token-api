@@ -2,7 +2,8 @@ import express, { Request, Response } from 'express';
 import { injectable, inject } from 'inversify';
 import { ContainerTypes } from '../containertypes';
 import { NetworkType } from '../networks';
-import { IStatsIndexerService, PeriodType } from '../services/StatsIndexerService';
+import { PeriodType } from '../services/ServiceBase';
+import { IStatsIndexerService } from '../services/StatsIndexerService';
 import { IControllerBase } from './IControllerBase';
 
 @injectable()
@@ -18,7 +19,7 @@ export class NodeController implements IControllerBase {
                 #swagger.description = 'Retreives total (valid and failed) number of transfers (number of balance.Transfer events).'
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
                     required: true
                 }
             */
@@ -30,7 +31,7 @@ export class NodeController implements IControllerBase {
                 #swagger.description = 'Retreives number of successful transfers (number of balance.Transfer events) per day for a given period.'
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
                     required: true
                 }
                 #swagger.parameters['period'] = {

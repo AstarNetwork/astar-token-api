@@ -1,6 +1,6 @@
 {
     "name": "astar-token-api",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Astar Network token API",
     "private": true,
     "keywords": [
@@ -22,8 +22,8 @@
     },
     "main": "build/index.js",
     "scripts": {
-        "serve:firebase": "npm run build && firebase emulators:start --only functions",
-        "shell:firebase": "npm run build && firebase functions:shell",
+        "serve:firebase": "yarn build && firebase emulators:start --only functions",
+        "shell:firebase": "yarn build && firebase functions:shell",
         "build": "tsc --project tsconfig.json",
         "dev": "yarn swagger-autogen && ts-node-dev -r dotenv/config src/index.ts",
         "build:swagger": "yarn swagger-autogen api.astar.network",
