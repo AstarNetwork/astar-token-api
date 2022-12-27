@@ -1,12 +1,14 @@
 import { NetworkType } from '../../src/networks';
-import { ISubscanService } from '../../src/services/SubscanService';
-import { transferExtrinsicData } from '../mock/TxQueryService';
+import { ISubscanService, QueryPath } from '../../src/services/SubscanService';
+import { transferExtrinsicData, transferExtrinsicsData } from '../mock/TxQueryService';
 
 export class SubscanServiceMock implements ISubscanService {
-    public async fetchSubscan({ network, hash, type }: { network: NetworkType; hash: string; type: string }) {
+    public async fetchSubscan({ network, body, queryPath }: { network: NetworkType; body: any; queryPath: QueryPath }) {
         let mockedData;
-        if (type === 'transfer') {
+        if (queryPath === 'extrinsic') {
             mockedData = transferExtrinsicData;
+        } else if (queryPath === 'extrinsics') {
+            mockedData = transferExtrinsicsData;
         }
         return Promise.resolve(mockedData.data);
     }

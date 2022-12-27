@@ -69,6 +69,7 @@
         "@babel/plugin-proposal-decorators": "^7.16.7",
         "@discordjs/rest": "^0.1.0-canary.0",
         "@polkadot/api": "^8.9.1",
+        "@polkadot/api-contract": "8.9.1",
         "@polkadot/keyring": "^9.6.1",
         "@polkadot/util": "^9.6.1",
         "@polkadot/util-crypto": "^9.6.1",
