@@ -448,19 +448,16 @@
           {
             "name": "senderAddress",
             "in": "query",
-            "type": "string"
+            "required": true,
+            "type": "string",
+            "description": "SS58 wallet address"
           },
           {
             "name": "contractAddress",
             "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "hash",
-            "in": "query",
-            "description": "Transaction hash",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "SS58 XVM Transfer contract address"
           }
         ],
         "responses": {
