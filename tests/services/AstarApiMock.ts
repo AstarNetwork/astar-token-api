@@ -1,3 +1,4 @@
+import { ApiPromise } from '@polkadot/api';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { u32, u64, u128 } from '@polkadot/types';
 import { TypeRegistry } from '@polkadot/types/create';
@@ -12,6 +13,9 @@ import { AprCalculationData } from '../../src/models/AprCalculationData';
  * Astar Polkadot API mock.
  */
 export class AstarApiMock implements IAstarApi {
+    getCurrentEra(): Promise<number> {
+        throw new Error('Method not implemented.');
+    }
     getCallFromHex(callHex: string): Promise<Call> {
         throw new Error('Method not implemented.');
     }
@@ -97,5 +101,10 @@ export class AstarApiMock implements IAstarApi {
 
     public async getRegisteredDapp(dappAddress: string): Promise<DappInfo | undefined> {
         return undefined;
+    }
+
+    // Fixme: mock ApiPromise
+    public async getApiPromise(): Promise<ApiPromise> {
+        throw new Error('Method not implemented.');
     }
 }

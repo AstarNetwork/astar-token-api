@@ -37,6 +37,7 @@ export interface IAstarApi {
     getRegisterDappPayload(dappAddress: string, developerAddress: string): Promise<string>;
     getRegisteredDapp(dappAddress: string): Promise<DappInfo | undefined>;
     getCurrentEra(): Promise<number>;
+    getApiPromise(): Promise<ApiPromise>;
 }
 
 export class BaseApi implements IAstarApi {
@@ -168,6 +169,10 @@ export class BaseApi implements IAstarApi {
         const era = await this._api.query.dappsStaking.currentEra<u32>();
 
         return era.toNumber();
+    }
+
+    public async getApiPromise(): Promise<ApiPromise> {
+        return await this.ensureConnection(0);
     }
 
     protected async ensureConnection(networkIndex?: number): Promise<ApiPromise> {
