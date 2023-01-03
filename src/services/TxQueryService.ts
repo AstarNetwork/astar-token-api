@@ -13,6 +13,10 @@ import { networks } from './../networks';
 import { ISubscanService } from './SubscanService';
 import { ContractPromise } from '@polkadot/api-contract';
 import ABI_XVM_ERC20 from '../modules/tx-query/abi/XVM_ERC20_TRANSFER.json';
+import { ethers } from 'ethers';
+import { encodeAddress } from '@polkadot/util-crypto';
+
+export const ASTAR_SS58_FORMAT = 5;
 
 export interface ITxQueryService {
     fetchTransferDetails(network: NetworkType, hash: string): Promise<TransferDetails>;
@@ -53,9 +57,22 @@ export class TxQueryService implements ITxQueryService {
                 });
             } else {
                 const timestamp = data.block_timestamp;
-                const { from, to, success, asset_symbol, amount } = data.transfer;
                 const chain = Object.values(networks).find((it) => it.name === network);
                 const nativeToken = chain?.token || '';
+                const isTransferNativeToken =
+                    data.call_module === 'balances' && data.call_module_function === 'transfer_keep_alive';
+
+                // Memo: Not sure why but Subscan returns 'null' in data.transfer for some transactions
+                // e.g.: api/v1/astar/tx/transfer?hash=0x8a3397c0053329e49a60acdb39f1819e54379d5bcdd6666401094a266126c7bd
+                if (!data.transfer && isTransferNativeToken) {
+                    const { account_id, params, success } = data;
+                    const toPublicKey = params.find((it: any) => it.name === 'dest').value.Id as string;
+                    const amountDecimals = params.find((it: any) => it.name === 'value').value as string;
+                    const amount = String(Number(ethers.utils.formatEther(amountDecimals)));
+                    const to = encodeAddress(toPublicKey, ASTAR_SS58_FORMAT);
+                    return { from: account_id, to, symbol: nativeToken, amount, isSuccess: success, timestamp };
+                }
+                const { from, to, success, asset_symbol, amount } = data.transfer;
                 const symbol = asset_symbol || nativeToken;
                 return { from, to, symbol, amount, isSuccess: success, timestamp };
             }
