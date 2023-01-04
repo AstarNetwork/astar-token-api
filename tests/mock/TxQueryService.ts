@@ -111,3 +111,33 @@ export const transferExtrinsicData = {
         pending: false,
     },
 };
+
+export const transferExtrinsicsData = {
+    data: {
+        count: 13,
+        extrinsics: [
+            {
+                block_timestamp: 1672122192,
+                block_num: 2885701,
+                extrinsic_index: '2885701-2',
+                call_module_function: 'call',
+                call_module: 'contracts',
+                params: '[{"name":"dest","type":"sp_runtime:multiaddress:MultiAddress","type_name":"AccountIdLookupOf","value":{"Id":"0x09595551d406243ee340f445906d2f910b1e671fa4b474253f8b39bc730858ee"}},{"name":"value","type":"compact<U128>","type_name":"BalanceOf","value":"0"},{"name":"gas_limit","type":"sp_weights:weight_v2:Weight","type_name":"Weight","value":{"proof_size":131072,"ref_time":50000000000}},{"name":"storage_deposit_limit","type":"option<compact<U128>>","type_name":"Option<<BalanceOf as codec::HasCompact>::Type>","value":null},{"name":"data","type":"Vec<U8>","type_name":"Bytes","value":"0x84a15da101de53286f1d6c299fb712a3b48239e714ca117b69b7fd36d11479ce321eb353790000d01309468e150100000000000000f0007d9bd61b2670994dfaa0f4aaee5a268e0f6f"}]',
+                account_id: 'avf5nPmTfztUfq3gi1Bm3vBcEUHghUyrqRppXmsmDZ5hfrD',
+                account_index: '',
+                signature:
+                    '0xd82db3a6e40501e699410dabfdc0fc76b2faf89a033c65d693d8b17f8182cd6ee80954aef48fb2cd91b0a8aff487ade585328900d8897e7184b44e4b54fb9380',
+                nonce: 167,
+                extrinsic_hash: '0xf4ba1f5e360e7be990c0b3603451f18a4e6e86e341cc35e0f4fec0d1126b4e34',
+                success: true,
+                fee: '2502588148837745',
+                fee_used: '2443918756770046',
+                from_hex: 'dcafe8490ae5d270b1b3b0c418c401520fe5a6715d0b1783303f5bcaf7937b0a',
+                finalized: true,
+                account_display: {
+                    address: 'avf5nPmTfztUfq3gi1Bm3vBcEUHghUyrqRppXmsmDZ5hfrD',
+                },
+            },
+        ],
+    },
+};

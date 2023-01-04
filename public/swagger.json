@@ -284,7 +284,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, development"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development"
           }
         ],
         "responses": {
@@ -425,6 +425,39 @@
             "description": "Transaction hash",
             "required": true,
             "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/tx/xvm-transfer": {
+      "get": {
+        "description": "Return the transfer transaction detail of a given hash",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
+          },
+          {
+            "name": "senderAddress",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "SS58 wallet address"
+          },
+          {
+            "name": "contractAddress",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "SS58 XVM Transfer contract address"
           }
         ],
         "responses": {
