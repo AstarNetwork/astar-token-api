@@ -12,4 +12,5 @@ export const ContainerTypes = {
     SubscanService: 'SubscanService',
     MonthlyActiveWalletsService: 'MonthlyActiveWalletsService',
     DappsStakingStatsService: 'DappsStakingStatsService',
+    DappRadarService: 'DappRadarService',
 };
