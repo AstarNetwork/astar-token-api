@@ -4,11 +4,12 @@ import * as functions from 'firebase-functions';
 import fs from 'fs';
 import { Dapp, Metric } from '../models/DappRadar';
 import { NetworkType } from '../networks';
+import { Guard } from '../guard';
 
 export interface IDappRadarService {
     getDapps(network: NetworkType): Promise<Dapp[]>;
-    // getDappsFromCache(network: NetworkType): Dapp[];
     getDappTransactionsHistory(dappName: string, dappUrl: string, network: NetworkType): Promise<Metric[]>;
+    getDappUawHistory(dappName: string, dappUrl: string, network: NetworkType): Promise<Metric[]>;
 }
 
 interface GetDappsResponse {
@@ -68,10 +69,16 @@ export class DappRadarService {
         const cacheValidityTime = 24 * 60 * 60; // 1 day in seconds
 
         // Find when file was last modified so we can determine if we need to refresh cache or not.
-        const fileStats = fs.statSync(fileName);
-        const secondsAgo = (new Date().getTime() - fileStats.mtimeMs) / 1000;
+        let secondsAgo = 0;
+        let cacheFileExists = false;
+        
+        if (fs.existsSync(fileName)) {
+          cacheFileExists = true;
+          const fileStats = fs.statSync(fileName);
+          secondsAgo = (new Date().getTime() - fileStats.mtimeMs) / 1000;
+        }
 
-        if (!fs.existsSync(fileName) || secondsAgo > cacheValidityTime) {
+        if (!cacheFileExists || secondsAgo > cacheValidityTime) {
             // If not cached file or cache exired, reload dapps list.
             dapps = await this.getDapps(network);
             if (dapps.length > 0) {
@@ -95,9 +102,26 @@ export class DappRadarService {
         dappUrl: string,
         network: NetworkType,
     ): Promise<Metric[]> {
+        Guard.ThrowIfUndefined('dappName', dappName);
+        Guard.ThrowIfUndefined('dappUrl', dappUrl);
+        Guard.ThrowIfUndefined('network', network);
+
         const dappId = await this.getDappId(dappName, dappUrl, network);
         return await this.getMetricHistory(dappId, network, DappRadarMetric.Transactions);
     }
+
+    public async getDappUawHistory(
+      dappName: string,
+      dappUrl: string,
+      network: NetworkType,
+  ): Promise<Metric[]> {
+      Guard.ThrowIfUndefined('dappName', dappName);
+      Guard.ThrowIfUndefined('dappUrl', dappUrl);
+      Guard.ThrowIfUndefined('network', network);
+
+      const dappId = await this.getDappId(dappName, dappUrl, network);
+      return await this.getMetricHistory(dappId, network, DappRadarMetric.UniqueActiveWallets);
+  }
 
     private async getMetricHistory(
         dappId: number | undefined,
@@ -123,6 +147,8 @@ export class DappRadarService {
     private async getDappId(dappName: string, dappUrl: string, network: NetworkType): Promise<number | undefined> {
         const dapps = await this.getDappsFromCache(network);
 
+        // In some cases dapp name in dapp staking and in dapp radar are not exactly the same, so idea to check if
+        // name or dapp url match. If both are different most likely they dapp will need to update name or url in dapp staking.
         return dapps.find(
             (x) => x.name.toLowerCase() === dappName.toLowerCase() || x.website.toLowerCase() === dappUrl.toLowerCase(),
         )?.dappId;

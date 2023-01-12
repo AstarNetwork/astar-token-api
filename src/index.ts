@@ -53,9 +53,9 @@ exports.app = functions.https.onRequest(app);
 // getDappRadarDapps('shiden');
 // startDappPeriodicCheck();
 
-async function getStats(): Promise<void> {
-    const radarService = container.get<IDappRadarService>(ContainerTypes.DappRadarService);
-    const stats = await radarService.getDappTransactionsHistory('tofuNFT', 'na', 'astar');
-}
+// async function getStats(): Promise<void> {
+//     const radarService = container.get<IDappRadarService>(ContainerTypes.DappRadarService);
+//     const stats = await radarService.getDappTransactionsHistory('tofuNFT', 'na', 'astar');
+// }
 
-getStats();
+// getStats();
