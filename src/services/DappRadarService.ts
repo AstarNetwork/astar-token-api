@@ -22,7 +22,7 @@ interface DappMetricResponse {
     results: Metric[];
 }
 
-enum DappRadarMetric {
+enum DappRadarMetricType {
     Transactions = 'transactions',
     UniqueActiveWallets = 'uaw',
     Volume = 'volume',
@@ -107,7 +107,7 @@ export class DappRadarService {
         Guard.ThrowIfUndefined('network', network);
 
         const dappId = await this.getDappId(dappName, dappUrl, network);
-        return await this.getMetricHistory(dappId, network, DappRadarMetric.Transactions);
+        return await this.getMetricHistory(dappId, network, DappRadarMetricType.Transactions);
     }
 
     public async getDappUawHistory(
@@ -120,13 +120,13 @@ export class DappRadarService {
       Guard.ThrowIfUndefined('network', network);
 
       const dappId = await this.getDappId(dappName, dappUrl, network);
-      return await this.getMetricHistory(dappId, network, DappRadarMetric.UniqueActiveWallets);
+      return await this.getMetricHistory(dappId, network, DappRadarMetricType.UniqueActiveWallets);
   }
 
     private async getMetricHistory(
         dappId: number | undefined,
         network: NetworkType,
-        metric: DappRadarMetric,
+        metric: DappRadarMetricType,
     ): Promise<Metric[]> {
         const result: Metric[] = [];
 
