@@ -71,11 +71,11 @@ export class DappRadarService {
         // Find when file was last modified so we can determine if we need to refresh cache or not.
         let secondsAgo = 0;
         let cacheFileExists = false;
-        
+
         if (fs.existsSync(fileName)) {
-          cacheFileExists = true;
-          const fileStats = fs.statSync(fileName);
-          secondsAgo = (new Date().getTime() - fileStats.mtimeMs) / 1000;
+            cacheFileExists = true;
+            const fileStats = fs.statSync(fileName);
+            secondsAgo = (new Date().getTime() - fileStats.mtimeMs) / 1000;
         }
 
         if (!cacheFileExists || secondsAgo > cacheValidityTime) {
@@ -110,18 +110,14 @@ export class DappRadarService {
         return await this.getMetricHistory(dappId, network, DappRadarMetricType.Transactions);
     }
 
-    public async getDappUawHistory(
-      dappName: string,
-      dappUrl: string,
-      network: NetworkType,
-  ): Promise<Metric[]> {
-      Guard.ThrowIfUndefined('dappName', dappName);
-      Guard.ThrowIfUndefined('dappUrl', dappUrl);
-      Guard.ThrowIfUndefined('network', network);
+    public async getDappUawHistory(dappName: string, dappUrl: string, network: NetworkType): Promise<Metric[]> {
+        Guard.ThrowIfUndefined('dappName', dappName);
+        Guard.ThrowIfUndefined('dappUrl', dappUrl);
+        Guard.ThrowIfUndefined('network', network);
 
-      const dappId = await this.getDappId(dappName, dappUrl, network);
-      return await this.getMetricHistory(dappId, network, DappRadarMetricType.UniqueActiveWallets);
-  }
+        const dappId = await this.getDappId(dappName, dappUrl, network);
+        return await this.getMetricHistory(dappId, network, DappRadarMetricType.UniqueActiveWallets);
+    }
 
     private async getMetricHistory(
         dappId: number | undefined,

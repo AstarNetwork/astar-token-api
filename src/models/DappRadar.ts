@@ -1,11 +1,11 @@
 export interface Dapp {
-  dappId: number;
-  name: string;
-  website: string;
+    dappId: number;
+    name: string;
+    website: string;
 }
 
 export interface Metric {
-  timestamp: number;
-  date: string;
-  value: number;
+    timestamp: number;
+    date: string;
+    value: number;
 }
