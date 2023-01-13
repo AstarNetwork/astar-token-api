@@ -151,6 +151,6 @@ export class DappRadarService {
     }
 
     private getFileName(network: NetworkType): string {
-        return `${network}_dapps.json`;
+        return `/tmp/${network}_dapps.json`;
     }
 }
