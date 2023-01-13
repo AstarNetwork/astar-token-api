@@ -10,7 +10,6 @@ import container from './container';
 import { IControllerBase } from './controllers/IControllerBase';
 import { ContainerTypes } from './containertypes';
 
-console.log('Fetching dapps ddd');
 const app = express();
 app.use(express.json({ limit: '5mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
