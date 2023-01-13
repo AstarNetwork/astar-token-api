@@ -1,10 +1,11 @@
 import express, { Request, Response } from 'express';
-import { body, oneOf, validationResult } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 import { injectable, inject } from 'inversify';
 import container from '../container';
 import { ContainerTypes } from '../containertypes';
 import { Developer } from '../models/Dapp';
 import { NetworkType } from '../networks';
+import { IDappRadarService } from '../services/DappRadarService';
 import { IDappsStakingService } from '../services/DappsStakingService';
 import { IDappsStakingStatsService } from '../services/DappsStakingStatsService';
 import { IFirebaseService } from '../services/FirebaseService';
@@ -19,6 +20,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         @inject(ContainerTypes.StatsIndexerService) private _indexerService: IStatsIndexerService,
         @inject(ContainerTypes.FirebaseService) private _firebaseService: IFirebaseService,
         @inject(ContainerTypes.DappsStakingStatsService) private _statsService: IDappsStakingStatsService,
+        @inject(ContainerTypes.DappRadarService) private _dappRadarService: IDappRadarService,
     ) {
         super();
     }
@@ -284,6 +286,34 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 );
             },
         );
+
+        app.route('/api/v1/:network/dapps-staking/stats/transactions').get(async (req: Request, res: Response) => {
+            try {
+                res.json(
+                    await this._dappRadarService.getDappTransactionsHistory(
+                        req.query.dappName as string,
+                        req.query.dappUrl as string,
+                        req.params.network as NetworkType,
+                    ),
+                );
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
+        });
+
+        app.route('/api/v1/:network/dapps-staking/stats/uaw').get(async (req: Request, res: Response) => {
+            try {
+                res.json(
+                    await this._dappRadarService.getDappUawHistory(
+                        req.query.dappName as string,
+                        req.query.dappUrl as string,
+                        req.params.network as NetworkType,
+                    ),
+                );
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
+        });
     }
 }
 
