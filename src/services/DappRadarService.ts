@@ -79,7 +79,7 @@ export class DappRadarService {
         }
 
         if (!cacheFileExists || secondsAgo > cacheValidityTime) {
-            // If not cached file or cache exired, reload dapps list.
+            // If file not cached or cache expired, reload dapps list from Dapp Radar.
             dapps = await this.getDapps(network);
             if (dapps.length > 0) {
                 this.storeDappsToCache(network, dapps);
@@ -144,7 +144,7 @@ export class DappRadarService {
         const dapps = await this.getDappsFromCache(network);
 
         // In some cases dapp name in dapp staking and in dapp radar are not exactly the same, so idea to check if
-        // name or dapp url match. If both are different most likely they dapp will need to update name or url in dapp staking.
+        // name or dapp url match. If both are different most likely the dapp will need to update name or url in dapp staking.
         return dapps.find(
             (x) => x.name.toLowerCase() === dappName.toLowerCase() || x.website.toLowerCase() === dappUrl.toLowerCase(),
         )?.dappId;
