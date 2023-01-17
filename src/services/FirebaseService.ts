@@ -7,15 +7,23 @@ import { Guard } from '../guard';
 import { DappItem, FileInfo, NewDappItem } from '../models/Dapp';
 import { NetworkType } from '../networks';
 
+export interface Cache<T> {
+    updatedAt?: number;
+    data: T;
+}
+
 export interface IFirebaseService {
     getDapps(network: NetworkType): Promise<DappItem[]>;
     getDapp(address: string, network: NetworkType): Promise<NewDappItem | undefined>;
     registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem>;
+    updateCache<T>(key: string, item: T): Promise<void>;
+    readCache<T>(key: string): Promise<Cache<T> | undefined>;
 }
 
 @injectable()
 export class FirebaseService implements IFirebaseService {
     private app: admin.app.App;
+    private readonly cacheCollectionKey = 'CACHE';
 
     constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory) {}
 
@@ -110,6 +118,31 @@ export class FirebaseService implements IFirebaseService {
         await admin.firestore().collection(collectionKey).doc(dapp.address).set(firebasePayload);
 
         return firebasePayload;
+    }
+
+    public async updateCache<T>(key: string, item: T): Promise<void> {
+        Guard.ThrowIfUndefined('key', key);
+        Guard.ThrowIfUndefined('item', item);
+
+        this.initApp();
+        await admin.firestore().collection(this.cacheCollectionKey).doc(key).set({ data: item });
+    }
+
+    public async readCache<T>(key: string): Promise<Cache<T> | undefined> {
+        Guard.ThrowIfUndefined('key', key);
+
+        this.initApp();
+        const data = await admin.firestore().collection(this.cacheCollectionKey).doc(key).get();
+        const doc = data.data();
+
+        if (doc) {
+            return {
+                data: doc.data as T,
+                updatedAt: data.updateTime?.toMillis(),
+            };
+        } else {
+            return undefined;
+        }
     }
 
     private async uploadImage(fileInfo: FileInfo, collectionKey: string, contractAddress: string): Promise<string> {
