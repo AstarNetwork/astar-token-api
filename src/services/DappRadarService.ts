@@ -1,10 +1,11 @@
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import axios from 'axios';
 import * as functions from 'firebase-functions';
-import fs from 'fs';
 import { Dapp, Metric } from '../models/DappRadar';
 import { NetworkType } from '../networks';
 import { Guard } from '../guard';
+import { IFirebaseService } from './FirebaseService';
+import { ContainerTypes } from '../containertypes';
 
 export interface IDappRadarService {
     getDapps(network: NetworkType): Promise<Dapp[]>;
@@ -31,6 +32,8 @@ enum DappRadarMetricType {
 @injectable()
 export class DappRadarService {
     public static BaseUrl = 'https://api.dappradar.com/nd3xlju1tifxcin7';
+
+    constructor(@inject(ContainerTypes.FirebaseService) private firebase: IFirebaseService) {}
 
     public async getDapps(network: NetworkType): Promise<Dapp[]> {
         const result: Dapp[] = [];
@@ -65,36 +68,31 @@ export class DappRadarService {
 
     private async getDappsFromCache(network: NetworkType): Promise<Dapp[]> {
         let dapps: Dapp[] = [];
-        const fileName = this.getFileName(network);
+        const key = this.getCacheKey(network);
         const cacheValidityTime = 24 * 60 * 60; // 1 day in seconds
-
-        // Find when file was last modified so we can determine if we need to refresh cache or not.
         let secondsAgo = 0;
-        let cacheFileExists = false;
 
-        if (fs.existsSync(fileName)) {
-            cacheFileExists = true;
-            const fileStats = fs.statSync(fileName);
-            secondsAgo = (new Date().getTime() - fileStats.mtimeMs) / 1000;
+        const cache = await this.firebase.readCache<Dapp[]>(key);
+
+        // Calculate time passed after last cache update.
+        if (cache && cache.updatedAt) {
+            secondsAgo = (new Date().getTime() - cache.updatedAt) / 1000;
         }
 
-        if (!cacheFileExists || secondsAgo > cacheValidityTime) {
-            // If file not cached or cache expired, reload dapps list from Dapp Radar.
+        if (!cache || secondsAgo > cacheValidityTime) {
+            // Update cache with latest dapps.
             dapps = await this.getDapps(network);
-            if (dapps.length > 0) {
-                this.storeDappsToCache(network, dapps);
-            }
+            await this.storeDappsToCache(network, dapps);
         } else {
-            const file = fs.readFileSync(fileName);
-            dapps = JSON.parse(file.toString()) as Dapp[];
+            dapps = cache.data;
         }
 
         return dapps;
     }
 
-    private storeDappsToCache(network: NetworkType, dapps: Dapp[]): void {
-        const fileName = this.getFileName(network);
-        fs.writeFileSync(fileName, JSON.stringify(dapps));
+    private async storeDappsToCache(network: NetworkType, dapps: Dapp[]): Promise<void> {
+        const key = this.getCacheKey(network);
+        await this.firebase.updateCache<Dapp[]>(key, dapps);
     }
 
     public async getDappTransactionsHistory(
@@ -150,7 +148,7 @@ export class DappRadarService {
         )?.dappId;
     }
 
-    private getFileName(network: NetworkType): string {
-        return `/tmp/${network}_dapps.json`;
+    private getCacheKey(network: NetworkType): string {
+        return `${network}_dapps`;
     }
 }
