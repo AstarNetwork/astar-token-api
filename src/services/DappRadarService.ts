@@ -31,7 +31,7 @@ enum DappRadarMetricType {
 
 @injectable()
 export class DappRadarService {
-    public static BaseUrl = 'https://api.dappradar.com/nd3xlju1tifxcin7';
+    public static BaseUrl = 'https://api.dappradar.com/xwdze7hui0y5gixt/';
 
     constructor(@inject(ContainerTypes.FirebaseService) private firebase: IFirebaseService) {}
 
@@ -79,7 +79,7 @@ export class DappRadarService {
             secondsAgo = (new Date().getTime() - cache.updatedAt) / 1000;
         }
 
-        if (!cache || secondsAgo > cacheValidityTime) {
+        if (!cache || secondsAgo > cacheValidityTime || !cache.data.length) {
             // Update cache with latest dapps.
             dapps = await this.getDapps(network);
             await this.storeDappsToCache(network, dapps);
