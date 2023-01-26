@@ -46,6 +46,14 @@ export class AstarApi2 extends BaseApi implements IAstarApi {
         result.block7EraAgo = <u32>block7EraAgo;
         result.tsBlock7EraAgo = tsBlock7EraAgo;
 
+        const block1EraAgo = result.latestBlock.sub(result.blockPerEra);
+        const blockHash1EraAgo = await this._api.rpc.chain.getBlockHash(block1EraAgo);
+        const blockInstance = await this._api.at(blockHash1EraAgo);
+        const tsBlock1EraAgo = await blockInstance.query.timestamp.now();
+
+        result.block1EraAgo = <u32>block1EraAgo;
+        result.tsBlock1EraAgo = tsBlock1EraAgo;
+
         return result;
     }
 

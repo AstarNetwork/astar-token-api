@@ -6,6 +6,8 @@ export class AprCalculationData {
     public latestBlock: u32;
     public developerRewardPercentage: number;
     public blockPerEra: u32;
+    public block1EraAgo: u32;
+    public tsBlock1EraAgo: u64;
     public block7EraAgo: u32;
     public tsBlock7EraAgo: u64;
     public baseStakerPercent: number;
