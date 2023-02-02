@@ -125,7 +125,8 @@ export class FirebaseService implements IFirebaseService {
         Guard.ThrowIfUndefined('item', item);
 
         this.initApp();
-        await admin.firestore().collection(this.cacheCollectionKey).doc(key).set({ data: item });
+        const updatedAt = new Date().getTime();
+        await admin.firestore().collection(this.cacheCollectionKey).doc(key).set({ data: item, updatedAt });
     }
 
     public async readCache<T>(key: string): Promise<Cache<T> | undefined> {
