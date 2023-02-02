@@ -314,6 +314,19 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 this.handleError(res, err as Error);
             }
         });
+
+        app.route('/api/v1/:network/dapps-staking/stats/nexteraeta').get(async (req: Request, res: Response) => {
+            try {
+                const network = req.params.network as NetworkType;
+                const stakingService = container.getNamed<IDappsStakingService>(
+                    ContainerTypes.DappsStakingService,
+                    network,
+                );
+                res.json(await stakingService.getNextEraETA(network));
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
+        });
     }
 }
 

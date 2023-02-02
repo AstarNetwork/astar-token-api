@@ -1,4 +1,5 @@
 import { injectable, inject } from 'inversify';
+import { u32 } from '@polkadot/types';
 import { ethers } from 'ethers';
 import { aprToApy } from 'apr-tools';
 import { IApiFactory } from '../client/ApiFactory';
@@ -16,6 +17,7 @@ export interface IDappsStakingService {
     calculateApy(network?: NetworkType): Promise<number>;
     getEarned(network?: NetworkType, address?: string): Promise<number>;
     registerDapp(dapp: NewDappItem, network?: NetworkType): Promise<DappItem>;
+    getNextEraETA(network: NetworkType): Promise<number>;
 }
 
 // Ref: https://github.com/PlasmNetwork/Astar/blob/5b01ef3c2ca608126601c1bd04270ed08ece69c4/runtime/shiden/src/lib.rs#L435
@@ -36,7 +38,7 @@ const TS_FIRST_BLOCK = {
  */
 export class DappsStakingService implements IDappsStakingService {
     constructor(
-        @inject(ContainerTypes.ApiFactory) private apiFactory: IApiFactory,
+        @inject(ContainerTypes.ApiFactory) protected apiFactory: IApiFactory,
         @inject(ContainerTypes.FirebaseService) private firebase: IFirebaseService,
     ) {}
 
@@ -141,6 +143,31 @@ export class DappsStakingService implements IDappsStakingService {
             console.error('registration error', e);
             throw new Error(`Unable to register dApp because of the following error: ${e}`);
         }
+    }
+
+    public async getNextEraETA(network: NetworkType): Promise<number> {
+        const astarApi = this.apiFactory.getApiInstance(network);
+        const api = await astarApi.getApiPromise();
+        const [currentBlock, nextEraBlock, calculationData] = await Promise.all([
+            api.query.system.number(),
+            api.query.dappsStaking.nextEraStartingBlock(),
+            astarApi.getAprCalculationData(),
+        ]);
+
+        const [tsNow, blockHash1EraAgo] = await Promise.all([
+            api.query.timestamp.now(),
+            api.rpc.chain.getBlockHash(calculationData.block1EraAgo),
+        ]);
+
+        const block1EraAgo = await api.at(blockHash1EraAgo);
+        const ts1EraAgo = await block1EraAgo.query.timestamp.now();
+        const spentSecs = tsNow.sub(ts1EraAgo).divn(1000);
+        const avgBlockTime = spentSecs.div(currentBlock.sub(calculationData.block1EraAgo));
+
+        const blocksUntilNextEra = (nextEraBlock as u32).sub(currentBlock).toNumber();
+        const secondsUntilNextEra = blocksUntilNextEra * avgBlockTime.toNumber();
+
+        return secondsUntilNextEra;
     }
 
     private isRegisterCall(section: string, method: string): boolean {
