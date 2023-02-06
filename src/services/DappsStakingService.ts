@@ -162,10 +162,10 @@ export class DappsStakingService implements IDappsStakingService {
         const block1EraAgo = await api.at(blockHash1EraAgo);
         const ts1EraAgo = await block1EraAgo.query.timestamp.now();
         const spentSecs = tsNow.sub(ts1EraAgo).divn(1000);
-        const avgBlockTime = spentSecs.div(currentBlock.sub(calculationData.block1EraAgo));
+        const avgBlockTime = spentSecs.toNumber() / (currentBlock.toNumber() - calculationData.block1EraAgo.toNumber());
 
         const blocksUntilNextEra = (nextEraBlock as u32).sub(currentBlock).toNumber();
-        const secondsUntilNextEra = blocksUntilNextEra * avgBlockTime.toNumber();
+        const secondsUntilNextEra = blocksUntilNextEra * avgBlockTime;
 
         return secondsUntilNextEra;
     }
