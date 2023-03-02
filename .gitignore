@@ -152,3 +152,4 @@ lib
 
 .firebase/
 .runtimeconfig.json
+*_dapps.json

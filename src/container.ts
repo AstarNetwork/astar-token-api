@@ -28,6 +28,7 @@ import { DappsStakingService2 } from './services/DappsStakingService2';
 import { IMonthlyActiveWalletsService, MonthlyActiveWalletsService } from './services/MonthlyActiveWalletsService';
 import { MonthlyActiveWalletsController } from './controllers/MonthlyActiveWalletsController';
 import { DappsStakingStatsService, IDappsStakingStatsService } from './services/DappsStakingStatsService';
+import { IDappRadarService, DappRadarService } from './services/DappRadarService';
 
 const container = new Container();
 
@@ -101,6 +102,7 @@ container
     .bind<IDappsStakingStatsService>(ContainerTypes.DappsStakingStatsService)
     .to(DappsStakingStatsService)
     .inRequestScope();
+container.bind<IDappRadarService>(ContainerTypes.DappRadarService).to(DappRadarService).inRequestScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);
