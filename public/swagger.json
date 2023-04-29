@@ -15,6 +15,7 @@
     "/api/v1/token/price/{symbol}": {
       "get": {
         "description": "Retrieves current token price",
+        "tags": ["Token"],
         "parameters": [
           {
             "name": "symbol",
@@ -34,6 +35,7 @@
     "/api/v1/{network}/token/stats": {
       "get": {
         "description": "Retrieves token statistics for a given network.",
+        "tags": ["Token"],
         "parameters": [
           {
             "name": "network",
@@ -53,6 +55,7 @@
     "/api/v1/{network}/token/circulation": {
       "get": {
         "description": "Retrieves token circulation for a given network.",
+        "tags": ["Token"],
         "parameters": [
           {
             "name": "network",
@@ -72,6 +75,7 @@
     "/api/v1/{network}/token/price/{period}": {
       "get": {
         "description": "Retrieves token price for a given network and period.",
+        "tags": ["Token"],
         "parameters": [
           {
             "name": "network",
@@ -98,6 +102,7 @@
     "/api/v1/{network}/token/tvl/{period}": {
       "get": {
         "description": "Retrieves token TVL for a given network and period.",
+        "tags": ["Token"],
         "parameters": [
           {
             "name": "network",
@@ -124,6 +129,7 @@
     "/api/v1/{network}/token/holders": {
       "get": {
         "description": "Retrieves number of token holders",
+        "tags": ["Token"],
         "parameters": [
           {
             "name": "network",
@@ -143,6 +149,7 @@
     "/api/v1/{network}/dapps-staking/apr": {
       "get": {
         "description": "Retrieves dapp staking APR for a given network.",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -181,6 +188,7 @@
     "/api/v1/{network}/dapps-staking/tvl/{period}": {
       "get": {
         "description": "Retrieves dapps staking TVL for a given network and period.",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -207,6 +215,7 @@
     "/api/v1/{network}/dapps-staking/earned/{address}": {
       "get": {
         "description": "Retrieves earned staking rewards for dapps staking",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -233,6 +242,7 @@
     "/api/v1/{network}/dapps-staking/dapps": {
       "get": {
         "description": "Retrieves list of dapps registered for dapps staking",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -252,6 +262,7 @@
     "/api/v1/{network}/dapps-staking/dapps/{address}": {
       "get": {
         "description": "Retrieves dapp with the given address",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -278,6 +289,7 @@
     "/api/v1/{network}/dapps-staking/register": {
       "post": {
         "description": "Registers a new dapp",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -300,6 +312,7 @@
     "/api/v1/{network}/dapps-staking/stats/dapp/{contractAddress}/{period}": {
       "get": {
         "description": "Retrieves number of calls and unique users per era statistics.",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -333,6 +346,7 @@
     "/api/v1/{network}/dapps-staking/stats/user/{userAddress}/{period}": {
       "get": {
         "description": "Retrieves user transactions.",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -366,6 +380,7 @@
     "/api/v1/{network}/node/tx-perblock/total": {
       "get": {
         "description": "Retreives total (valid and failed) number of transfers (number of balance.Transfer events).",
+        "tags": ["Node"],
         "parameters": [
           {
             "name": "network",
@@ -385,6 +400,7 @@
     "/api/v1/{network}/node/tx-perblock/{period}": {
       "get": {
         "description": "Retreives number of successful transfers (number of balance.Transfer events) per day for a given period.",
+        "tags": ["Node"],
         "parameters": [
           {
             "name": "network",
@@ -411,6 +427,7 @@
     "/api/v1/{network}/tx/transfer": {
       "get": {
         "description": "Return the transfer transaction detail of a given hash",
+        "tags": ["Transactions"],
         "parameters": [
           {
             "name": "network",
@@ -437,6 +454,7 @@
     "/api/v1/{network}/tx/xvm-transfer": {
       "get": {
         "description": "Return the transfer transaction detail of a given hash",
+        "tags": ["Transactions"],
         "parameters": [
           {
             "name": "network",
@@ -470,6 +488,7 @@
     "/api/v1/{network}/maw/daily/{period}": {
       "get": {
         "description": "Retreives daily wallets statistics in CSV format",
+        "tags": ["MAW"],
         "parameters": [
           {
             "name": "network",
@@ -496,6 +515,7 @@
     "/api/v1/{network}/maw/daily/unique/{period}": {
       "get": {
         "description": "Retreives daily unique wallets statistics.",
+        "tags": ["MAW"],
         "parameters": [
           {
             "name": "network",
@@ -522,6 +542,7 @@
     "/api/v1/{network}/maw/monthly/{numberOfMonths}": {
       "get": {
         "description": "Retreives monthly wallets statistics in CSV format",
+        "tags": ["MAW"],
         "parameters": [
           {
             "name": "network",
