@@ -31,7 +31,7 @@ enum DappRadarMetricType {
 
 @injectable()
 export class DappRadarService {
-    public static BaseUrl = 'https://api.dappradar.com/xwdze7hui0y5gixt/';
+    public static BaseUrl = 'https://api.dappradar.com/97c1ov0nxxr0jjh8/';
 
     constructor(@inject(ContainerTypes.FirebaseService) private firebase: IFirebaseService) {}
 
