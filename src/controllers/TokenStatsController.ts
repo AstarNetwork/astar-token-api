@@ -50,6 +50,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
         app.route('/api/v1/token/price/:symbol').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves current token price'
+                #swagger.tags = ['Token']
                 #swagger.parameters['symbol'] = {
                     in: 'path',
                     description: 'Token symbol (eg. ASTR or SDN)',
@@ -69,6 +70,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
         app.route('/api/v1/:network/token/stats').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves token statistics for a given network.'
+                #swagger.tags = ['Token']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
@@ -116,6 +118,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
         app.route('/api/v1/:network/token/circulation').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves token circulation for a given network.'
+                #swagger.tags = ['Token']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
@@ -139,6 +142,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
         app.route('/api/v1/:network/token/price/:period').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves token price for a given network and period.'
+                #swagger.tags = ['Token']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
@@ -161,6 +165,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
         app.route('/api/v1/:network/token/tvl/:period').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves token TVL for a given network and period.'
+                #swagger.tags = ['Token']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
@@ -183,6 +188,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
         app.route('/api/v1/:network/token/holders').get(async (req: Request, res: Response) => {
             /*
                         #swagger.description = 'Retrieves number of token holders'
+                        #swagger.tags = ['Token']
                         #swagger.parameters['network'] = {
                             in: 'path',
                             description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
