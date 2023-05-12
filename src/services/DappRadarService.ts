@@ -11,16 +11,28 @@ export interface IDappRadarService {
     getDapps(network: NetworkType): Promise<Dapp[]>;
     getDappTransactionsHistory(dappName: string, dappUrl: string, network: NetworkType): Promise<Metric[]>;
     getDappUawHistory(dappName: string, dappUrl: string, network: NetworkType): Promise<Metric[]>;
+    getAggregatedData(network: NetworkType, period: string): Promise<AggregatedMetrics[]>;
 }
 
-interface GetDappsResponse {
+interface ApiResponse<T> {
     success: boolean;
-    results: Dapp[];
+    results: T[];
 }
 
-interface DappMetricResponse {
-    success: boolean;
-    results: Metric[];
+interface AggregatedMetrics {
+    dappId: number;
+    name: string;
+    url: string;
+    metrics: {
+        transactions: number;
+        transactionsPercentageChange: number;
+        uaw: number;
+        uawPercentageChange: number;
+        volume: number;
+        volumePercentageChange: number;
+        balance: number;
+        balancePercentageChange: number;
+    };
 }
 
 enum DappRadarMetricType {
@@ -47,7 +59,7 @@ export class DappRadarService {
             }/dapps?chain=${network.toLowerCase()}&page=${currentPage}&resultsPerPage=${RESULTS_PER_PAGE}`;
 
             try {
-                const response = await axios.get<GetDappsResponse>(url, {
+                const response = await axios.get<ApiResponse<Dapp>>(url, {
                     headers: { 'X-BLOBR-KEY': `${functions.config().dappradar.apikey}` },
                 });
 
@@ -119,6 +131,27 @@ export class DappRadarService {
         return await this.getMetricHistory(dappId, network, DappRadarMetricType.UniqueActiveWallets);
     }
 
+    public async getAggregatedData(network: NetworkType, period: string): Promise<AggregatedMetrics[]> {
+        const url = `${
+            DappRadarService.BaseUrl
+        }/dapps/aggregated/metrics?chain=${network.toLowerCase()}&range=${period}`;
+        const response = await axios.get<ApiResponse<AggregatedMetrics>>(url, {
+            headers: { 'X-BLOBR-KEY': `${functions.config().dappradar.apikey}` },
+        });
+
+        if (response.data.success) {
+            // Add url to result.
+            const cachedDapps = await this.getDappsFromCache(network);
+            return response.data.results.map((result) => {
+                return {
+                    ...result,
+                    url: cachedDapps.find((dapp) => dapp.dappId === result.dappId)?.website ?? '',
+                };
+            });
+        }
+        return [];
+    }
+
     private async getMetricHistory(
         dappId: number | undefined,
         network: NetworkType,
@@ -128,7 +161,7 @@ export class DappRadarService {
 
         if (dappId) {
             const url = `${DappRadarService.BaseUrl}/dapps/${dappId}/history/${metric}?chain=${network.toLowerCase()}`;
-            const response = await axios.get<DappMetricResponse>(url, {
+            const response = await axios.get<ApiResponse<Metric>>(url, {
                 headers: { 'X-BLOBR-KEY': `${functions.config().dappradar.apikey}` },
             });
 

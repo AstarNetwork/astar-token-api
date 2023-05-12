@@ -14,6 +14,9 @@
   "paths": {
     "/api/v1/token/price/{symbol}": {
       "get": {
+        "tags": [
+          "Token"
+        ],
         "description": "Retrieves current token price",
         "parameters": [
           {
@@ -142,6 +145,9 @@
     },
     "/api/v1/{network}/dapps-staking/apr": {
       "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
         "description": "Retrieves dapp staking APR for a given network.",
         "parameters": [
           {
@@ -363,6 +369,80 @@
         }
       }
     },
+    "/api/v1/{network}/dapps-staking/stats/transactions": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "dappName",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "dappUrl",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/dapps-staking/stats/uaw": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "dappName",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "dappUrl",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/dapps-staking/stats/nexteraeta": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/{network}/node/tx-perblock/total": {
       "get": {
         "description": "Retreives total (valid and failed) number of transfers (number of balance.Transfer events).",
@@ -436,7 +516,7 @@
     },
     "/api/v1/{network}/tx/xvm-transfer": {
       "get": {
-        "description": "Return the transfer transaction detail of a given hash",
+        "description": "Return the xvm-transfer transactionhistory of a given sender and contract address",
         "parameters": [
           {
             "name": "network",
@@ -448,16 +528,16 @@
           {
             "name": "senderAddress",
             "in": "query",
+            "description": "SS58 wallet address",
             "required": true,
-            "type": "string",
-            "description": "SS58 wallet address"
+            "type": "string"
           },
           {
             "name": "contractAddress",
             "in": "query",
+            "description": "SS58 XVM Transfer contract address",
             "required": true,
-            "type": "string",
-            "description": "SS58 XVM Transfer contract address"
+            "type": "string"
           }
         ],
         "responses": {

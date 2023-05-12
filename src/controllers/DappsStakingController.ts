@@ -230,23 +230,23 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/stats/dapp/:contractAddress/:period').get(
             async (req: Request, res: Response) => {
                 /*
-                #swagger.description = 'Retrieves number of calls and unique users per era statistics.'
-                #swagger.parameters['network'] = {
-                    in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden',
-                    required: true
-                }
-                #swagger.parameters['contractAddress'] = {
-                    in: 'path',
-                    description: 'Contract address to get stats for',
-                    required: true
-                }
-                #swagger.parameters['period'] = {
-                    in: 'path',
-                    description: 'Period to get stats for. Supported periods: 7 eras, 30 eras, 90 eras, all',
-                    required: true
-                }
-            */
+                    #swagger.description = 'Retrieves number of calls and unique users per era statistics.'
+                    #swagger.parameters['network'] = {
+                        in: 'path',
+                        description: 'The network name. Supported networks: astar, shiden',
+                        required: true
+                    }
+                    #swagger.parameters['contractAddress'] = {
+                        in: 'path',
+                        description: 'Contract address to get stats for',
+                        required: true
+                    }
+                    #swagger.parameters['period'] = {
+                        in: 'path',
+                        description: 'Period to get stats for. Supported periods: 7 eras, 30 eras, 90 eras, all',
+                        required: true
+                    }
+                */
                 res.json(
                     await this._statsService.getContractStatistics(
                         req.params.network as NetworkType,
@@ -260,23 +260,23 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/stats/user/:userAddress/:period').get(
             async (req: Request, res: Response) => {
                 /*
-                #swagger.description = 'Retrieves user transactions.'
-                #swagger.parameters['network'] = {
-                    in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden',
-                    required: true
-                }
-                #swagger.parameters['userAddress'] = {
-                    in: 'path',
-                    description: 'User address to get stats for',
-                    required: true
-                }
-                #swagger.parameters['period'] = {
-                    in: 'path',
-                    description: 'The period type. Supported values: 7 days 30 days, 90 days, 1 year',
-                    required: true,
-                }
-            */
+                    #swagger.description = 'Retrieves user transactions.'
+                    #swagger.parameters['network'] = {
+                        in: 'path',
+                        description: 'The network name. Supported networks: astar, shiden',
+                        required: true
+                    }
+                    #swagger.parameters['userAddress'] = {
+                        in: 'path',
+                        description: 'User address to get stats for',
+                        required: true
+                    }
+                    #swagger.parameters['period'] = {
+                        in: 'path',
+                        description: 'The period type. Supported values: 7 days 30 days, 90 days, 1 year',
+                        required: true,
+                    }
+                */
                 res.json(
                     await this._statsService.getUserEvents(
                         req.params.network as NetworkType,
@@ -327,6 +327,21 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 this.handleError(res, err as Error);
             }
         });
+
+        app.route('/api/v1/:network/dapps-staking/stats/aggregated').get(
+            async (req: Request, res: Response) => {
+                try {
+                    res.json(
+                        await this._dappRadarService.getAggregatedData(
+                            req.params.network as NetworkType,
+                            req.query.period as string,
+                        ),
+                    );
+                } catch (err) {
+                    this.handleError(res, err as Error);
+                }
+            },
+        );
     }
 }
 
