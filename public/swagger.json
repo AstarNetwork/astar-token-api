@@ -18,6 +18,7 @@
           "Token"
         ],
         "description": "Retrieves current token price",
+        "tags": ["Token"],
         "parameters": [
           {
             "name": "symbol",
@@ -40,6 +41,7 @@
           "Token"
         ],
         "description": "Retrieves token statistics for a given network.",
+        "tags": ["Token"],
         "parameters": [
           {
             "name": "network",
@@ -62,6 +64,7 @@
           "Token"
         ],
         "description": "Retrieves token circulation for a given network.",
+        "tags": ["Token"],
         "parameters": [
           {
             "name": "network",
@@ -84,6 +87,7 @@
           "Token"
         ],
         "description": "Retrieves token price for a given network and period.",
+        "tags": ["Token"],
         "parameters": [
           {
             "name": "network",
@@ -113,6 +117,7 @@
           "Token"
         ],
         "description": "Retrieves token TVL for a given network and period.",
+        "tags": ["Token"],
         "parameters": [
           {
             "name": "network",
@@ -142,6 +147,7 @@
           "Token"
         ],
         "description": "Retrieves number of token holders",
+        "tags": ["Token"],
         "parameters": [
           {
             "name": "network",
@@ -164,6 +170,7 @@
           "Dapps Staking"
         ],
         "description": "Retrieves dapp staking APR for a given network.",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -208,6 +215,7 @@
           "Dapps Staking"
         ],
         "description": "Retrieves dapps staking TVL for a given network and period.",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -237,6 +245,7 @@
           "Dapps Staking"
         ],
         "description": "Retrieves earned staking rewards for dapps staking",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -266,6 +275,7 @@
           "Dapps Staking"
         ],
         "description": "Retrieves list of dapps registered for dapps staking",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -288,6 +298,7 @@
           "Dapps Staking"
         ],
         "description": "Retrieves dapp with the given address",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -317,6 +328,7 @@
           "Dapps Staking"
         ],
         "description": "Registers a new dapp",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -342,6 +354,7 @@
           "Dapps Staking"
         ],
         "description": "Retrieves number of calls and unique users per era statistics.",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -378,6 +391,7 @@
           "Dapps Staking"
         ],
         "description": "Retrieves user transactions.",
+        "tags": ["Dapp-Staking"],
         "parameters": [
           {
             "name": "network",
@@ -497,6 +511,7 @@
           "Node"
         ],
         "description": "Retreives total (valid and failed) number of transfers (number of balance.Transfer events).",
+        "tags": ["Node"],
         "parameters": [
           {
             "name": "network",
@@ -519,6 +534,7 @@
           "Node"
         ],
         "description": "Retreives number of successful transfers (number of balance.Transfer events) per day for a given period.",
+        "tags": ["Node"],
         "parameters": [
           {
             "name": "network",
@@ -548,6 +564,7 @@
           "Transactions"
         ],
         "description": "Return the transfer transaction detail of a given hash",
+        "tags": ["Transactions"],
         "parameters": [
           {
             "name": "network",
@@ -573,10 +590,7 @@
     },
     "/api/v1/{network}/tx/xvm-transfer": {
       "get": {
-        "tags": [
-          "Transactions"
-        ],
-        "description": "Return the xvm-transfer transactionhistory of a given sender and contract address",
+        "description": "Return the transfer transaction detail of a given hash",
         "parameters": [
           {
             "name": "network",
@@ -613,6 +627,7 @@
           "MAW"
         ],
         "description": "Retreives daily wallets statistics in CSV format",
+        "tags": ["MAW"],
         "parameters": [
           {
             "name": "network",
@@ -642,6 +657,7 @@
           "MAW"
         ],
         "description": "Retreives daily unique wallets statistics.",
+        "tags": ["MAW"],
         "parameters": [
           {
             "name": "network",
@@ -671,6 +687,7 @@
           "MAW"
         ],
         "description": "Retreives monthly wallets statistics in CSV format",
+        "tags": ["MAW"],
         "parameters": [
           {
             "name": "network",
