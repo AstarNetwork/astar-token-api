@@ -297,7 +297,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         );
 
         app.route('/api/v1/:network/dapps-staking/stats/transactions').get(async (req: Request, res: Response) => {
-             /*
+            /*
                 #swagger.tags = ['Dapps Staking']
             */
             try {
@@ -331,7 +331,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         });
 
         app.route('/api/v1/:network/dapps-staking/stats/nexteraeta').get(async (req: Request, res: Response) => {
-             /*
+            /*
                 #swagger.tags = ['Dapps Staking']
             */
             try {
