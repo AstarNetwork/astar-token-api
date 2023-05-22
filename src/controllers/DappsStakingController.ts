@@ -32,6 +32,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/apr').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves dapp staking APR for a given network.'
+                #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
@@ -56,6 +57,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/apy').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves dapp staking APY for a given network.'
+                #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
@@ -80,6 +82,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/tvl/:period').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves dapps staking TVL for a given network and period.'
+                #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
@@ -105,6 +108,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/earned/:address').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves earned staking rewards for dapps staking'
+                #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
@@ -127,6 +131,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/dapps').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves list of dapps registered for dapps staking'
+                #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar, development',
@@ -139,6 +144,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/dapps/:address').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves dapp with the given address'
+                #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar, development',
@@ -201,6 +207,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
             async (req: Request, res: Response) => {
                 /*
                     #swagger.description = 'Registers a new dapp'
+                    #swagger.tags = ['Dapps Staking']
                     #swagger.parameters['network'] = {
                         in: 'path',
                         description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar, development',
@@ -231,6 +238,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
             async (req: Request, res: Response) => {
                 /*
                 #swagger.description = 'Retrieves number of calls and unique users per era statistics.'
+                #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden',
@@ -261,6 +269,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
             async (req: Request, res: Response) => {
                 /*
                 #swagger.description = 'Retrieves user transactions.'
+                #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden',
@@ -288,6 +297,9 @@ export class DappsStakingController extends ControllerBase implements IControlle
         );
 
         app.route('/api/v1/:network/dapps-staking/stats/transactions').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.tags = ['Dapps Staking']
+            */
             try {
                 res.json(
                     await this._dappRadarService.getDappTransactionsHistory(
@@ -302,6 +314,9 @@ export class DappsStakingController extends ControllerBase implements IControlle
         });
 
         app.route('/api/v1/:network/dapps-staking/stats/uaw').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.tags = ['Dapps Staking']
+            */
             try {
                 res.json(
                     await this._dappRadarService.getDappUawHistory(
@@ -316,6 +331,9 @@ export class DappsStakingController extends ControllerBase implements IControlle
         });
 
         app.route('/api/v1/:network/dapps-staking/stats/nexteraeta').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.tags = ['Dapps Staking']
+            */
             try {
                 const network = req.params.network as NetworkType;
                 const stakingService = container.getNamed<IDappsStakingService>(

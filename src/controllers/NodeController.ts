@@ -17,6 +17,7 @@ export class NodeController implements IControllerBase {
         app.route('/api/v1/:network/node/tx-perblock/total').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retreives total (valid and failed) number of transfers (number of balance.Transfer events).'
+                #swagger.tags = ['Node']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
@@ -29,6 +30,7 @@ export class NodeController implements IControllerBase {
         app.route('/api/v1/:network/node/tx-perblock/:period').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retreives number of successful transfers (number of balance.Transfer events) per day for a given period.'
+                #swagger.tags = ['Node']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
