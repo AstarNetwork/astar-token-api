@@ -8,7 +8,6 @@
   "host": "api.astar.network",
   "basePath": "/",
   "schemes": [
-    "http",
     "https"
   ],
   "paths": {
