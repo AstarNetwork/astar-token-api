@@ -8,6 +8,7 @@
   "host": "api.astar.network",
   "basePath": "/",
   "schemes": [
+    "http",
     "https"
   ],
   "paths": {
@@ -23,8 +24,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "Token symbol",
-            "enum": ["ASTR", "SDN"]
+            "description": "Token symbol (eg. ASTR or SDN)"
           }
         ],
         "responses": {
@@ -33,7 +33,7 @@
           }
         }
       }
-},
+    },
     "/api/v1/{network}/token/stats": {
       "get": {
         "tags": [
@@ -46,8 +46,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           }
         ],
         "responses": {
@@ -69,8 +68,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           }
         ],
         "responses": {
@@ -92,16 +90,14 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           },
           {
             "name": "period",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year",
-            "enum": ["7 days", "30 days", "90 days", "1 year"]
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
           }
         ],
         "responses": {
@@ -123,16 +119,14 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           },
           {
             "name": "period",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year",
-            "enum": ["7 days", "30 days", "90 days", "1 year"]
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
           }
         ],
         "responses": {
@@ -154,8 +148,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           }
         ],
         "responses": {
@@ -177,8 +170,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           }
         ],
         "responses": {
@@ -200,8 +192,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           }
         ],
         "responses": {
@@ -223,16 +214,14 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           },
           {
             "name": "period",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year",
-            "enum": ["7 days", "30 days", "90 days", "1 year"]
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
           }
         ],
         "responses": {
@@ -254,8 +243,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           },
           {
             "name": "address",
@@ -284,8 +272,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development"
           }
         ],
         "responses": {
@@ -307,8 +294,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development"
           },
           {
             "name": "address",
@@ -337,8 +323,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development"
           }
         ],
         "responses": {
@@ -363,8 +348,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden",
-            "enum": ["astar", "shiden"]
+            "description": "The network name. Supported networks: astar, shiden"
           },
           {
             "name": "contractAddress",
@@ -378,8 +362,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "Period to get stats for. Supported periods: 7 eras, 30 eras, 90 eras, all",
-            "enum": ["7 eras", "30 eras", "90 eras", "all"]
+            "description": "Period to get stats for. Supported periods: 7 eras, 30 eras, 90 eras, all"
           }
         ],
         "responses": {
@@ -401,8 +384,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden",
-            "enum": ["astar", "shiden"]
+            "description": "The network name. Supported networks: astar, shiden"
           },
           {
             "name": "userAddress",
@@ -416,8 +398,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year",
-            "enum": ["7 days", "30 days", "90 days", "1 year"]
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
           }
         ],
         "responses": {
@@ -522,8 +503,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           }
         ],
         "responses": {
@@ -545,16 +525,14 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           },
           {
             "name": "period",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year",
-            "enum": ["7 days", "30 days", "90 days", "1 year"]
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
           }
         ],
         "responses": {
@@ -576,8 +554,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           },
           {
             "name": "hash",
@@ -606,8 +583,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
-            "enum": ["astar", "shiden", "shibuya", "rocstar"]
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
           },
           {
             "name": "senderAddress",
@@ -643,16 +619,14 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar",
-            "enum": ["astar"]
+            "description": "The network name. Supported networks: astar"
           },
           {
             "name": "period",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type. Supported values: 7 days, 30 days",
-            "enum": ["7 days", "30 days"]
+            "description": "The period type. Supported values: 7 days, 30 days"
           }
         ],
         "responses": {
@@ -674,16 +648,14 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar",
-            "enum": ["astar"]
+            "description": "The network name. Supported networks: astar"
           },
           {
             "name": "period",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type. Supported values: 7 days, 30 days",
-            "enum": ["7 days", "30 days"]
+            "description": "The period type. Supported values: 7 days, 30 days"
           }
         ],
         "responses": {
@@ -705,8 +677,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar",
-            "enum": ["astar"]
+            "description": "The network name. Supported networks: astar"
           },
           {
             "name": "numberOfMonths",
