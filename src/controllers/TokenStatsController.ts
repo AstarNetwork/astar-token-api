@@ -54,7 +54,8 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 #swagger.parameters['symbol'] = {
                     in: 'path',
                     description: 'Token symbol (eg. ASTR or SDN)',
-                    required: true
+                    required: true,
+                    enum: ['ASTR', 'SDN']
                 }
             */
             try {
@@ -74,7 +75,8 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
             */
             try {
@@ -122,7 +124,8 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
             */
             try {
@@ -146,12 +149,14 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
                 #swagger.parameters['period'] = {
                     in: 'path',
                     description: 'The period type.  Supported values: 7 days 30 days, 90 days, 1 year',
                     required: true,
+                    enum: ['7 days', '30 days', '90 days', '1 year']
                 }
             */
             res.json(
@@ -169,12 +174,14 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
                 #swagger.parameters['period'] = {
                     in: 'path',
                     description: 'The period type.  Supported values: 7 days 30 days, 90 days, 1 year',
                     required: true,
+                    enum: ['7 days', '30 days', '90 days', '1 year']
                 }
             */
             res.json(
@@ -192,7 +199,8 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                         #swagger.parameters['network'] = {
                             in: 'path',
                             description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                            required: true
+                            required: true,
+                            enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                         }
                     */
             res.json(await this._indexerService.getHolders(req.params.network as NetworkType));

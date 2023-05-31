@@ -23,7 +23,8 @@ export class TxQueryController extends ControllerBase implements IControllerBase
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
                 #swagger.parameters['hash'] = {
                     in: 'query',
@@ -47,7 +48,8 @@ export class TxQueryController extends ControllerBase implements IControllerBase
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
                 #swagger.parameters['senderAddress'] = {
                     in: 'query',
