@@ -22,12 +22,14 @@ export class MonthlyActiveWalletsController extends ControllerBase implements IC
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar',
-                    required: true
+                    required: true,
+                    enum: ['astar']
                 }
                 #swagger.parameters['period'] = {
                     in: 'path',
                     description: 'The period type.  Supported values: 7 days, 30 days',
                     required: true,
+                    enum: ['7 days', '30 days']
                 }
             */
 
@@ -54,12 +56,14 @@ export class MonthlyActiveWalletsController extends ControllerBase implements IC
               #swagger.parameters['network'] = {
                   in: 'path',
                   description: 'The network name. Supported networks: astar',
-                  required: true
+                  required: true,
+                  enum: ['astar']
               }
               #swagger.parameters['period'] = {
                     in: 'path',
                     description: 'The period type.  Supported values: 7 days, 30 days',
                     required: true,
+                    enum: ['7 days', '30 days']
                 }
           */
 
@@ -80,7 +84,8 @@ export class MonthlyActiveWalletsController extends ControllerBase implements IC
             #swagger.parameters['network'] = {
                 in: 'path',
                 description: 'The network name. Supported networks: astar',
-                required: true
+                required: true,
+                enum: ['astar']
             }
             #swagger.parameters['numberOfMonths'] = {
                 in: 'path',

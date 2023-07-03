@@ -36,7 +36,8 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
             */
             try {
@@ -61,7 +62,8 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
             */
             try {
@@ -86,12 +88,14 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
                 #swagger.parameters['period'] = {
                     in: 'path',
                     description: 'The period type. Supported values: 7 days 30 days, 90 days, 1 year',
                     required: true,
+                    enum: ['7 days', '30 days', '90 days', '1 year']
                 }
             */
             res.json(
@@ -112,7 +116,8 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
                 #swagger.parameters['address'] = {
                     in: 'path',
@@ -135,7 +140,8 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar, development',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
             */
             res.json(await this._firebaseService.getDapps(req.params.network as NetworkType));
@@ -148,7 +154,8 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar, development',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
                 #swagger.parameters['address'] = {
                     in: 'path',
@@ -211,7 +218,8 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     #swagger.parameters['network'] = {
                         in: 'path',
                         description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar, development',
-                        required: true
+                        required: true,
+                        enum: ['astar', 'shiden', 'shibuya', 'rocstar', 'development']
                     }
                 */
 
@@ -242,7 +250,8 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden']
                 }
                 #swagger.parameters['contractAddress'] = {
                     in: 'path',
@@ -252,7 +261,8 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 #swagger.parameters['period'] = {
                     in: 'path',
                     description: 'Period to get stats for. Supported periods: 7 eras, 30 eras, 90 eras, all',
-                    required: true
+                    required: true,
+                    enum: ['7 eras', '30 eras', '90 eras', 'all']
                 }
             */
                 res.json(
@@ -273,7 +283,8 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden']
                 }
                 #swagger.parameters['userAddress'] = {
                     in: 'path',
@@ -284,6 +295,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     in: 'path',
                     description: 'The period type. Supported values: 7 days 30 days, 90 days, 1 year',
                     required: true,
+                    enum: ['7 days', '30 days', '90 days', '1 year']
                 }
             */
                 res.json(
