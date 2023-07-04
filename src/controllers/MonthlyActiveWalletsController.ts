@@ -18,15 +18,18 @@ export class MonthlyActiveWalletsController extends ControllerBase implements IC
         app.route('/api/v1/:network/maw/daily/:period').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retreives daily wallets statistics in CSV format'
+                #swagger.tags = ['MAW']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar',
-                    required: true
+                    required: true,
+                    enum: ['astar']
                 }
                 #swagger.parameters['period'] = {
                     in: 'path',
                     description: 'The period type.  Supported values: 7 days, 30 days',
                     required: true,
+                    enum: ['7 days', '30 days']
                 }
             */
 
@@ -49,15 +52,18 @@ export class MonthlyActiveWalletsController extends ControllerBase implements IC
         app.route('/api/v1/:network/maw/daily/unique/:period').get(async (req: Request, res: Response) => {
             /*
               #swagger.description = 'Retreives daily unique wallets statistics.'
+              #swagger.tags = ['MAW']
               #swagger.parameters['network'] = {
                   in: 'path',
                   description: 'The network name. Supported networks: astar',
-                  required: true
+                  required: true,
+                  enum: ['astar']
               }
               #swagger.parameters['period'] = {
                     in: 'path',
                     description: 'The period type.  Supported values: 7 days, 30 days',
                     required: true,
+                    enum: ['7 days', '30 days']
                 }
           */
 
@@ -74,10 +80,12 @@ export class MonthlyActiveWalletsController extends ControllerBase implements IC
         app.route('/api/v1/:network/maw/monthly/:numberOfMonths').get(async (req: Request, res: Response) => {
             /*
             #swagger.description = 'Retreives monthly wallets statistics in CSV format'
+            #swagger.tags = ['MAW']
             #swagger.parameters['network'] = {
                 in: 'path',
                 description: 'The network name. Supported networks: astar',
-                required: true
+                required: true,
+                enum: ['astar']
             }
             #swagger.parameters['numberOfMonths'] = {
                 in: 'path',

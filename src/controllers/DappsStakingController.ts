@@ -32,10 +32,12 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/apr').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves dapp staking APR for a given network.'
+                #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
             */
             try {
@@ -56,10 +58,12 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/apy').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves dapp staking APY for a given network.'
+                #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
             */
             try {
@@ -80,15 +84,18 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/tvl/:period').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves dapps staking TVL for a given network and period.'
+                #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
                 #swagger.parameters['period'] = {
                     in: 'path',
                     description: 'The period type. Supported values: 7 days 30 days, 90 days, 1 year',
                     required: true,
+                    enum: ['7 days', '30 days', '90 days', '1 year']
                 }
             */
             res.json(
@@ -105,10 +112,12 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/earned/:address').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves earned staking rewards for dapps staking'
+                #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
                 #swagger.parameters['address'] = {
                     in: 'path',
@@ -127,10 +136,12 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/dapps').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves list of dapps registered for dapps staking'
+                #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar, development',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
             */
             res.json(await this._firebaseService.getDapps(req.params.network as NetworkType));
@@ -139,10 +150,12 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/dapps/:address').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves dapp with the given address'
+                #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar, development',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
                 #swagger.parameters['address'] = {
                     in: 'path',
@@ -201,10 +214,12 @@ export class DappsStakingController extends ControllerBase implements IControlle
             async (req: Request, res: Response) => {
                 /*
                     #swagger.description = 'Registers a new dapp'
+                    #swagger.tags = ['Dapps Staking']
                     #swagger.parameters['network'] = {
                         in: 'path',
                         description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar, development',
-                        required: true
+                        required: true,
+                        enum: ['astar', 'shiden', 'shibuya', 'rocstar', 'development']
                     }
                 */
 
@@ -230,23 +245,26 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/stats/dapp/:contractAddress/:period').get(
             async (req: Request, res: Response) => {
                 /*
-                    #swagger.description = 'Retrieves number of calls and unique users per era statistics.'
-                    #swagger.parameters['network'] = {
-                        in: 'path',
-                        description: 'The network name. Supported networks: astar, shiden',
-                        required: true
-                    }
-                    #swagger.parameters['contractAddress'] = {
-                        in: 'path',
-                        description: 'Contract address to get stats for',
-                        required: true
-                    }
-                    #swagger.parameters['period'] = {
-                        in: 'path',
-                        description: 'Period to get stats for. Supported periods: 7 eras, 30 eras, 90 eras, all',
-                        required: true
-                    }
-                */
+                #swagger.description = 'Retrieves number of calls and unique users per era statistics.'
+                #swagger.tags = ['Dapps Staking']
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden',
+                    required: true,
+                    enum: ['astar', 'shiden']
+                }
+                #swagger.parameters['contractAddress'] = {
+                    in: 'path',
+                    description: 'Contract address to get stats for',
+                    required: true
+                }
+                #swagger.parameters['period'] = {
+                    in: 'path',
+                    description: 'Period to get stats for. Supported periods: 7 eras, 30 eras, 90 eras, all',
+                    required: true,
+                    enum: ['7 eras', '30 eras', '90 eras', 'all']
+                }
+            */
                 res.json(
                     await this._statsService.getContractStatistics(
                         req.params.network as NetworkType,
@@ -260,23 +278,26 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/stats/user/:userAddress/:period').get(
             async (req: Request, res: Response) => {
                 /*
-                    #swagger.description = 'Retrieves user transactions.'
-                    #swagger.parameters['network'] = {
-                        in: 'path',
-                        description: 'The network name. Supported networks: astar, shiden',
-                        required: true
-                    }
-                    #swagger.parameters['userAddress'] = {
-                        in: 'path',
-                        description: 'User address to get stats for',
-                        required: true
-                    }
-                    #swagger.parameters['period'] = {
-                        in: 'path',
-                        description: 'The period type. Supported values: 7 days 30 days, 90 days, 1 year',
-                        required: true,
-                    }
-                */
+                #swagger.description = 'Retrieves user transactions.'
+                #swagger.tags = ['Dapps Staking']
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden',
+                    required: true,
+                    enum: ['astar', 'shiden']
+                }
+                #swagger.parameters['userAddress'] = {
+                    in: 'path',
+                    description: 'User address to get stats for',
+                    required: true
+                }
+                #swagger.parameters['period'] = {
+                    in: 'path',
+                    description: 'The period type. Supported values: 7 days 30 days, 90 days, 1 year',
+                    required: true,
+                    enum: ['7 days', '30 days', '90 days', '1 year']
+                }
+            */
                 res.json(
                     await this._statsService.getUserEvents(
                         req.params.network as NetworkType,
@@ -288,6 +309,9 @@ export class DappsStakingController extends ControllerBase implements IControlle
         );
 
         app.route('/api/v1/:network/dapps-staking/stats/transactions').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.tags = ['Dapps Staking']
+            */
             try {
                 res.json(
                     await this._dappRadarService.getDappTransactionsHistory(
@@ -302,6 +326,9 @@ export class DappsStakingController extends ControllerBase implements IControlle
         });
 
         app.route('/api/v1/:network/dapps-staking/stats/uaw').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.tags = ['Dapps Staking']
+            */
             try {
                 res.json(
                     await this._dappRadarService.getDappUawHistory(
@@ -316,6 +343,9 @@ export class DappsStakingController extends ControllerBase implements IControlle
         });
 
         app.route('/api/v1/:network/dapps-staking/stats/nexteraeta').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.tags = ['Dapps Staking']
+            */
             try {
                 const network = req.params.network as NetworkType;
                 const stakingService = container.getNamed<IDappsStakingService>(

@@ -19,10 +19,12 @@ export class TxQueryController extends ControllerBase implements IControllerBase
         app.route('/api/v1/:network/tx/transfer').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Return the transfer transaction detail of a given hash'
+                #swagger.tags = ['Transactions']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
                 #swagger.parameters['hash'] = {
                     in: 'query',
@@ -42,10 +44,12 @@ export class TxQueryController extends ControllerBase implements IControllerBase
         app.route('/api/v1/:network/tx/xvm-transfer').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Return the xvm-transfer transactionhistory of a given sender and contract address'
+                #swagger.tags = ['Transactions']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
                 #swagger.parameters['senderAddress'] = {
                     in: 'query',

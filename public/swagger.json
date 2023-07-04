@@ -8,8 +8,8 @@
   "host": "api.astar.network",
   "basePath": "/",
   "schemes": [
-    "http",
-    "https"
+    "https",
+    "http"
   ],
   "paths": {
     "/api/v1/token/price/{symbol}": {
@@ -24,7 +24,11 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "Token symbol (eg. ASTR or SDN)"
+            "description": "Token symbol (eg. ASTR or SDN)",
+            "enum": [
+              "ASTR",
+              "SDN"
+            ]
           }
         ],
         "responses": {
@@ -36,6 +40,9 @@
     },
     "/api/v1/{network}/token/stats": {
       "get": {
+        "tags": [
+          "Token"
+        ],
         "description": "Retrieves token statistics for a given network.",
         "parameters": [
           {
@@ -43,7 +50,13 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
           }
         ],
         "responses": {
@@ -55,6 +68,9 @@
     },
     "/api/v1/{network}/token/circulation": {
       "get": {
+        "tags": [
+          "Token"
+        ],
         "description": "Retrieves token circulation for a given network.",
         "parameters": [
           {
@@ -62,7 +78,13 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
           }
         ],
         "responses": {
@@ -74,6 +96,9 @@
     },
     "/api/v1/{network}/token/price/{period}": {
       "get": {
+        "tags": [
+          "Token"
+        ],
         "description": "Retrieves token price for a given network and period.",
         "parameters": [
           {
@@ -81,14 +106,26 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
           },
           {
             "name": "period",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year",
+            "enum": [
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
           }
         ],
         "responses": {
@@ -100,6 +137,9 @@
     },
     "/api/v1/{network}/token/tvl/{period}": {
       "get": {
+        "tags": [
+          "Token"
+        ],
         "description": "Retrieves token TVL for a given network and period.",
         "parameters": [
           {
@@ -107,14 +147,26 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
           },
           {
             "name": "period",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year",
+            "enum": [
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
           }
         ],
         "responses": {
@@ -126,6 +178,9 @@
     },
     "/api/v1/{network}/token/holders": {
       "get": {
+        "tags": [
+          "Token"
+        ],
         "description": "Retrieves number of token holders",
         "parameters": [
           {
@@ -133,7 +188,13 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
           }
         ],
         "responses": {
@@ -155,7 +216,13 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
           }
         ],
         "responses": {
@@ -167,6 +234,9 @@
     },
     "/api/v1/{network}/dapps-staking/apy": {
       "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
         "description": "Retrieves dapp staking APY for a given network.",
         "parameters": [
           {
@@ -174,7 +244,13 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
           }
         ],
         "responses": {
@@ -186,6 +262,9 @@
     },
     "/api/v1/{network}/dapps-staking/tvl/{period}": {
       "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
         "description": "Retrieves dapps staking TVL for a given network and period.",
         "parameters": [
           {
@@ -193,14 +272,26 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
           },
           {
             "name": "period",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year",
+            "enum": [
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
           }
         ],
         "responses": {
@@ -212,6 +303,9 @@
     },
     "/api/v1/{network}/dapps-staking/earned/{address}": {
       "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
         "description": "Retrieves earned staking rewards for dapps staking",
         "parameters": [
           {
@@ -219,7 +313,13 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
           },
           {
             "name": "address",
@@ -238,6 +338,9 @@
     },
     "/api/v1/{network}/dapps-staking/dapps": {
       "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
         "description": "Retrieves list of dapps registered for dapps staking",
         "parameters": [
           {
@@ -245,7 +348,13 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
           }
         ],
         "responses": {
@@ -257,6 +366,9 @@
     },
     "/api/v1/{network}/dapps-staking/dapps/{address}": {
       "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
         "description": "Retrieves dapp with the given address",
         "parameters": [
           {
@@ -264,7 +376,13 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
           },
           {
             "name": "address",
@@ -283,6 +401,9 @@
     },
     "/api/v1/{network}/dapps-staking/register": {
       "post": {
+        "tags": [
+          "Dapps Staking"
+        ],
         "description": "Registers a new dapp",
         "parameters": [
           {
@@ -290,7 +411,14 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar",
+              "development"
+            ]
           }
         ],
         "responses": {
@@ -305,6 +433,9 @@
     },
     "/api/v1/{network}/dapps-staking/stats/dapp/{contractAddress}/{period}": {
       "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
         "description": "Retrieves number of calls and unique users per era statistics.",
         "parameters": [
           {
@@ -312,7 +443,11 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden"
+            "description": "The network name. Supported networks: astar, shiden",
+            "enum": [
+              "astar",
+              "shiden"
+            ]
           },
           {
             "name": "contractAddress",
@@ -326,7 +461,13 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "Period to get stats for. Supported periods: 7 eras, 30 eras, 90 eras, all"
+            "description": "Period to get stats for. Supported periods: 7 eras, 30 eras, 90 eras, all",
+            "enum": [
+              "7 eras",
+              "30 eras",
+              "90 eras",
+              "all"
+            ]
           }
         ],
         "responses": {
@@ -338,6 +479,9 @@
     },
     "/api/v1/{network}/dapps-staking/stats/user/{userAddress}/{period}": {
       "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
         "description": "Retrieves user transactions.",
         "parameters": [
           {
@@ -345,7 +489,11 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden"
+            "description": "The network name. Supported networks: astar, shiden",
+            "enum": [
+              "astar",
+              "shiden"
+            ]
           },
           {
             "name": "userAddress",
@@ -359,7 +507,96 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year",
+            "enum": [
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/dapps-staking/stats/transactions": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "dappName",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "dappUrl",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/dapps-staking/stats/uaw": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "dappName",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "dappUrl",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/dapps-staking/stats/nexteraeta": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {
@@ -445,6 +682,9 @@
     },
     "/api/v1/{network}/node/tx-perblock/total": {
       "get": {
+        "tags": [
+          "Node"
+        ],
         "description": "Retreives total (valid and failed) number of transfers (number of balance.Transfer events).",
         "parameters": [
           {
@@ -452,7 +692,13 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
           }
         ],
         "responses": {
@@ -464,6 +710,9 @@
     },
     "/api/v1/{network}/node/tx-perblock/{period}": {
       "get": {
+        "tags": [
+          "Node"
+        ],
         "description": "Retreives number of successful transfers (number of balance.Transfer events) per day for a given period.",
         "parameters": [
           {
@@ -471,14 +720,26 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
           },
           {
             "name": "period",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year"
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year",
+            "enum": [
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
           }
         ],
         "responses": {
@@ -490,6 +751,9 @@
     },
     "/api/v1/{network}/tx/transfer": {
       "get": {
+        "tags": [
+          "Transactions"
+        ],
         "description": "Return the transfer transaction detail of a given hash",
         "parameters": [
           {
@@ -497,7 +761,13 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
           },
           {
             "name": "hash",
@@ -516,6 +786,9 @@
     },
     "/api/v1/{network}/tx/xvm-transfer": {
       "get": {
+        "tags": [
+          "Transactions"
+        ],
         "description": "Return the xvm-transfer transactionhistory of a given sender and contract address",
         "parameters": [
           {
@@ -523,7 +796,13 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar"
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
           },
           {
             "name": "senderAddress",
@@ -549,6 +828,9 @@
     },
     "/api/v1/{network}/maw/daily/{period}": {
       "get": {
+        "tags": [
+          "MAW"
+        ],
         "description": "Retreives daily wallets statistics in CSV format",
         "parameters": [
           {
@@ -556,14 +838,21 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar"
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar"
+            ]
           },
           {
             "name": "period",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type. Supported values: 7 days, 30 days"
+            "description": "The period type. Supported values: 7 days, 30 days",
+            "enum": [
+              "7 days",
+              "30 days"
+            ]
           }
         ],
         "responses": {
@@ -575,6 +864,9 @@
     },
     "/api/v1/{network}/maw/daily/unique/{period}": {
       "get": {
+        "tags": [
+          "MAW"
+        ],
         "description": "Retreives daily unique wallets statistics.",
         "parameters": [
           {
@@ -582,14 +874,21 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar"
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar"
+            ]
           },
           {
             "name": "period",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The period type. Supported values: 7 days, 30 days"
+            "description": "The period type. Supported values: 7 days, 30 days",
+            "enum": [
+              "7 days",
+              "30 days"
+            ]
           }
         ],
         "responses": {
@@ -601,6 +900,9 @@
     },
     "/api/v1/{network}/maw/monthly/{numberOfMonths}": {
       "get": {
+        "tags": [
+          "MAW"
+        ],
         "description": "Retreives monthly wallets statistics in CSV format",
         "parameters": [
           {
@@ -608,7 +910,10 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar"
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar"
+            ]
           },
           {
             "name": "numberOfMonths",
