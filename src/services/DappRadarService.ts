@@ -199,12 +199,6 @@ export class DappRadarService {
 
         // In some cases dapp name in dapp staking and in dapp radar are not exactly the same, so idea to check if
         // name or dapp url match. If both are different most likely the dapp will need to update name or url in dapp staking.
-
-        // Remove trailing slash from dapp url.
-        if (dappUrl.endsWith('/')) {
-            dappUrl = dappUrl.slice(0, -1);
-        }
-
         return dapps.find(
             (x) =>
                 x.name.toLowerCase() === dappName.toLowerCase() ||
