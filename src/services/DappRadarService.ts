@@ -133,7 +133,7 @@ export class DappRadarService {
     }
 
     public async getAggregatedData(network: NetworkType, period: string): Promise<AggregatedMetrics[]> {
-        let result: AggregatedMetrics[] = [];
+        const result: AggregatedMetrics[] = [];
         let currentPage = 1;
 
         do {
@@ -207,16 +207,16 @@ export class DappRadarService {
     }
 
     private getDomain(url: string): string | null {
-        var prefix = /^https?:\/\//i;
-        var domain = /^[^\/:]+/;
+        const prefix = /^https?:\/\//i;
+        const domain = /^[^\/:]+/;
         // Remove any prefix
         url = url.replace(prefix, '');
         // Extract just the domain
-        var match = url.match(domain);
+        const match = url.match(domain);
         if (match) {
             return match[0];
         }
-        
+
         return null;
     }
 
