@@ -17,6 +17,7 @@ export interface IDappRadarService {
 interface ApiResponse<T> {
     success: boolean;
     results: T[];
+    pageCount: number;
 }
 
 interface AggregatedMetrics {
@@ -44,19 +45,19 @@ enum DappRadarMetricType {
 @injectable()
 export class DappRadarService {
     public static BaseUrl = 'https://api.dappradar.com/97c1ov0nxxr0jjh8/';
+    readonly RESULTS_PER_PAGE = 50;
 
     constructor(@inject(ContainerTypes.FirebaseService) private firebase: IFirebaseService) {}
 
     public async getDapps(network: NetworkType): Promise<Dapp[]> {
         const result: Dapp[] = [];
         let currentPage = 1;
-        const RESULTS_PER_PAGE = 50;
 
         // Dapps request is paged so we need to fetch all pages.
         do {
             const url = `${
                 DappRadarService.BaseUrl
-            }/dapps?chain=${network.toLowerCase()}&page=${currentPage}&resultsPerPage=${RESULTS_PER_PAGE}`;
+            }/dapps?chain=${network.toLowerCase()}&page=${currentPage}&resultsPerPage=${this.RESULTS_PER_PAGE}`;
 
             try {
                 const response = await axios.get<ApiResponse<Dapp>>(url, {
@@ -132,24 +133,44 @@ export class DappRadarService {
     }
 
     public async getAggregatedData(network: NetworkType, period: string): Promise<AggregatedMetrics[]> {
-        const url = `${
-            DappRadarService.BaseUrl
-        }/dapps/aggregated/metrics?chain=${network.toLowerCase()}&range=${period}`;
-        const response = await axios.get<ApiResponse<AggregatedMetrics>>(url, {
-            headers: { 'X-BLOBR-KEY': `${functions.config().dappradar.apikey}` },
-        });
+        let result: AggregatedMetrics[] = [];
+        let currentPage = 1;
 
-        if (response.data.success) {
-            // Add url to result.
-            const cachedDapps = await this.getDappsFromCache(network);
-            return response.data.results.map((result) => {
-                return {
-                    ...result,
-                    url: cachedDapps.find((dapp) => dapp.dappId === result.dappId)?.website ?? '',
-                };
-            });
-        }
-        return [];
+        do {
+            try {
+                const url = `${
+                    DappRadarService.BaseUrl
+                }/dapps/aggregated/metrics?chain=${network.toLowerCase()}&range=${period}&resultsPerPage=${
+                    this.RESULTS_PER_PAGE
+                }&page=${currentPage}`;
+                const response = await axios.get<ApiResponse<AggregatedMetrics>>(url, {
+                    headers: { 'X-BLOBR-KEY': `${functions.config().dappradar.apikey}` },
+                });
+
+                if (response.data.success) {
+                    // Add url to result.
+                    const cachedDapps = await this.getDappsFromCache(network);
+                    result.push(
+                        ...response.data.results.map((result) => {
+                            return {
+                                ...result,
+                                url: cachedDapps.find((dapp) => dapp.dappId === result.dappId)?.website ?? '',
+                            };
+                        }),
+                    );
+                }
+
+                if (currentPage === response.data.pageCount) {
+                    break;
+                }
+
+                currentPage++;
+            } catch {
+                break;
+            }
+        } while (true);
+
+        return result;
     }
 
     private async getMetricHistory(
@@ -178,9 +199,31 @@ export class DappRadarService {
 
         // In some cases dapp name in dapp staking and in dapp radar are not exactly the same, so idea to check if
         // name or dapp url match. If both are different most likely the dapp will need to update name or url in dapp staking.
+
+        // Remove trailing slash from dapp url.
+        if (dappUrl.endsWith('/')) {
+            dappUrl = dappUrl.slice(0, -1);
+        }
+
         return dapps.find(
-            (x) => x.name.toLowerCase() === dappName.toLowerCase() || x.website.toLowerCase() === dappUrl.toLowerCase(),
+            (x) =>
+                x.name.toLowerCase() === dappName.toLowerCase() ||
+                this.getDomain(x.website.toLowerCase()) === this.getDomain(dappUrl.toLowerCase()),
         )?.dappId;
+    }
+
+    private getDomain(url: string): string | null {
+        var prefix = /^https?:\/\//i;
+        var domain = /^[^\/:]+/;
+        // Remove any prefix
+        url = url.replace(prefix, '');
+        // Extract just the domain
+        var match = url.match(domain);
+        if (match) {
+            return match[0];
+        }
+        
+        return null;
     }
 
     private getCacheKey(network: NetworkType): string {
