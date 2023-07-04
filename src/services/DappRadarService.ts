@@ -11,16 +11,29 @@ export interface IDappRadarService {
     getDapps(network: NetworkType): Promise<Dapp[]>;
     getDappTransactionsHistory(dappName: string, dappUrl: string, network: NetworkType): Promise<Metric[]>;
     getDappUawHistory(dappName: string, dappUrl: string, network: NetworkType): Promise<Metric[]>;
+    getAggregatedData(network: NetworkType, period: string): Promise<AggregatedMetrics[]>;
 }
 
-interface GetDappsResponse {
+interface ApiResponse<T> {
     success: boolean;
-    results: Dapp[];
+    results: T[];
+    pageCount: number;
 }
 
-interface DappMetricResponse {
-    success: boolean;
-    results: Metric[];
+interface AggregatedMetrics {
+    dappId: number;
+    name: string;
+    url: string;
+    metrics: {
+        transactions: number;
+        transactionsPercentageChange: number;
+        uaw: number;
+        uawPercentageChange: number;
+        volume: number;
+        volumePercentageChange: number;
+        balance: number;
+        balancePercentageChange: number;
+    };
 }
 
 enum DappRadarMetricType {
@@ -32,22 +45,22 @@ enum DappRadarMetricType {
 @injectable()
 export class DappRadarService {
     public static BaseUrl = 'https://api.dappradar.com/97c1ov0nxxr0jjh8/';
+    readonly RESULTS_PER_PAGE = 50;
 
     constructor(@inject(ContainerTypes.FirebaseService) private firebase: IFirebaseService) {}
 
     public async getDapps(network: NetworkType): Promise<Dapp[]> {
         const result: Dapp[] = [];
         let currentPage = 1;
-        const RESULTS_PER_PAGE = 50;
 
         // Dapps request is paged so we need to fetch all pages.
         do {
             const url = `${
                 DappRadarService.BaseUrl
-            }/dapps?chain=${network.toLowerCase()}&page=${currentPage}&resultsPerPage=${RESULTS_PER_PAGE}`;
+            }/dapps?chain=${network.toLowerCase()}&page=${currentPage}&resultsPerPage=${this.RESULTS_PER_PAGE}`;
 
             try {
-                const response = await axios.get<GetDappsResponse>(url, {
+                const response = await axios.get<ApiResponse<Dapp>>(url, {
                     headers: { 'X-BLOBR-KEY': `${functions.config().dappradar.apikey}` },
                 });
 
@@ -119,6 +132,47 @@ export class DappRadarService {
         return await this.getMetricHistory(dappId, network, DappRadarMetricType.UniqueActiveWallets);
     }
 
+    public async getAggregatedData(network: NetworkType, period: string): Promise<AggregatedMetrics[]> {
+        const result: AggregatedMetrics[] = [];
+        let currentPage = 1;
+
+        do {
+            try {
+                const url = `${
+                    DappRadarService.BaseUrl
+                }/dapps/aggregated/metrics?chain=${network.toLowerCase()}&range=${period}&resultsPerPage=${
+                    this.RESULTS_PER_PAGE
+                }&page=${currentPage}`;
+                const response = await axios.get<ApiResponse<AggregatedMetrics>>(url, {
+                    headers: { 'X-BLOBR-KEY': `${functions.config().dappradar.apikey}` },
+                });
+
+                if (response.data.success) {
+                    // Add url to result.
+                    const cachedDapps = await this.getDappsFromCache(network);
+                    result.push(
+                        ...response.data.results.map((result) => {
+                            return {
+                                ...result,
+                                url: cachedDapps.find((dapp) => dapp.dappId === result.dappId)?.website ?? '',
+                            };
+                        }),
+                    );
+                }
+
+                if (currentPage === response.data.pageCount) {
+                    break;
+                }
+
+                currentPage++;
+            } catch {
+                break;
+            }
+        } while (true);
+
+        return result;
+    }
+
     private async getMetricHistory(
         dappId: number | undefined,
         network: NetworkType,
@@ -128,7 +182,7 @@ export class DappRadarService {
 
         if (dappId) {
             const url = `${DappRadarService.BaseUrl}/dapps/${dappId}/history/${metric}?chain=${network.toLowerCase()}`;
-            const response = await axios.get<DappMetricResponse>(url, {
+            const response = await axios.get<ApiResponse<Metric>>(url, {
                 headers: { 'X-BLOBR-KEY': `${functions.config().dappradar.apikey}` },
             });
 
@@ -146,8 +200,24 @@ export class DappRadarService {
         // In some cases dapp name in dapp staking and in dapp radar are not exactly the same, so idea to check if
         // name or dapp url match. If both are different most likely the dapp will need to update name or url in dapp staking.
         return dapps.find(
-            (x) => x.name.toLowerCase() === dappName.toLowerCase() || x.website.toLowerCase() === dappUrl.toLowerCase(),
+            (x) =>
+                x.name.toLowerCase() === dappName.toLowerCase() ||
+                this.getDomain(x.website.toLowerCase()) === this.getDomain(dappUrl.toLowerCase()),
         )?.dappId;
+    }
+
+    private getDomain(url: string): string | null {
+        const prefix = /^https?:\/\//i;
+        const domain = /^[^\/:]+/;
+        // Remove any prefix
+        url = url.replace(prefix, '');
+        // Extract just the domain
+        const match = url.match(domain);
+        if (match) {
+            return match[0];
+        }
+
+        return null;
     }
 
     private getCacheKey(network: NetworkType): string {

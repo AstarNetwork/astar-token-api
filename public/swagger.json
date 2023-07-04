@@ -606,6 +606,80 @@
         }
       }
     },
+    "/api/v1/{network}/dapps-staking/stats/transactions": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "dappName",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "dappUrl",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/dapps-staking/stats/uaw": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "dappName",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "dappUrl",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/dapps-staking/stats/nexteraeta": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/{network}/node/tx-perblock/total": {
       "get": {
         "tags": [
