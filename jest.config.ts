@@ -17,6 +17,6 @@ const config: Config.InitialOptions = {
         'firebase-admin/app': '<rootDir>/node_modules/firebase-admin/lib/app',
         'firebase-admin/database': '<rootDir>/node_modules/firebase-admin/lib/database',
         'firebase-admin/firestore': '<rootDir>/node_modules/firebase-admin/lib/firestore',
-    }
+    },
 };
 export default config;
