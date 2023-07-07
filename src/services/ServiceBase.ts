@@ -9,7 +9,7 @@ const DEFAULT_RANGE_LENGTH_DAYS = 7;
 
 @injectable()
 export abstract class ServiceBase {
-    protected getDateRange(period: PeriodType): DateRange {
+    public getDateRange(period: PeriodType): DateRange {
         const end = new Date();
         const numberOfDays = this.getPeriodDurationInDays(period);
 
@@ -22,7 +22,7 @@ export abstract class ServiceBase {
         };
     }
 
-    protected getPeriodDurationInDays(period: PeriodType): number {
+    public getPeriodDurationInDays(period: PeriodType): number {
         const parts = period.toString().split(' ');
         let numberOfDays: number;
 
