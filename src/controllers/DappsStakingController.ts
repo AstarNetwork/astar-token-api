@@ -359,6 +359,9 @@ export class DappsStakingController extends ControllerBase implements IControlle
         });
 
         app.route('/api/v1/:network/dapps-staking/stats/aggregated').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.tags = ['Dapps Staking']
+            */
             try {
                 res.json(
                     await this._dappRadarService.getAggregatedData(
