@@ -207,6 +207,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 'YouTube',
                 'Instagram',
                 'Discord',
+                'GitHub',
             ]),
             body('communities.*.handle').notEmpty().isURL(),
             body('contractType').notEmpty().isIn(['wasm+evm', 'wasm', 'evm']),
