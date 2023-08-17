@@ -6,7 +6,7 @@ import { NetworkType } from '../../src/networks';
 describe('DappRadarService methods parameters check', () => {
     let dappRadarService: IDappRadarService;
     const emptyNetwork = '' as NetworkType;
-    const invalidNetwork = 'dsa' as NetworkType;
+    const invalidNetwork = 'astar1' as NetworkType;
 
     beforeEach(() => {
         dappRadarService = new DappRadarService(new FirebaseServiceMock());
