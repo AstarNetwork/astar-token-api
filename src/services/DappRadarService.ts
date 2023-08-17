@@ -234,7 +234,7 @@ export class DappRadarService {
     }
 
     private ThrowIfNetworkNotSupported(network: NetworkType): void {
-        if(network !== 'astar' && network !== 'shiden') {
+        if (network !== 'astar' && network !== 'shiden') {
             throw new Error(`Network ${network} is not supported.`);
         }
     }
