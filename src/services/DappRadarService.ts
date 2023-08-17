@@ -50,6 +50,9 @@ export class DappRadarService {
     constructor(@inject(ContainerTypes.FirebaseService) private firebase: IFirebaseService) {}
 
     public async getDapps(network: NetworkType): Promise<Dapp[]> {
+        Guard.ThrowIfUndefined('network', network);
+        this.ThrowIfNetworkNotSupported(network);
+
         const result: Dapp[] = [];
         let currentPage = 1;
 
@@ -118,6 +121,7 @@ export class DappRadarService {
         Guard.ThrowIfUndefined('dappName', dappName);
         Guard.ThrowIfUndefined('dappUrl', dappUrl);
         Guard.ThrowIfUndefined('network', network);
+        this.ThrowIfNetworkNotSupported(network);
 
         const dappId = await this.getDappId(dappName, dappUrl, network);
         return await this.getMetricHistory(dappId, network, DappRadarMetricType.Transactions);
@@ -127,12 +131,17 @@ export class DappRadarService {
         Guard.ThrowIfUndefined('dappName', dappName);
         Guard.ThrowIfUndefined('dappUrl', dappUrl);
         Guard.ThrowIfUndefined('network', network);
+        this.ThrowIfNetworkNotSupported(network);
 
         const dappId = await this.getDappId(dappName, dappUrl, network);
         return await this.getMetricHistory(dappId, network, DappRadarMetricType.UniqueActiveWallets);
     }
 
     public async getAggregatedData(network: NetworkType, period: string): Promise<AggregatedMetrics[]> {
+        Guard.ThrowIfUndefined('network', network);
+        Guard.ThrowIfUndefined('period', period);
+        this.ThrowIfNetworkNotSupported(network);
+
         const result: AggregatedMetrics[] = [];
         let currentPage = 1;
 
@@ -222,5 +231,11 @@ export class DappRadarService {
 
     private getCacheKey(network: NetworkType): string {
         return `${network}_dapps`;
+    }
+
+    private ThrowIfNetworkNotSupported(network: NetworkType): void {
+        if(network !== 'astar' && network !== 'shiden') {
+            throw new Error(`Network ${network} is not supported.`);
+        }
     }
 }
