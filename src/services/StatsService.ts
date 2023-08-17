@@ -6,6 +6,7 @@ import { ContainerTypes } from '../containertypes';
 import { TokenStats } from '../models/TokenStats';
 import { NetworkType } from '../networks';
 import { addressesToExclude } from './AddressesToExclude';
+import { AccountData } from '../models/AccountData';
 
 export interface IStatsService {
     getTokenStats(network?: NetworkType): Promise<TokenStats>;
@@ -45,10 +46,10 @@ export class StatsService implements IStatsService {
         }
     }
 
-    private getTotalBalanceToExclude(balances: PalletBalancesAccountData[]): BN {
+    private getTotalBalanceToExclude(balances: AccountData[]): BN {
         const sum = balances
             .map((balance) => {
-                return balance.free.add(balance.miscFrozen);
+                return balance.free.add(balance.miscFrozen ?? balance.frozen);
             })
             .reduce((partialSum, b) => partialSum.add(b), new BN(0));
 
@@ -56,7 +57,7 @@ export class StatsService implements IStatsService {
     }
 
     private formatBalance(balance: BN, chainDecimals: number): number {
-        const result = formatBalance(balance, { withSi: false, forceUnit: '-' }, chainDecimals).split('.')[0];
+        const result = formatBalance(balance, { withSi: false, forceUnit: '-', decimals: chainDecimals }).split('.')[0];
 
         return parseInt(result.replaceAll(',', ''));
     }
