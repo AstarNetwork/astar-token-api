@@ -2,7 +2,6 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { isEthereumAddress, checkAddress, decodeAddress, encodeAddress } from '@polkadot/util-crypto';
 import { hexToU8a, isHex } from '@polkadot/util';
 import { u32, u128, Option, Struct, Enum } from '@polkadot/types';
-import { PalletBalancesAccountData } from '@polkadot/types/lookup';
 import { Header, AccountId, DispatchError, Call } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { ISubmittableResult, ITuple } from '@polkadot/types/types';
@@ -11,6 +10,7 @@ import BN from 'bn.js';
 import { AprCalculationData } from '../models/AprCalculationData';
 import { networks } from '../networks';
 import { EraRewardAndStake } from '../types/DappsStaking';
+import { AccountData } from '../models/AccountData';
 
 export interface DappInfo extends Struct {
     developer: AccountId;
@@ -26,7 +26,7 @@ export type Transaction = SubmittableExtrinsic<'promise', ISubmittableResult>;
 
 export interface IAstarApi {
     getTotalSupply(): Promise<u128>;
-    getBalances(addresses: string[]): Promise<PalletBalancesAccountData[]>;
+    getBalances(addresses: string[]): Promise<AccountData[]>;
     getChainDecimals(): Promise<number>;
     getAprCalculationData(): Promise<AprCalculationData>;
     getTvl(): Promise<BN>;
@@ -51,11 +51,11 @@ export class BaseApi implements IAstarApi {
         return await this._api.query.balances.totalIssuance();
     }
 
-    public async getBalances(addresses: string[]): Promise<PalletBalancesAccountData[]> {
+    public async getBalances(addresses: string[]): Promise<AccountData[]> {
         await this.ensureConnection();
         const balances = await this._api.query.system.account.multi(addresses);
 
-        return balances.map((balance) => balance.data);
+        return balances.map((balance) => balance.data as unknown as AccountData);
     }
 
     public async getChainDecimals(): Promise<number> {
