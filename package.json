@@ -88,7 +88,7 @@
         "firebase-functions": "^4.4.1",
         "inversify": "^6.0.1",
         "ioredis": "^4.28.0",
-        "luxon": "^2.1.1",
+        "luxon": "^2.5.2",
         "reflect-metadata": "^0.1.13",
         "swagger-autogen": "^2.19.0",
         "web3": "^1.7.0"
