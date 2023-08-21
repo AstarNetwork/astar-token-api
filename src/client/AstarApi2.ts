@@ -1,7 +1,7 @@
 import { u32, u128, Option } from '@polkadot/types';
 import { Header } from '@polkadot/types/interfaces';
 import { BN } from '@polkadot/util';
-import { ethers } from 'ethers';
+import { formatUnits } from 'ethers';
 import { EraInfo, RewardDistributionConfig } from '../types/DappsStaking';
 import { BaseApi, IAstarApi } from './BaseApi';
 import { networks } from '../networks';
@@ -36,7 +36,7 @@ export class AstarApi2 extends BaseApi implements IAstarApi {
         result.idealDappsStakingTvl = results[3].idealDappsStakingTvl.toNumber() * numAdjToPercentage;
 
         result.blockPerEra = results[4] as u32;
-        result.totalIssuance = Number(ethers.utils.formatUnits(results[5].toString(), results[6]));
+        result.totalIssuance = Number(formatUnits(results[5].toString(), results[6]));
 
         const block7EraAgo = result.latestBlock.sub(result.blockPerEra.muln(7));
         const blockHash7ErasAgo = await this._api.rpc.chain.getBlockHash(block7EraAgo);

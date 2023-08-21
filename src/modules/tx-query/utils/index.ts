@@ -1,5 +1,5 @@
 import { TransferDetails } from './../../../models/TxQuery';
-import { ethers } from 'ethers';
+import { formatEther, formatUnits } from 'ethers';
 import Web3 from 'web3';
 import abiDecoder from 'abi-decoder';
 import ABI from '../abi/ERC20.json';
@@ -29,7 +29,7 @@ export const fetchEvmTransferDetails = async ({
     const timestamp = block && (block.timestamp as number);
     const from = receipt.from;
     if (isNativeToken) {
-        const amount = ethers.utils.formatEther(tx.value as string);
+        const amount = formatEther(tx.value as string);
         const network = Object.values(networks).find((it) => it.evmId === String(chainId));
         const symbol = network?.token || '';
         const to = tx.to as string;
@@ -45,7 +45,7 @@ export const fetchEvmTransferDetails = async ({
         ]);
         const to = txInput.params[0].value;
         const amt = txInput.params[1].value;
-        const amount = ethers.utils.formatUnits(amt as string, decimals);
+        const amount = formatUnits(amt as string, decimals);
         return { from, to, symbol, amount, isSuccess, timestamp };
     }
 };

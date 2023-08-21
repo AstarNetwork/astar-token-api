@@ -1,6 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { u32 } from '@polkadot/types';
-import { ethers } from 'ethers';
+import { formatUnits, formatEther } from 'ethers';
 import { IApiFactory } from '../client/ApiFactory';
 import { AprCalculationData } from '../models/AprCalculationData';
 import { networks, NetworkType } from '../networks';
@@ -59,7 +59,7 @@ export class DappsStakingService implements IDappsStakingService {
             const annualRewards = eraRewards * dailyEraRate * 365.25;
 
             const tvl = await api.getTvl();
-            const totalStaked = Number(ethers.utils.formatUnits(tvl.toString(), decimals));
+            const totalStaked = Number(formatUnits(tvl.toString(), decimals));
             const tvlPercentage = totalStaked / data.totalIssuance;
             const adjustableStakerPercentage =
                 Math.min(1, tvlPercentage / data.idealDappsStakingTvl) * data.adjustablePercent;
@@ -113,7 +113,7 @@ export class DappsStakingService implements IDappsStakingService {
 
             if (result.data) {
                 const earned = result.data.data.sum;
-                return Number(ethers.utils.formatEther(earned));
+                return Number(formatEther(earned));
             } else {
                 return 0;
             }
