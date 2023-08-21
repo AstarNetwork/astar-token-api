@@ -1,7 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { u32 } from '@polkadot/types';
 import { ethers } from 'ethers';
-import { aprToApy } from 'apr-tools';
 import { IApiFactory } from '../client/ApiFactory';
 import { AprCalculationData } from '../models/AprCalculationData';
 import { networks, NetworkType } from '../networks';
@@ -24,6 +23,9 @@ export interface IDappsStakingService {
 // Memo: 50% of block rewards goes to dappsStaking, 50% goes to block validator
 // Fixme: ideally get the value from API
 const DAPPS_REWARD_RATE = 0.5;
+
+const SECONDS_PER_YEAR = 365.25 * 24 * 60 * 60;
+const BLOCKS_IN_A_YEAR = SECONDS_PER_YEAR / 14;
 
 const TS_FIRST_BLOCK = {
     [networks.astar.name]: 1639798585, //  Ref: 2021-12-18 03:36:25 https://astar.subscan.io/block/1
@@ -77,7 +79,7 @@ export class DappsStakingService implements IDappsStakingService {
     public async calculateApy(network: NetworkType = 'astar'): Promise<number> {
         try {
             const apr = await this.calculateApr(network);
-            return aprToApy(apr);
+            return this.aprToApy(apr);
         } catch {
             throw new Error(
                 'Unable to calculate network APY. Most likely there is an error fetching data from a node.',
@@ -197,5 +199,16 @@ export class DappsStakingService implements IDappsStakingService {
         }
 
         return false;
+    }
+
+    /**
+     * Formula source: http://www.linked8.com/blog/158-apy-to-apr-and-apr-to-apy-calculation-methodologies
+     *
+     * @param apr {Number} APR as percentage (ie. 5.82)
+     * @param frequency {Number} Compounding frequency (times a year)
+     * @returns {Number} APY as percentage (ie. 6 for APR of 5.82%)
+     */
+    private aprToApy (apr: number, frequency = BLOCKS_IN_A_YEAR): number {
+        return ((1 + apr / 100 / frequency) ** frequency - 1) * 100;
     }
 }
