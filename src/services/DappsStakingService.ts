@@ -208,7 +208,7 @@ export class DappsStakingService implements IDappsStakingService {
      * @param frequency {Number} Compounding frequency (times a year)
      * @returns {Number} APY as percentage (ie. 6 for APR of 5.82%)
      */
-    private aprToApy (apr: number, frequency = BLOCKS_IN_A_YEAR): number {
+    private aprToApy(apr: number, frequency = BLOCKS_IN_A_YEAR): number {
         return ((1 + apr / 100 / frequency) ** frequency - 1) * 100;
     }
 }
