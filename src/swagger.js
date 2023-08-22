@@ -13,7 +13,7 @@ const getDocumentation = (host) => ({
     info: {
         version: '1.0.1',
         title: 'Astar token statistics API',
-        description: 'Provides network statistic information.',
+        description: 'Provides Astar networks statistic information.',
     },
     host: host ? host : 'localhost:3000',
     schemes: ['https', 'http'],

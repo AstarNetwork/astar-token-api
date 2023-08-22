@@ -311,7 +311,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
 
         app.route('/api/v1/:network/dapps-staking/stats/transactions').get(async (req: Request, res: Response) => {
             /*
-                #swagger.tags = ['Dapps Staking']
+                #swagger.ignore = true
             */
             try {
                 res.json(
@@ -328,7 +328,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
 
         app.route('/api/v1/:network/dapps-staking/stats/uaw').get(async (req: Request, res: Response) => {
             /*
-                #swagger.tags = ['Dapps Staking']
+                #swagger.ignore = true
             */
             try {
                 res.json(
@@ -345,7 +345,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
 
         app.route('/api/v1/:network/dapps-staking/stats/nexteraeta').get(async (req: Request, res: Response) => {
             /*
-                #swagger.tags = ['Dapps Staking']
+                #swagger.ignore = true
             */
             try {
                 const network = req.params.network as NetworkType;
@@ -361,7 +361,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
 
         app.route('/api/v1/:network/dapps-staking/stats/aggregated').get(async (req: Request, res: Response) => {
             /*
-                #swagger.tags = ['Dapps Staking']
+                #swagger.ignore = true
             */
             try {
                 res.json(

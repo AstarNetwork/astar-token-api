@@ -10,6 +10,7 @@ describe('validateDeveloperLinks', () => {
             iconFile: '',
             twitterAccountUrl: '',
             linkedInAccountUrl: '',
+            githubAccountUrl: '',
         };
     });
 

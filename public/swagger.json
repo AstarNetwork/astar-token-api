@@ -3,7 +3,7 @@
   "info": {
     "version": "1.0.1",
     "title": "Astar token statistics API",
-    "description": "Provides network statistic information."
+    "description": "Provides Astar networks statistic information."
   },
   "host": "api.astar.network",
   "basePath": "/",
@@ -12,6 +12,16 @@
     "http"
   ],
   "paths": {
+    "/api/token/stats": {
+      "get": {
+        "description": "Test endpoint, returns token stats for Astar Network",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/token/price/{symbol}": {
       "get": {
         "tags": [
@@ -514,112 +524,6 @@
               "90 days",
               "1 year"
             ]
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/v1/{network}/dapps-staking/stats/transactions": {
-      "get": {
-        "tags": [
-          "Dapps Staking"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "network",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "dappName",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "dappUrl",
-            "in": "query",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/v1/{network}/dapps-staking/stats/uaw": {
-      "get": {
-        "tags": [
-          "Dapps Staking"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "network",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "dappName",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "dappUrl",
-            "in": "query",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/v1/{network}/dapps-staking/stats/nexteraeta": {
-      "get": {
-        "tags": [
-          "Dapps Staking"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "network",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/v1/{network}/dapps-staking/stats/aggregated": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "network",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "period",
-            "in": "query",
-            "type": "string"
           }
         ],
         "responses": {
