@@ -17,10 +17,12 @@ export class NodeController implements IControllerBase {
         app.route('/api/v1/:network/node/tx-perblock/total').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retreives total (valid and failed) number of transfers (number of balance.Transfer events).'
+                #swagger.tags = ['Node']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
             */
             res.json(await this._indexerService.getTotalTransfers(req.params.network as NetworkType));
@@ -29,15 +31,18 @@ export class NodeController implements IControllerBase {
         app.route('/api/v1/:network/node/tx-perblock/:period').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retreives number of successful transfers (number of balance.Transfer events) per day for a given period.'
+                #swagger.tags = ['Node']
                 #swagger.parameters['network'] = {
                     in: 'path',
                     description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
                 }
                 #swagger.parameters['period'] = {
                     in: 'path',
                     description: 'The period type.  Supported values: 7 days 30 days, 90 days, 1 year',
                     required: true,
+                    enum: ['7 days', '30 days', '90 days', '1 year']
                 }
             */
             res.json(

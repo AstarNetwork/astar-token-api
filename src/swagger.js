@@ -16,7 +16,7 @@ const getDocumentation = (host) => ({
         description: 'Provides network statistic information.',
     },
     host: host ? host : 'localhost:3000',
-    schemes: ['http', 'https'],
+    schemes: ['https', 'http'],
 });
 
 const args = process.argv.slice(2); // first two args are 'node' and command name

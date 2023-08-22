@@ -4,7 +4,7 @@ export const networks = {
     astar: {
         name: 'astar',
         endpoints: [
-            'wss://wss.astar.network',
+            'wss://rpc.astar.network',
             'wss://astar.api.onfinality.io/public-ws',
             'wss://astar-rpc.dwellir.com',
         ],

@@ -174,6 +174,9 @@ export class FirebaseService implements IFirebaseService {
         if (network.toString() === 'development') {
             // special case so we can test dapps staking on a local node.
             return 'development-dapps';
+        } else if (network.toString().includes('testnet')) {
+            // another special case when testing with Zombienet
+            return network.toString().replace(' ', '-').toLowerCase();
         }
 
         const api = this._apiFactory.getApiInstance(network);

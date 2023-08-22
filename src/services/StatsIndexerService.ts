@@ -140,7 +140,7 @@ export class StatsIndexerService extends ServiceBase implements IStatsIndexerSer
         const numberOfDays = this.getPeriodDurationInDays(period);
 
         try {
-            const interval = period === '1 year' ? 'daily' : 'hourly';
+            const interval = 'daily';
             const result = await axios.get(
                 `https://api.coingecko.com/api/v3/coins/${network}/market_chart?vs_currency=usd&days=${numberOfDays}&interval=${interval}`,
             );
