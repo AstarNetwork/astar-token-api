@@ -29,6 +29,7 @@ import { IMonthlyActiveWalletsService, MonthlyActiveWalletsService } from './ser
 import { MonthlyActiveWalletsController } from './controllers/MonthlyActiveWalletsController';
 import { DappsStakingStatsService, IDappsStakingStatsService } from './services/DappsStakingStatsService';
 import { IDappRadarService, DappRadarService } from './services/DappRadarService';
+import { GiantSquidService, IGiantSquidService } from './services/GiantSquidService';
 
 const container = new Container();
 
@@ -103,6 +104,7 @@ container
     .to(DappsStakingStatsService)
     .inRequestScope();
 container.bind<IDappRadarService>(ContainerTypes.DappRadarService).to(DappRadarService).inRequestScope();
+container.bind<IGiantSquidService>(ContainerTypes.GiantSquidService).to(GiantSquidService).inRequestScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);

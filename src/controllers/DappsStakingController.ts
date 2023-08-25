@@ -13,6 +13,7 @@ import { PeriodType, PeriodTypeEra } from '../services/ServiceBase';
 import { IStatsIndexerService } from '../services/StatsIndexerService';
 import { ControllerBase } from './ControllerBase';
 import { IControllerBase } from './IControllerBase';
+import { IGiantSquidService } from '../services/GiantSquidService';
 
 @injectable()
 export class DappsStakingController extends ControllerBase implements IControllerBase {
@@ -21,6 +22,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         @inject(ContainerTypes.FirebaseService) private _firebaseService: IFirebaseService,
         @inject(ContainerTypes.DappsStakingStatsService) private _statsService: IDappsStakingStatsService,
         @inject(ContainerTypes.DappRadarService) private _dappRadarService: IDappRadarService,
+        @inject(ContainerTypes.GiantSquidService) private _giantSquidService: IGiantSquidService,
     ) {
         super();
     }
@@ -299,6 +301,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     enum: ['7 days', '30 days', '90 days', '1 year']
                 }
             */
+                this._giantSquidService.getUserCalls(req.params.network as NetworkType, req.params.userAddress, req.params.period as PeriodType);
                 res.json(
                     await this._statsService.getUserEvents(
                         req.params.network as NetworkType,
