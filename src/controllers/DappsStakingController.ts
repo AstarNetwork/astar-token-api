@@ -301,9 +301,9 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     enum: ['7 days', '30 days', '90 days', '1 year']
                 }
             */
-                this._giantSquidService.getUserCalls(req.params.network as NetworkType, req.params.userAddress, req.params.period as PeriodType);
+                // this._giantSquidService.getUserCalls(req.params.network as NetworkType, req.params.userAddress, req.params.period as PeriodType);
                 res.json(
-                    await this._statsService.getUserEvents(
+                    await this._giantSquidService.getUserCalls(
                         req.params.network as NetworkType,
                         req.params.userAddress,
                         req.params.period as PeriodType,

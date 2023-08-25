@@ -4,23 +4,31 @@ import { NetworkType } from '../networks';
 import { Guard } from '../guard';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { PeriodType, ServiceBase } from './ServiceBase';
+import { UserEvent } from '../models/DappStaking';
+import { DappStakingCallData, DappStakingCallResponse } from './GiantSquid/ResponseData';
+import container from '../container';
+import { ICallParser } from './GiantSquid/CallParser';
+import { CallNameMapping } from './GiantSquid/CallNameMapping';
 
 export interface IGiantSquidService {
-  getUserCalls(network: NetworkType, address: string, period: PeriodType): Promise<any>;
+    getUserCalls(network: NetworkType, address: string, period: PeriodType): Promise<UserEvent[]>;
 }
 
-
-// Handles calls to SubSquid giant squid indexer. 
+// Handles calls to SubSquid giant squid indexer.
 @injectable()
 export class GiantSquidService extends ServiceBase implements IGiantSquidService {
-  public async getUserCalls(network: NetworkType, address: string, period: PeriodType): Promise<any> {
-    Guard.ThrowIfUndefined('network', network);
-    Guard.ThrowIfUndefined('address', address);
+    public async getUserCalls(network: NetworkType, address: string, period: PeriodType): Promise<UserEvent[]> {
+        Guard.ThrowIfUndefined('network', network);
+        Guard.ThrowIfUndefined('address', address);
 
-    const privateKey = `0x${Buffer.from(decodeAddress(address)).toString('hex')}`;
-    const range = this.getDateRange(period);
+        if (network !== 'shiden' && network !== 'astar' && network !== 'shibuya') {
+            return [];
+        }
 
-    const query = `query MyQuery {
+        const privateKey = `0x${Buffer.from(decodeAddress(address)).toString('hex')}`;
+        const range = this.getDateRange(period);
+
+        const query = `query MyQuery {
       calls(where: {
           palletName_eq: "DappsStaking",
           callerPublicKey_eq: "${privateKey}",
@@ -29,26 +37,37 @@ export class GiantSquidService extends ServiceBase implements IGiantSquidService
           callName_not_contains: "claim"
         }, orderBy: block_id_DESC) {
         callName
-        palletName
         argsStr
-        callerPublicKey
         extrinsicHash
         success
         timestamp
-        id
       }
     }`;
 
-    const result = await axios.post(this.getApiUrl(network), {
-      operationName: 'MyQuery',
-      query,
-    });
-    console.log(result.data.calls);
-    
-    return null;
-  }
+        const result = await axios.post<DappStakingCallResponse>(this.getApiUrl(network), {
+            operationName: 'MyQuery',
+            query,
+        });
 
-  private getApiUrl(network: NetworkType): string {
-    return `https://squid.subsquid.io/gs-explorer-${network}/graphql`;
-  }
+        return this.parseUserCalls(result.data.data.calls);
+    }
+
+    private getApiUrl(network: NetworkType): string {
+        return `https://squid.subsquid.io/gs-explorer-${network}/graphql`;
+    }
+
+    private parseUserCalls(calls: DappStakingCallData[]): UserEvent[] {
+        const result: UserEvent[] = [];
+
+        for (const call of calls) {
+            if (CallNameMapping[call.callName]) {
+                const parser = container.get<ICallParser>(CallNameMapping[call.callName]);
+                result.push(parser.parse(call));
+            } else {
+                // Call is not supported. Do nothing. Currently only calls defined in CallNameMapping are supported.
+            }
+        }
+
+        return result;
+    }
 }

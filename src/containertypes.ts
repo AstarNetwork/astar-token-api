@@ -14,4 +14,5 @@ export const ContainerTypes = {
     DappsStakingStatsService: 'DappsStakingStatsService',
     DappRadarService: 'DappRadarService',
     GiantSquidService: 'GiantSquidService',
+    A: 'A',
 };

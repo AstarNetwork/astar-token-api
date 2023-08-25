@@ -5,7 +5,7 @@
     "title": "Astar token statistics API",
     "description": "Provides Astar networks statistic information."
   },
-  "host": "api.astar.network",
+  "host": "localhost:3000",
   "basePath": "/",
   "schemes": [
     "https",
