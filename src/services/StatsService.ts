@@ -24,7 +24,7 @@ export class StatsService implements IStatsService {
     /**
      * Calculates token circulation supply by substracting sum of all token holder accounts
      * not in circulation from total token supply.
-     * @param network Network (astar or shiden) to calculate token supply for.
+     * @param network NetworkType (astar or shiden) to calculate token supply for.
      * @returns Token statistics including total supply and circulating supply.
      */
     public async getTokenStats(network: NetworkType): Promise<TokenStats> {
