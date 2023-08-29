@@ -28,7 +28,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 #swagger.description = 'Test endpoint, returns token stats for Astar Network'
             */
             try {
-                res.json(await this._statsService.getTokenStats());
+                res.json(await this._statsService.getTokenStats('astar'));
             } catch (err) {
                 this.handleError(res, err as Error);
             }
@@ -98,7 +98,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 #swagger.ignore = true
             */
             try {
-                res.json(await (await this._statsService.getTokenStats()).circulatingSupply);
+                res.json(await (await this._statsService.getTokenStats('astar')).circulatingSupply);
             } catch (err) {
                 this.handleError(res, err as Error);
             }
@@ -109,7 +109,14 @@ export class TokenStatsController extends ControllerBase implements IControllerB
          */
         app.route('/api/:network/token/circulation').get(async (req: Request, res: Response) => {
             /*
-                #swagger.ignore = true
+                #swagger.description = 'Retrieves a token circulation supply for a given network.'
+                #swagger.tags = ['Token']
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
+                }
             */
             try {
                 res.json(
@@ -142,6 +149,27 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                         await this._statsService.getTokenStats(req.params.network as NetworkType)
                     ).circulatingSupply,
                 );
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
+        });
+
+        /**
+         * @description Token total supply.
+         */
+        app.route('/api/v1/:network/token/supply').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retrieves a token total supply for a given network.'
+                #swagger.tags = ['Token']
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
+                }
+            */
+            try {
+                res.json(await this._statsService.getTotalSupply(req.params.network as NetworkType));
             } catch (err) {
                 this.handleError(res, err as Error);
             }
