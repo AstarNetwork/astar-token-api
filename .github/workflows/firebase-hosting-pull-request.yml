@@ -8,12 +8,13 @@ on:
 
 jobs:
   build_and_preview:
-    if: ${{ github.event.pull_request_target.head.repo.full_name == github.repository }}
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
+          ref: ${{ github.head_ref }}
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ASTAR_TOKEN_API }}
           projectId: astar-token-api
