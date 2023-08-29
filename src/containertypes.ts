@@ -13,4 +13,5 @@ export const ContainerTypes = {
     MonthlyActiveWalletsService: 'MonthlyActiveWalletsService',
     DappsStakingStatsService: 'DappsStakingStatsService',
     DappRadarService: 'DappRadarService',
+    GiantSquidService: 'GiantSquidService',
 };

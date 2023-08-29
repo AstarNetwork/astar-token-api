@@ -29,6 +29,17 @@ import { IMonthlyActiveWalletsService, MonthlyActiveWalletsService } from './ser
 import { MonthlyActiveWalletsController } from './controllers/MonthlyActiveWalletsController';
 import { DappsStakingStatsService, IDappsStakingStatsService } from './services/DappsStakingStatsService';
 import { IDappRadarService, DappRadarService } from './services/DappRadarService';
+import { GiantSquidService, IGiantSquidService } from './services/GiantSquidService';
+import {
+    BondAndStakeParser,
+    CallNameMapping,
+    CallParser,
+    ICallParser,
+    NominationTransferParser,
+    UnbondAndUnstakeParser,
+    WithdrawFromUnbondedParser,
+    WithdrawParser,
+} from './services/GiantSquid';
 
 const container = new Container();
 
@@ -103,6 +114,17 @@ container
     .to(DappsStakingStatsService)
     .inRequestScope();
 container.bind<IDappRadarService>(ContainerTypes.DappRadarService).to(DappRadarService).inRequestScope();
+container.bind<IGiantSquidService>(ContainerTypes.GiantSquidService).to(GiantSquidService).inRequestScope();
+
+// Giant squid parsers
+container.bind<ICallParser>(CallNameMapping.bond_and_stake).to(BondAndStakeParser).inSingletonScope();
+container.bind<ICallParser>(CallNameMapping.unbond_and_unstake).to(UnbondAndUnstakeParser).inSingletonScope();
+container.bind<ICallParser>(CallNameMapping.nomination_transfer).to(NominationTransferParser).inSingletonScope();
+container.bind<ICallParser>(CallNameMapping.withdraw_unbonded).to(WithdrawParser).inSingletonScope();
+container
+    .bind<ICallParser>(CallNameMapping.withdraw_from_unregistered)
+    .to(WithdrawFromUnbondedParser)
+    .inSingletonScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);

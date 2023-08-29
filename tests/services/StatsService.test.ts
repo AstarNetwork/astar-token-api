@@ -29,3 +29,20 @@ describe('getTokenStats', () => {
         expect(result.totalSupply).toBe(100);
     });
 });
+
+describe('getTotalSupply', () => {
+    let apiFactory: IApiFactory;
+
+    beforeEach(() => {
+        apiFactory = new ApiFactory();
+        apiFactory.getApiInstance = jest.fn().mockReturnValue(new AstarApiMock());
+    });
+
+    it('returns valid total supply', async () => {
+        const service = new StatsService(apiFactory);
+
+        const result = await service.getTotalSupply('astar');
+
+        expect(result).toBe(100);
+    });
+});
