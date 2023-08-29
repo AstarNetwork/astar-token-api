@@ -76,12 +76,68 @@
         }
       }
     },
+    "/api/{network}/token/circulation": {
+      "get": {
+        "tags": [
+          "Token"
+        ],
+        "description": "Retrieves a token circulation supply for a given network.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/{network}/token/circulation": {
       "get": {
         "tags": [
           "Token"
         ],
         "description": "Retrieves token circulation for a given network.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/token/supply": {
+      "get": {
+        "tags": [
+          "Token"
+        ],
+        "description": "Retrieves a token total supply for a given network.",
         "parameters": [
           {
             "name": "network",

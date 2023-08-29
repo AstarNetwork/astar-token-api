@@ -5,7 +5,7 @@ import { AstarApiMock } from './AstarApiMock';
 /**
  * Tests are writen adhering to AAA (Arange, Act, Assert) pattern.
  */
-describe('getTokeStats', () => {
+describe('getTokenStats', () => {
     let apiFactory: IApiFactory;
 
     beforeEach(() => {
@@ -16,7 +16,7 @@ describe('getTokeStats', () => {
     it('calculates circulating supply', async () => {
         const service = new StatsService(apiFactory);
 
-        const result = await service.getTokenStats('');
+        const result = await service.getTokenStats('astar');
 
         expect(result.circulatingSupply).toBe(83);
     });
@@ -24,7 +24,7 @@ describe('getTokeStats', () => {
     it('returns valid total supply', async () => {
         const service = new StatsService(apiFactory);
 
-        const result = await service.getTokenStats('');
+        const result = await service.getTokenStats('astar');
 
         expect(result.totalSupply).toBe(100);
     });

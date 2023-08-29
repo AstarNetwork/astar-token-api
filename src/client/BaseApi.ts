@@ -1,3 +1,5 @@
+// TODO remove use of any
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { isEthereumAddress, checkAddress, decodeAddress, encodeAddress } from '@polkadot/util-crypto';
 import { hexToU8a, isHex } from '@polkadot/util';
