@@ -268,13 +268,17 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     enum: ['7 eras', '30 eras', '90 eras', 'all']
                 }
             */
-                res.json(
-                    await this._statsService.getContractStatistics(
-                        req.params.network as NetworkType,
-                        req.params.contractAddress,
-                        req.params.period as PeriodTypeEra,
-                    ),
-                );
+                try {
+                    res.json(
+                        await this._statsService.getContractStatistics(
+                            req.params.network as NetworkType,
+                            req.params.contractAddress,
+                            req.params.period as PeriodTypeEra,
+                        ),
+                    );
+                } catch (err) {
+                    this.handleError(res, err as Error);
+                }
             },
         );
 
@@ -302,13 +306,17 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 }
             */
                 // this._giantSquidService.getUserCalls(req.params.network as NetworkType, req.params.userAddress, req.params.period as PeriodType);
-                res.json(
-                    await this._giantSquidService.getUserCalls(
-                        req.params.network as NetworkType,
-                        req.params.userAddress,
-                        req.params.period as PeriodType,
-                    ),
-                );
+                try {
+                    res.json(
+                        await this._giantSquidService.getUserCalls(
+                            req.params.network as NetworkType,
+                            req.params.userAddress,
+                            req.params.period as PeriodType,
+                        ),
+                    );
+                } catch (err) {
+                    this.handleError(res, err as Error);
+                }
             },
         );
 

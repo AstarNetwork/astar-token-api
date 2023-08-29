@@ -25,24 +25,41 @@ export class GiantSquidService extends ServiceBase implements IGiantSquidService
             return [];
         }
 
-        const privateKey = `0x${Buffer.from(decodeAddress(address)).toString('hex')}`;
+        const publicKey = `0x${Buffer.from(decodeAddress(address)).toString('hex')}`;
         const range = this.getDateRange(period);
 
         const query = `query MyQuery {
-      calls(where: {
-          palletName_eq: "DappsStaking",
-          callerPublicKey_eq: "${privateKey}",
-          timestamp_gte: "${range.start.toISOString()}",
-          timestamp_lte: "${range.end.toISOString()}",
-          callName_not_contains: "claim"
-        }, orderBy: block_id_DESC) {
-        callName
-        argsStr
-        extrinsicHash
-        success
-        timestamp
-      }
-    }`;
+            calls(where: {
+                callerPublicKey_eq: "${publicKey}",
+                palletName_eq: "DappsStaking",
+                timestamp_gte: "${range.start.toISOString()}",
+                timestamp_lte: "${range.end.toISOString()}",
+                OR: {
+                    callerPublicKey_eq: "${publicKey}",
+                    callName_contains: "batch",
+                    palletName_eq: "Utility",
+                    timestamp_gte: "${range.start.toISOString()}",
+                    timestamp_lte: "${range.end.toISOString()}",
+                },
+                callName_not_contains: "claim"
+                }, orderBy: block_timestamp_DESC) {
+              callName
+              argsStr
+              palletName
+              success
+              timestamp
+              extrinsicHash
+              extrinsic {
+                events {
+                  argsStr
+                  eventName
+                  palletName
+                  extrinsicHash
+                  timestamp
+                }
+              }
+            }
+          }`;
 
         const result = await axios.post<DappStakingCallResponse>(this.getApiUrl(network), {
             operationName: 'MyQuery',

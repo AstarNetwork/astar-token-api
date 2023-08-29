@@ -31,9 +31,9 @@ import { DappsStakingStatsService, IDappsStakingStatsService } from './services/
 import { IDappRadarService, DappRadarService } from './services/DappRadarService';
 import { GiantSquidService, IGiantSquidService } from './services/GiantSquidService';
 import {
+    BatchCallParser,
     BondAndStakeParser,
     CallNameMapping,
-    CallParser,
     ICallParser,
     NominationTransferParser,
     UnbondAndUnstakeParser,
@@ -125,6 +125,7 @@ container
     .bind<ICallParser>(CallNameMapping.withdraw_from_unregistered)
     .to(WithdrawFromUnbondedParser)
     .inSingletonScope();
+container.bind<ICallParser>(CallNameMapping.batch).to(BatchCallParser).inSingletonScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);

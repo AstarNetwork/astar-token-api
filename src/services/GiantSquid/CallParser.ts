@@ -69,3 +69,27 @@ export class WithdrawFromUnbondedParser extends CallParser implements ICallParse
         return result;
     }
 }
+
+// Parses Reward events from a batch call and calculates total rewards per batch.
+@injectable()
+export class BatchCallParser extends CallParser implements ICallParser {
+    public parse(call: DappStakingCallData): UserEvent {
+        const EVENT_NAME = 'Reward';
+        const PALLET_NAME = 'DappsStaking';
+        
+        let reward: bigint = BigInt(0);
+        for (const event of call.extrinsic.events) {
+            if (event.eventName === EVENT_NAME && event.palletName === PALLET_NAME) {
+                reward += BigInt(event.argsStr[4]);    
+            }
+        }
+
+        return {
+            timestamp: new Date(call.timestamp).getTime(),
+            transaction: EVENT_NAME,
+            transactionHash: call.extrinsicHash,
+            transactionSuccess: call.success,
+            amount: reward.toString(),
+        };
+    }
+}
