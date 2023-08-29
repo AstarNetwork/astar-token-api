@@ -76,11 +76,11 @@ export class BatchCallParser extends CallParser implements ICallParser {
     public parse(call: DappStakingCallData): UserEvent {
         const EVENT_NAME = 'Reward';
         const PALLET_NAME = 'DappsStaking';
-        
+
         let reward: bigint = BigInt(0);
         for (const event of call.extrinsic.events) {
             if (event.eventName === EVENT_NAME && event.palletName === PALLET_NAME) {
-                reward += BigInt(event.argsStr[4]);    
+                reward += BigInt(event.argsStr[4]);
             }
         }
 
