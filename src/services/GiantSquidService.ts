@@ -85,7 +85,7 @@ export class GiantSquidService extends ServiceBase implements IGiantSquidService
                     console.log(e);
                     // Nothing special to do here. Batch call parser raised an error because batch the call doesn't contain claim calls.
                 }
-            } else {    
+            } else {
                 // Call is not supported. Do nothing. Currently only calls defined in CallNameMapping are supported.
             }
         }
