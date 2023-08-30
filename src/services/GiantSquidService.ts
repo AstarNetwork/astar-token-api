@@ -3,6 +3,7 @@ import axios from 'axios';
 import { NetworkType } from '../networks';
 import { Guard } from '../guard';
 import { decodeAddress } from '@polkadot/util-crypto';
+import { u8aToHex } from '@polkadot/util';
 import { PeriodType, ServiceBase } from './ServiceBase';
 import { UserEvent } from '../models/DappStaking';
 import { DappStakingCallData, DappStakingCallResponse } from './GiantSquid/ResponseData';
@@ -25,7 +26,7 @@ export class GiantSquidService extends ServiceBase implements IGiantSquidService
             return [];
         }
 
-        const publicKey = `0x${Buffer.from(decodeAddress(address)).toString('hex')}`;
+        const publicKey = u8aToHex(decodeAddress(address));
         const range = this.getDateRange(period);
 
         const query = `query MyQuery {
