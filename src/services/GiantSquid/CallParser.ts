@@ -84,6 +84,11 @@ export class BatchCallParser extends CallParser implements ICallParser {
             }
         }
 
+        // If reward is 0 this means that batch call was not claim call and we should not return it.
+        if (reward === BigInt(0)) {
+            throw new Error("Batch doesn't contain claim calls");
+        }
+
         return {
             timestamp: new Date(call.timestamp).getTime(),
             transaction: EVENT_NAME,

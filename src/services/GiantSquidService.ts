@@ -79,8 +79,13 @@ export class GiantSquidService extends ServiceBase implements IGiantSquidService
         for (const call of calls) {
             if (CallNameMapping[call.callName]) {
                 const parser = container.get<ICallParser>(CallNameMapping[call.callName]);
-                result.push(parser.parse(call));
-            } else {
+                try {
+                    result.push(parser.parse(call));
+                } catch (e) {
+                    console.log(e);
+                    // Nothing special to do here. Batch call parser raised an error because batch the call doesn't contain claim calls.
+                }
+            } else {    
                 // Call is not supported. Do nothing. Currently only calls defined in CallNameMapping are supported.
             }
         }
