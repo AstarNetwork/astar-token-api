@@ -8,4 +8,5 @@ export const CallNameMapping: Map = {
     nomination_transfer: 'NominationTransfer',
     withdraw_unbonded: 'Withdraw',
     withdraw_from_unregistered: 'WithdrawFromUnregistered',
+    batch: 'Batch',
 };

@@ -10,4 +10,15 @@ export interface DappStakingCallData {
     extrinsicHash: string;
     success: boolean;
     timestamp: string;
+    extrinsic: {
+        events: DappStakingEvent[];
+    };
+}
+
+export interface DappStakingEvent {
+    argsStr: string[];
+    eventName: string;
+    palletName: string;
+    extrinsicHash: string;
+    timestamp: string;
 }
