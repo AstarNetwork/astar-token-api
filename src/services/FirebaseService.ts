@@ -42,7 +42,7 @@ export class FirebaseService implements IFirebaseService {
         this.initApp();
 
         const collectionKey = await this.getCollectionKey(network);
-        const query = admin.firestore().collection(collectionKey).select('name', 'iconUrl', 'address', 'categories');
+        const query = admin.firestore().collection(collectionKey).select('name', 'iconUrl', 'address', 'mainCategory');
 
         return this.getDappsData(query);
     }
