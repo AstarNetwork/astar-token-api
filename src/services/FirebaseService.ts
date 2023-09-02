@@ -6,6 +6,7 @@ import { ContainerTypes } from '../containertypes';
 import { Guard } from '../guard';
 import { DappItem, FileInfo, NewDappItem } from '../models/Dapp';
 import { NetworkType } from '../networks';
+import { CollectionReference, DocumentData, Query } from 'firebase-admin/firestore';
 
 export interface Cache<T> {
     updatedAt?: number;
@@ -13,6 +14,7 @@ export interface Cache<T> {
 }
 
 export interface IFirebaseService {
+    getDappsFull(network: NetworkType): Promise<DappItem[]>;
     getDapps(network: NetworkType): Promise<DappItem[]>;
     getDapp(address: string, network: NetworkType): Promise<NewDappItem | undefined>;
     registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem>;
@@ -27,20 +29,22 @@ export class FirebaseService implements IFirebaseService {
 
     constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory) {}
 
-    public async getDapps(network: NetworkType = 'astar'): Promise<DappItem[]> {
+    public async getDappsFull(network: NetworkType = 'astar'): Promise<DappItem[]> {
         this.initApp();
 
         const collectionKey = await this.getCollectionKey(network);
         const query = admin.firestore().collection(collectionKey);
-        const data = await query.orderBy('name').get();
 
-        const result: DappItem[] = [];
-        data.forEach((x) => {
-            const data = x.data() as DappItem;
-            result.push(data);
-        });
+        return await this.getDappsData(query);
+    }
 
-        return result;
+    public async getDapps(network: NetworkType = 'astar'): Promise<DappItem[]> {
+        this.initApp();
+
+        const collectionKey = await this.getCollectionKey(network);
+        const query = admin.firestore().collection(collectionKey).select('name', 'iconUrl', 'address', 'categories');
+
+        return this.getDappsData(query);
     }
 
     public async getDapp(address: string, network: NetworkType): Promise<NewDappItem | undefined> {
@@ -216,5 +220,17 @@ export class FirebaseService implements IFirebaseService {
      */
     private decode(data: string): string {
         return data.split('&#x2F;').join('/');
+    }
+
+    private async getDappsData(query: CollectionReference<DocumentData> | Query<DocumentData>): Promise<DappItem[]> {
+        const data = await query.orderBy('name').get();
+
+        const result: DappItem[] = [];
+        data.forEach((x) => {
+            const data = x.data() as DappItem;
+            result.push(data);
+        });
+
+        return result;
     }
 }
