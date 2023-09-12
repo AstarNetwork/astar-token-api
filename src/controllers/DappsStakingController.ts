@@ -137,7 +137,21 @@ export class DappsStakingController extends ControllerBase implements IControlle
 
         app.route('/api/v1/:network/dapps-staking/dapps').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retrieves list of dapps registered for dapps staking'
+                #swagger.description = 'Retrieves list of dapps (full model) registered for dapps staking'
+                #swagger.tags = ['Dapps Staking']
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar, development',
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
+                }
+            */
+            res.json(await this._firebaseService.getDappsFull(req.params.network as NetworkType));
+        });
+
+        app.route('/api/v1/:network/dapps-staking/dappssimple').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retrieves list of dapps (basic info) registered for dapps staking'
                 #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',

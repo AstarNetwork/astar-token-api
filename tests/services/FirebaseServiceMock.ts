@@ -7,6 +7,10 @@ export class FirebaseServiceMock implements IFirebaseService {
         return [];
     }
 
+    public async getDappsFull(network: NetworkType): Promise<DappItem[]> {
+        return [];
+    }
+
     public async registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem> {
         throw new Error('Method not implemented.');
     }
