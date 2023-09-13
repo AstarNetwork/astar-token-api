@@ -50,40 +50,35 @@ export class FirebaseService implements IFirebaseService {
     public async getDapp(address: string, network: NetworkType): Promise<NewDappItem | undefined> {
         Guard.ThrowIfUndefined('address', address);
 
-        this.initApp();
+            this.initApp();
         const collectionKey = await this.getCollectionKey(network);
-        const query = admin
-            .firestore()
-            .collection(collectionKey)
-            .orderBy('address')
-            .startAt(address.toUpperCase())
-            .endAt(address.toLowerCase + '\uf8ff');
+        // Fetch all addresses because Firebase search is case sensitive.
+        const query = admin.firestore().collection(collectionKey).select('address');
         const data = await query.get();
 
-        if (!data.empty) {
-            // TODO fix this and filter data on Firebase side.
-            // A problem here is that Firebase search is case sensitive and because of that
-            // there is no way to get dapp by address.
-            for (let i = 0; i < data.docs.length; i++) {
-                const dapp = data.docs[i].data() as NewDappItem;
+        const fbAddressData = data.docs.find((x) => x.data().address.toUpperCase() === address.toUpperCase());
+        if (fbAddressData) {
+            const fbAddress = fbAddressData.data().address;
+            const dapp = (await admin
+                .firestore()
+                .collection(collectionKey)
+                .doc(fbAddress)
+                .get()).data() as unknown as NewDappItem;
 
-                if (dapp.address.toLowerCase() === address.toLowerCase()) {
-                    const icon = await this.getFileInfo(dapp.iconUrl, collectionKey);
-                    if (icon) {
-                        dapp.iconFile = icon;
-                    }
-
-                    const images = dapp.imagesUrl
-                        ? await Promise.all(dapp.imagesUrl.map((x) => this.getFileInfo(x, collectionKey)))
-                        : [];
-                    dapp.images = images.filter((x) => x !== null) as FileInfo[];
-
-                    return dapp;
-                }
+            const icon = await this.getFileInfo(dapp.iconUrl, collectionKey);
+            if (icon) {
+                dapp.iconFile = icon;
             }
-        } else {
-            return undefined;
+
+            const images = dapp.imagesUrl
+                ? await Promise.all(dapp.imagesUrl.map((x) => this.getFileInfo(x, collectionKey)))
+                : [];
+            dapp.images = images.filter((x) => x !== null) as FileInfo[];
+
+            return dapp;
         }
+
+        return undefined;
     }
 
     public async registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem> {
