@@ -50,7 +50,7 @@ export class FirebaseService implements IFirebaseService {
     public async getDapp(address: string, network: NetworkType): Promise<NewDappItem | undefined> {
         Guard.ThrowIfUndefined('address', address);
 
-            this.initApp();
+        this.initApp();
         const collectionKey = await this.getCollectionKey(network);
         // Fetch all addresses because Firebase search is case sensitive.
         const query = admin.firestore().collection(collectionKey).select('address');
@@ -59,11 +59,9 @@ export class FirebaseService implements IFirebaseService {
         const fbAddressData = data.docs.find((x) => x.data().address.toUpperCase() === address.toUpperCase());
         if (fbAddressData) {
             const fbAddress = fbAddressData.data().address;
-            const dapp = (await admin
-                .firestore()
-                .collection(collectionKey)
-                .doc(fbAddress)
-                .get()).data() as unknown as NewDappItem;
+            const dapp = (
+                await admin.firestore().collection(collectionKey).doc(fbAddress).get()
+            ).data() as unknown as NewDappItem;
 
             const icon = await this.getFileInfo(dapp.iconUrl, collectionKey);
             if (icon) {
