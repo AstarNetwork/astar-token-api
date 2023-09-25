@@ -40,6 +40,8 @@ import {
     WithdrawFromUnbondedParser,
     WithdrawParser,
 } from './services/GiantSquid';
+import { BluezNftService, INftService } from './services/NftService';
+import { NftController } from './controllers/NftController';
 
 const container = new Container();
 
@@ -115,6 +117,7 @@ container
     .inRequestScope();
 container.bind<IDappRadarService>(ContainerTypes.DappRadarService).to(DappRadarService).inRequestScope();
 container.bind<IGiantSquidService>(ContainerTypes.GiantSquidService).to(GiantSquidService).inRequestScope();
+container.bind<INftService>(ContainerTypes.BluezNftService).to(BluezNftService).inRequestScope();
 
 // Giant squid parsers
 container.bind<ICallParser>(CallNameMapping.bond_and_stake).to(BondAndStakeParser).inSingletonScope();
@@ -133,5 +136,6 @@ container.bind<IControllerBase>(ContainerTypes.Controller).to(DappsStakingContro
 container.bind<IControllerBase>(ContainerTypes.Controller).to(NodeController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TxQueryController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(MonthlyActiveWalletsController);
+container.bind<IControllerBase>(ContainerTypes.Controller).to(NftController);
 
 export default container;
