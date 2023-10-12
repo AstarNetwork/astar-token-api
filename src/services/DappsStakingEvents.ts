@@ -1,0 +1,71 @@
+import { injectable } from 'inversify';
+import axios from 'axios';
+import { NetworkType } from '../networks';
+import { Guard } from '../guard';
+import { decodeAddress } from '@polkadot/util-crypto';
+import { u8aToHex } from '@polkadot/util';
+import { PeriodType, ServiceBase } from './ServiceBase';
+import { UserEvent } from '../models/DappStaking';
+import { DappStakingEventData, DappStakingEventResponse } from './DappStaking/ResponseData';
+import container from '../container';
+
+export interface IDappsStakingEvents {
+    getStakingEvents(network: NetworkType, address: string, period: PeriodType): Promise<DappStakingEventData[]>;
+}
+
+// Handles events to SubSquid giant squid indexer.
+@injectable()
+export class DappsStakingEvents extends ServiceBase implements IDappsStakingEvents {
+    public async getStakingEvents(
+        network: NetworkType,
+        address: string,
+        period: PeriodType,
+    ): Promise<DappStakingEventData[]> {
+        Guard.ThrowIfUndefined('network', network);
+        Guard.ThrowIfUndefined('address', address);
+
+        if (network !== 'astar') {
+            return [];
+        }
+
+        const publicKey = u8aToHex(decodeAddress(address));
+        const range = this.getDateRange(period);
+
+        const query = `query MyQuery {
+            stakingEvents(where: {
+                userAddress_eq: "${publicKey}",
+                timestamp_gte: "${range.start.toISOString()}", 
+                timestamp_lte: "${range.end.toISOString()}"
+            }, orderBy: blockNumber_DESC) {
+              amount
+              blockNumber
+              contractAddress
+              id
+              timestamp
+              transaction
+              userAddress
+            }
+          }`;
+
+        const result = await axios.post<DappStakingEventResponse>(this.getApiUrl(network), {
+            operationName: 'MyQuery',
+            query,
+        });
+
+        return this.parseStakingEvents(result.data.data.stakingEvents);
+    }
+
+    private getApiUrl(network: NetworkType): string {
+        return `http://localhost:4350/graphql`;
+    }
+
+    private parseStakingEvents(events: DappStakingEventData[]): DappStakingEventData[] {
+        const result: DappStakingEventData[] = [];
+
+        for (const event of events) {
+            result.push(event);
+        }
+
+        return result;
+    }
+}
