@@ -14,6 +14,7 @@ import { IStatsIndexerService } from '../services/StatsIndexerService';
 import { ControllerBase } from './ControllerBase';
 import { IControllerBase } from './IControllerBase';
 import { IGiantSquidService } from '../services/GiantSquidService';
+import { IDappsStakingEvents } from '../services/DappsStakingEvents';
 
 @injectable()
 export class DappsStakingController extends ControllerBase implements IControllerBase {
@@ -23,6 +24,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         @inject(ContainerTypes.DappsStakingStatsService) private _statsService: IDappsStakingStatsService,
         @inject(ContainerTypes.DappRadarService) private _dappRadarService: IDappRadarService,
         @inject(ContainerTypes.GiantSquidService) private _giantSquidService: IGiantSquidService,
+        @inject(ContainerTypes.DappsStakingEvents) private _dappsStakingEvents: IDappsStakingEvents,
     ) {
         super();
     }
@@ -323,6 +325,23 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 try {
                     res.json(
                         await this._giantSquidService.getUserCalls(
+                            req.params.network as NetworkType,
+                            req.params.userAddress,
+                            req.params.period as PeriodType,
+                        ),
+                    );
+                } catch (err) {
+                    this.handleError(res, err as Error);
+                }
+            },
+        );
+
+        app.route('/api/v3/:network/dapps-staking/stats/user/:userAddress/:period').get(
+            async (req: Request, res: Response) => {
+                // this._giantSquidService.getUserCalls(req.params.network as NetworkType, req.params.userAddress, req.params.period as PeriodType);
+                try {
+                    res.json(
+                        await this._dappsStakingEvents.getStakingEvents(
                             req.params.network as NetworkType,
                             req.params.userAddress,
                             req.params.period as PeriodType,

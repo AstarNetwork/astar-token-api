@@ -407,7 +407,35 @@
         "tags": [
           "Dapps Staking"
         ],
-        "description": "Retrieves list of dapps registered for dapps staking",
+        "description": "Retrieves list of dapps (full model) registered for dapps staking",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/dapps-staking/dappssimple": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves list of dapps (basic info) registered for dapps staking",
         "parameters": [
           {
             "name": "network",
@@ -580,6 +608,46 @@
               "90 days",
               "1 year"
             ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/stats/user/{userAddress}/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapp staking APR for a given network.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
+          },
+          {
+            "name": "userAddress",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {
