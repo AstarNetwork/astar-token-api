@@ -28,14 +28,13 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
             return [];
         }
 
-        const publicKey = u8aToHex(decodeAddress(address));
         const range = this.getDateRange(period);
 
         const query = `query MyQuery {
             stakingEvents(where: {
-                userAddress_eq: "${publicKey}",
-                timestamp_gte: "${range.start.toISOString()}", 
-                timestamp_lte: "${range.end.toISOString()}"
+                userAddress_eq: "${address}",
+                timestamp_gte: "${range.start.getTime()}", 
+                timestamp_lte: "${range.end.getTime()}"
             }, orderBy: blockNumber_DESC) {
               amount
               blockNumber

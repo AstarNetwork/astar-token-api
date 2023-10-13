@@ -72,11 +72,7 @@ container.bind<IApiFactory>(ContainerTypes.ApiFactory).to(ApiFactory).inSingleto
 // services registration
 container.bind<IStatsService>(ContainerTypes.StatsService).to(StatsService).inSingletonScope();
 
-container
-    .bind<IDappsStakingEvents>(ContainerTypes.DappsStakingEvents)
-    .to(DappsStakingEvents)
-    .inSingletonScope()
-    .whenTargetNamed(networks.astar.name);
+container.bind<IDappsStakingEvents>(ContainerTypes.DappsStakingEvents).to(DappsStakingEvents).inSingletonScope();
 
 container
     .bind<IDappsStakingService>(ContainerTypes.DappsStakingService)
