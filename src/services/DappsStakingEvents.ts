@@ -90,7 +90,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
     }
 
     private getApiUrl(network: NetworkType): string {
-        return `http://localhost:4350/graphql`;
+        return `https://squid.subsquid.io/dapps-staking-indexer/graphql`;
     }
 
     private parseStakingEvents(events: DappStakingEventData[]): DappStakingEventData[] {
