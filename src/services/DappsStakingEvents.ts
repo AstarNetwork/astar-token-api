@@ -6,11 +6,17 @@ import { decodeAddress } from '@polkadot/util-crypto';
 import { u8aToHex } from '@polkadot/util';
 import { PeriodType, ServiceBase } from './ServiceBase';
 import { UserEvent } from '../models/DappStaking';
-import { DappStakingEventData, DappStakingEventResponse } from './DappStaking/ResponseData';
+import {
+    DappStakingEventData,
+    DappStakingEventResponse,
+    DappStakingAggregatedData,
+    DappStakingAggregatedResponse,
+} from './DappStaking/ResponseData';
 import container from '../container';
 
 export interface IDappsStakingEvents {
     getStakingEvents(network: NetworkType, address: string, period: PeriodType): Promise<DappStakingEventData[]>;
+    getAggregatedData(network: NetworkType, period: PeriodType): Promise<DappStakingAggregatedData[]>;
 }
 
 // Handles events to SubSquid giant squid indexer.
@@ -54,12 +60,51 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         return this.parseStakingEvents(result.data.data.stakingEvents);
     }
 
+    public async getAggregatedData(network: NetworkType, period: PeriodType): Promise<DappStakingAggregatedData[]> {
+        Guard.ThrowIfUndefined('network', network);
+
+        if (network !== 'astar') {
+            return [];
+        }
+
+        const range = this.getDateRange(period);
+
+        const query = `query MyQuery {
+            groupedStakingEvents(where: {
+                timestamp_gte: "${range.start.getTime()}",
+                timestamp_lte: "${range.end.getTime()}"
+            }, orderBy: timestamp_DESC) {
+              amount
+              id
+              timestamp
+              transaction
+            }
+          }`;
+
+        const result = await axios.post<DappStakingAggregatedResponse>(this.getApiUrl(network), {
+            operationName: 'MyQuery',
+            query,
+        });
+
+        return this.parseAggregatedData(result.data.data.groupedStakingEvents);
+    }
+
     private getApiUrl(network: NetworkType): string {
         return `http://localhost:4350/graphql`;
     }
 
     private parseStakingEvents(events: DappStakingEventData[]): DappStakingEventData[] {
         const result: DappStakingEventData[] = [];
+
+        for (const event of events) {
+            result.push(event);
+        }
+
+        return result;
+    }
+
+    private parseAggregatedData(events: DappStakingAggregatedData[]): DappStakingAggregatedData[] {
+        const result: DappStakingAggregatedData[] = [];
 
         for (const event of events) {
             result.push(event);

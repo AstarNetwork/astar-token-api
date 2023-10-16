@@ -4,6 +4,12 @@ export interface DappStakingEventResponse {
     };
 }
 
+export interface DappStakingAggregatedResponse {
+    data: {
+        groupedStakingEvents: DappStakingAggregatedData[];
+    };
+}
+
 export enum UserTransactionType {
     BondAndStake = 'BondAndStake',
     UnbondAndUnstake = 'UnbondAndUnstake',
@@ -20,4 +26,11 @@ export interface DappStakingEventData {
     amount: bigint;
     timestamp: bigint;
     blockNumber: bigint;
+}
+
+export interface DappStakingAggregatedData {
+    id: string;
+    transaction: UserTransactionType;
+    amount: bigint;
+    timestamp: bigint;
 }

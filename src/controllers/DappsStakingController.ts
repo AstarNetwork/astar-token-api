@@ -353,6 +353,24 @@ export class DappsStakingController extends ControllerBase implements IControlle
             },
         );
 
+        app.route('/api/v3/:network/dapps-staking/stats/aggregated/:period').get(
+            async (req: Request, res: Response) => {
+                /*
+                    #swagger.ignore = true
+                */
+                try {
+                    res.json(
+                        await this._dappsStakingEvents.getAggregatedData(
+                            req.params.network as NetworkType,
+                            req.params.period as PeriodType,
+                        ),
+                    );
+                } catch (err) {
+                    this.handleError(res, err as Error);
+                }
+            },
+        );
+
         app.route('/api/v1/:network/dapps-staking/stats/transactions').get(async (req: Request, res: Response) => {
             /*
                 #swagger.ignore = true
