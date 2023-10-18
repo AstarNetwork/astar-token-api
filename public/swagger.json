@@ -617,37 +617,101 @@
         }
       }
     },
-    "/api/v3/{network}/dapps-staking/stats/user/{userAddress}/{period}": {
+    "/api/v3/{network}/dapps-staking/stats/dapp/{contractAddress}": {
       "get": {
         "tags": [
           "Dapps Staking"
         ],
-        "description": "Retrieves dapp staking APR for a given network.",
+        "description": "Retrieves raw stats of dapps staking events with types for a given smart contract address.",
         "parameters": [
           {
             "name": "network",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "description": "The network name. Supported networks: astar",
             "enum": [
-              "astar",
-              "shiden",
-              "shibuya",
-              "rocstar"
+              "astar"
             ]
           },
           {
-            "name": "userAddress",
+            "name": "contractAddress",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "Smart Contract address to get stats for"
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Start date for filtering the staking events (inclusive). Format: YYYY-MM-DD",
+            "required": false,
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "End date for filtering the staking events (inclusive). Format: YYYY-MM-DD",
+            "required": false,
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of records to retrieve per page. Defaults to 100 if not provided.",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Number of records to skip for pagination. Defaults to 0 if not provided.",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/stats/aggregated/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves aggregated stats of dapps staking events for a given period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar"
+            ]
           },
           {
             "name": "period",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year",
+            "enum": [
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
           }
         ],
         "responses": {

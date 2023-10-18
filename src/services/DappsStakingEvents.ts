@@ -2,46 +2,57 @@ import { injectable } from 'inversify';
 import axios from 'axios';
 import { NetworkType } from '../networks';
 import { Guard } from '../guard';
-import { decodeAddress } from '@polkadot/util-crypto';
-import { u8aToHex } from '@polkadot/util';
 import { PeriodType, ServiceBase } from './ServiceBase';
-import { UserEvent } from '../models/DappStaking';
 import {
     DappStakingEventData,
     DappStakingEventResponse,
     DappStakingAggregatedData,
     DappStakingAggregatedResponse,
 } from './DappStaking/ResponseData';
-import container from '../container';
 
 export interface IDappsStakingEvents {
-    getStakingEvents(network: NetworkType, address: string, period: PeriodType): Promise<DappStakingEventData[]>;
+    getStakingEvents(
+        network: NetworkType,
+        address: string,
+        startDate: string,
+        endDate: string,
+        limit?: number,
+        offset?: number,
+    ): Promise<DappStakingEventData[]>;
     getAggregatedData(network: NetworkType, period: PeriodType): Promise<DappStakingAggregatedData[]>;
 }
 
-// Handles events to SubSquid giant squid indexer.
 @injectable()
 export class DappsStakingEvents extends ServiceBase implements IDappsStakingEvents {
     public async getStakingEvents(
         network: NetworkType,
-        address: string,
-        period: PeriodType,
+        contractAddress: string,
+        startDate: string,
+        endDate: string,
+        limit?: number,
+        offset?: number,
     ): Promise<DappStakingEventData[]> {
         Guard.ThrowIfUndefined('network', network);
-        Guard.ThrowIfUndefined('address', address);
+        Guard.ThrowIfUndefined('contractAddress', contractAddress);
+        Guard.ThrowIfUndefined('startDate', startDate);
+        Guard.ThrowIfUndefined('endDate', endDate);
 
         if (network !== 'astar') {
             return [];
         }
 
-        const range = this.getDateRange(period);
+        const start = new Date(startDate);
+        const end = new Date(endDate);
 
         const query = `query MyQuery {
             stakingEvents(where: {
-                userAddress_eq: "${address}",
-                timestamp_gte: "${range.start.getTime()}", 
-                timestamp_lte: "${range.end.getTime()}"
-            }, orderBy: blockNumber_DESC) {
+                contractAddress_eq: "${contractAddress}",
+                timestamp_gte: "${start.getTime()}",
+                timestamp_lte: "${end.getTime()}"
+            },
+            orderBy: blockNumber_DESC,
+            limit: ${limit},
+            offset: ${offset}) {
               amount
               blockNumber
               contractAddress
@@ -57,7 +68,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
             query,
         });
 
-        return this.parseStakingEvents(result.data.data.stakingEvents);
+        return result.data.data.stakingEvents;
     }
 
     public async getAggregatedData(network: NetworkType, period: PeriodType): Promise<DappStakingAggregatedData[]> {
@@ -86,30 +97,10 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
             query,
         });
 
-        return this.parseAggregatedData(result.data.data.groupedStakingEvents);
+        return result.data.data.groupedStakingEvents;
     }
 
     private getApiUrl(network: NetworkType): string {
         return `https://squid.subsquid.io/dapps-staking-indexer/graphql`;
-    }
-
-    private parseStakingEvents(events: DappStakingEventData[]): DappStakingEventData[] {
-        const result: DappStakingEventData[] = [];
-
-        for (const event of events) {
-            result.push(event);
-        }
-
-        return result;
-    }
-
-    private parseAggregatedData(events: DappStakingAggregatedData[]): DappStakingAggregatedData[] {
-        const result: DappStakingAggregatedData[] = [];
-
-        for (const event of events) {
-            result.push(event);
-        }
-
-        return result;
     }
 }
