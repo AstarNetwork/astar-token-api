@@ -355,14 +355,14 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     #swagger.parameters['startDate'] = {
                         in: 'query',
                         description: 'Start date for filtering the staking events (inclusive). Format: YYYY-MM-DD',
-                        required: false,
+                        required: true,
                         type: 'string',
                         format: 'date'
                     }
                     #swagger.parameters['endDate'] = {
                         in: 'query',
                         description: 'End date for filtering the staking events (inclusive). Format: YYYY-MM-DD',
-                        required: false,
+                        required: true,
                         type: 'string',
                         format: 'date'
                     }
@@ -372,7 +372,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                         required: false,
                         type: 'integer',
                         format: 'int32',
-                        default: 10
+                        default: 100
                     }
                     #swagger.parameters['offset'] = {
                         in: 'query',
