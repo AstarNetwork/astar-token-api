@@ -45,8 +45,8 @@ export class UnbondAndUnstakeParser extends CallParser implements ICallParser {
 export class NominationTransferParser extends CallParser implements ICallParser {
     public parse(call: DappStakingCallData): UserEvent {
         const result = super.parse(call);
-        result.contractAddress = call.argsStr[3];
-        result.amount = call.argsStr[4];
+        result.contractAddress = call.argsStr[2];
+        result.amount = call.argsStr[3];
 
         return result;
     }
