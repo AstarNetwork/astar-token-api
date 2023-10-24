@@ -25,6 +25,7 @@ import { DiaDataPriceProvider } from './services/DiaDataPriceProvider';
 import { CoinGeckoPriceProvider } from './services/CoinGeckoPriceProvider';
 import { PriceProviderWithFailover } from './services/PriceProviderWithFailover';
 import { DappsStakingService2 } from './services/DappsStakingService2';
+import { DappsStakingEvents, IDappsStakingEvents } from './services/DappsStakingEvents';
 import { IMonthlyActiveWalletsService, MonthlyActiveWalletsService } from './services/MonthlyActiveWalletsService';
 import { MonthlyActiveWalletsController } from './controllers/MonthlyActiveWalletsController';
 import { DappsStakingStatsService, IDappsStakingStatsService } from './services/DappsStakingStatsService';
@@ -70,6 +71,8 @@ container.bind<IApiFactory>(ContainerTypes.ApiFactory).to(ApiFactory).inSingleto
 
 // services registration
 container.bind<IStatsService>(ContainerTypes.StatsService).to(StatsService).inSingletonScope();
+
+container.bind<IDappsStakingEvents>(ContainerTypes.DappsStakingEvents).to(DappsStakingEvents).inSingletonScope();
 
 container
     .bind<IDappsStakingService>(ContainerTypes.DappsStakingService)
