@@ -18,6 +18,7 @@ export interface DappItem {
     communities: Community[];
     contractType: string;
     mainCategory: Category;
+    creationTime: number;
 }
 
 export interface NewDappItem extends DappItem {
