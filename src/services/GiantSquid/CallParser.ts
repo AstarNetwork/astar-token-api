@@ -1,4 +1,5 @@
 import { injectable } from 'inversify';
+import { encodeAddress } from '@polkadot/util-crypto';
 import { UserEvent } from '../../models/DappStaking';
 import { DappStakingCallData } from './ResponseData';
 import { CallNameMapping } from './CallNameMapping';
@@ -46,7 +47,7 @@ export class NominationTransferParser extends CallParser implements ICallParser 
     public parse(call: DappStakingCallData): UserEvent {
         const result = super.parse(call);
 
-        //There are two different argStr layouts for this event
+        // There are two different argStr layouts for this event
         // nomination_transfer [
         //  'Evm',
         //  '0xa782e40252e557d9e270650243546dbcd879d995',
@@ -63,8 +64,14 @@ export class NominationTransferParser extends CallParser implements ICallParser 
         // ]
 
         // Check if 3rd arg is an address or not.
-        const isAddress = call.argsStr[2] !== 'Evm' && call.argsStr[2] !== 'Wasm';
-        result.contractAddress = isAddress ? call.argsStr[2] : call.argsStr[3];
+        const isWasm = call.argsStr[2] === 'Wasm';
+        const isAddress = call.argsStr[2] !== 'Evm' && !isWasm;
+        let nominatedContractAddress = isAddress ? call.argsStr[2] : call.argsStr[3];
+        if (isWasm) {
+            nominatedContractAddress = encodeAddress(nominatedContractAddress, 5);
+        }
+
+        result.contractAddress = nominatedContractAddress;
         result.amount = isAddress ? call.argsStr[3] : call.argsStr[4];
 
         return result;
