@@ -45,7 +45,7 @@ export class UnbondAndUnstakeParser extends CallParser implements ICallParser {
 export class NominationTransferParser extends CallParser implements ICallParser {
     public parse(call: DappStakingCallData): UserEvent {
         const result = super.parse(call);
-        console.log(call.callName, call.argsStr);
+
         //There are two different argStr layouts for this event
         // nomination_transfer [
         //  'Evm',
