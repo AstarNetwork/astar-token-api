@@ -45,8 +45,27 @@ export class UnbondAndUnstakeParser extends CallParser implements ICallParser {
 export class NominationTransferParser extends CallParser implements ICallParser {
     public parse(call: DappStakingCallData): UserEvent {
         const result = super.parse(call);
-        result.contractAddress = call.argsStr[2];
-        result.amount = call.argsStr[3];
+        console.log(call.callName, call.argsStr);
+        //There are two different argStr layouts for this event
+        // nomination_transfer [
+        //  'Evm',
+        //  '0xa782e40252e557d9e270650243546dbcd879d995',
+        //  'Wasm',
+        //  '0xf7e6c934de84a404947bcef7387d33a2c941e6eab20b1193034414c7242f3011',
+        //  '4767259000000000000000'
+        // ]
+        // and
+        // nomination_transfer [
+        //  'Evm',
+        //  '0x50a64d05bb8618d8d96a83cbbb12b3044ec3489a',
+        //  '0x7bae21fb8408d534adfefcb46371c3576a1d5717',
+        //  '500000000000000000000'
+        // ]
+
+        // Check if 3rd arg is an address or not.
+        const isAddress = call.argsStr[2] !== 'Evm' && call.argsStr[2] !== 'Wasm';
+        result.contractAddress = isAddress ? call.argsStr[2] : call.argsStr[3];
+        result.amount = isAddress ? call.argsStr[3] : call.argsStr[4];
 
         return result;
     }
