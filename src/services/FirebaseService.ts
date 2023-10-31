@@ -42,7 +42,10 @@ export class FirebaseService implements IFirebaseService {
         this.initApp();
 
         const collectionKey = await this.getCollectionKey(network);
-        const query = admin.firestore().collection(collectionKey).select('name', 'iconUrl', 'address', 'mainCategory');
+        const query = admin
+            .firestore()
+            .collection(collectionKey)
+            .select('name', 'iconUrl', 'address', 'mainCategory', 'imagesUrl');
 
         return this.getDappsData(query);
     }
@@ -221,6 +224,7 @@ export class FirebaseService implements IFirebaseService {
         const result: DappItem[] = [];
         data.forEach((x) => {
             const data = x.data() as DappItem;
+            data.creationTime = x.createTime.seconds;
             result.push(data);
         });
 
