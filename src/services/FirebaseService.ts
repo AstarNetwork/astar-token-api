@@ -45,7 +45,7 @@ export class FirebaseService implements IFirebaseService {
         const query = admin
             .firestore()
             .collection(collectionKey)
-            .select('name', 'iconUrl', 'address', 'mainCategory', 'imagesUrl');
+            .select('name', 'iconUrl', 'address', 'mainCategory', 'imagesUrl', 'shortDescription');
 
         return this.getDappsData(query);
     }
