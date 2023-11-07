@@ -109,6 +109,7 @@ export class FirebaseService implements IFirebaseService {
             imagesUrl: dapp.imagesUrl,
             developers: dapp.developers,
             description: dapp.description,
+            shortDescription: dapp.shortDescription,
             communities: dapp.communities,
             contractType: dapp.contractType,
             mainCategory: dapp.mainCategory,

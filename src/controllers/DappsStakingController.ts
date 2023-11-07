@@ -198,6 +198,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/register').post(
             body('name').notEmpty().trim().escape(),
             body('description').notEmpty().trim().escape(),
+            body('shortDescription').optional().trim().escape(),
             body('url').isURL(),
             body('license').notEmpty().trim().isIn(['GPL-3.0', 'MIT', 'GNU']),
             body('address').notEmpty().trim().escape(),
