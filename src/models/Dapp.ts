@@ -19,6 +19,7 @@ export interface DappItem {
     contractType: string;
     mainCategory: Category;
     creationTime: number;
+    shortDescription?: string;
 }
 
 export interface NewDappItem extends DappItem {
