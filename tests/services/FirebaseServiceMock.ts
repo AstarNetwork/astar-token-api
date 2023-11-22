@@ -15,7 +15,7 @@ export class FirebaseServiceMock implements IFirebaseService {
         throw new Error('Method not implemented.');
     }
 
-    public async getDapp(address: string, network: NetworkType): Promise<NewDappItem | undefined> {
+    public async getDapp(address: string, network: NetworkType, forEdit = false): Promise<NewDappItem | undefined> {
         throw new Error('Method not implemented.');
     }
 
