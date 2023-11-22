@@ -16,7 +16,7 @@ export interface Cache<T> {
 export interface IFirebaseService {
     getDappsFull(network: NetworkType): Promise<DappItem[]>;
     getDapps(network: NetworkType): Promise<DappItem[]>;
-    getDapp(address: string, network: NetworkType): Promise<NewDappItem | undefined>;
+    getDapp(address: string, network: NetworkType, forEdit: boolean): Promise<NewDappItem | undefined>;
     registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem>;
     updateCache<T>(key: string, item: T): Promise<void>;
     readCache<T>(key: string): Promise<Cache<T> | undefined>;
@@ -50,7 +50,7 @@ export class FirebaseService implements IFirebaseService {
         return this.getDappsData(query);
     }
 
-    public async getDapp(address: string, network: NetworkType): Promise<NewDappItem | undefined> {
+    public async getDapp(address: string, network: NetworkType, forEdit = false): Promise<NewDappItem | undefined> {
         Guard.ThrowIfUndefined('address', address);
 
         this.initApp();
@@ -66,15 +66,17 @@ export class FirebaseService implements IFirebaseService {
                 await admin.firestore().collection(collectionKey).doc(fbAddress).get()
             ).data() as unknown as NewDappItem;
 
-            const icon = await this.getFileInfo(dapp.iconUrl, collectionKey);
-            if (icon) {
-                dapp.iconFile = icon;
-            }
+            if (forEdit) {
+                const icon = await this.getFileInfo(dapp.iconUrl, collectionKey);
+                if (icon) {
+                    dapp.iconFile = icon;
+                }
 
-            const images = dapp.imagesUrl
-                ? await Promise.all(dapp.imagesUrl.map((x) => this.getFileInfo(x, collectionKey)))
-                : [];
-            dapp.images = images.filter((x) => x !== null) as FileInfo[];
+                const images = dapp.imagesUrl
+                    ? await Promise.all(dapp.imagesUrl.map((x) => this.getFileInfo(x, collectionKey)))
+                    : [];
+                dapp.images = images.filter((x) => x !== null) as FileInfo[];
+            }
 
             return dapp;
         }
@@ -109,7 +111,7 @@ export class FirebaseService implements IFirebaseService {
             imagesUrl: dapp.imagesUrl,
             developers: dapp.developers,
             description: dapp.description,
-            shortDescription: dapp.shortDescription,
+            shortDescription: dapp.shortDescription ?? '',
             communities: dapp.communities,
             contractType: dapp.contractType,
             mainCategory: dapp.mainCategory,

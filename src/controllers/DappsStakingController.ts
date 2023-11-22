@@ -183,7 +183,11 @@ export class DappsStakingController extends ControllerBase implements IControlle
             */
 
             try {
-                const data = await this._firebaseService.getDapp(req.params.address, req.params.network as NetworkType);
+                const data = await this._firebaseService.getDapp(
+                    req.params.address,
+                    req.params.network as NetworkType,
+                    req.query.forEdit as unknown as boolean,
+                );
 
                 if (data) {
                     res.json(data);
