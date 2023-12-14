@@ -111,6 +111,34 @@ export class DappsStakingController extends ControllerBase implements IControlle
         });
 
         /**
+         * @description Dapps staking TVL route v3.
+         */
+        app.route('/api/v3/:network/dapps-staking/tvl/:period').get(async (req: Request, res: Response) => {
+            /*
+                        #swagger.description = 'Retrieves dapps staking TVL for a given network and period.'
+                        #swagger.tags = ['Dapps Staking']
+                        #swagger.parameters['network'] = {
+                            in: 'path',
+                            description: 'The network name. Supported networks: astar',
+                            required: true,
+                            enum: ['astar']
+                        }
+                        #swagger.parameters['period'] = {
+                            in: 'path',
+                            description: 'The period type. Supported values: 7 days 30 days, 90 days, 1 year',
+                            required: true,
+                            enum: ['1 day', '7 days', '30 days', '90 days', '1 year']
+                        }
+                    */
+            res.json(
+                await this._dappsStakingEvents.getDappStakingTvl(
+                    req.params.network as NetworkType,
+                    req.params.period as PeriodType,
+                ),
+            );
+        });
+
+        /**
          * @description Dapps staking TVL route v1.
          */
         app.route('/api/v1/:network/dapps-staking/earned/:address').get(async (req: Request, res: Response) => {

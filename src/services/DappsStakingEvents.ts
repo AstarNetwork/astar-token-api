@@ -2,7 +2,7 @@ import { injectable } from 'inversify';
 import axios from 'axios';
 import { NetworkType } from '../networks';
 import { Guard } from '../guard';
-import { PeriodType, ServiceBase } from './ServiceBase';
+import { Pair, PeriodType, ServiceBase } from './ServiceBase';
 import {
     DappStakingEventData,
     DappStakingEventResponse,
@@ -20,6 +20,7 @@ export interface IDappsStakingEvents {
         offset?: number,
     ): Promise<DappStakingEventData[]>;
     getAggregatedData(network: NetworkType, period: PeriodType): Promise<DappStakingAggregatedData[]>;
+    getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
 }
 
 @injectable()
@@ -98,6 +99,38 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         });
 
         return result.data.data.groupedStakingEvents;
+    }
+
+    public async getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]> {
+        if (network !== 'astar') {
+            return [];
+        }
+
+        const range = this.getDateRange(period);
+        console.log('range', range);
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query {
+                    tvlAggregatedDailies(
+                      orderBy: id_ASC
+                      where: { id_gte: "${range.start.getTime()}", id_lte: "${range.end.getTime()}" }
+                    ) {
+                      id
+                      tvl
+                    }
+                  }`,
+            });
+
+            const indexedTvl = result.data.data.tvlAggregatedDailies.map((node: { id: string; tvl: number }) => {
+                return [node.id, node.tvl];
+            });
+
+            return indexedTvl;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
     }
 
     private getApiUrl(network: NetworkType): string {

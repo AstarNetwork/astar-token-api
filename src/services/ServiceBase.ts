@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 
-export type PeriodType = '7 days' | '30 days' | '90 days' | '1 year';
+export type PeriodType = '1 day' | '7 days' | '30 days' | '90 days' | '1 year';
 export type PeriodTypeEra = '7 eras' | '30 eras' | '90 eras' | 'all';
 export type Pair = { date: number; value: number };
 export type DateRange = { start: Date; end: Date };
