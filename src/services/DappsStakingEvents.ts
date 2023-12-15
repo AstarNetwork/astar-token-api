@@ -21,6 +21,7 @@ export interface IDappsStakingEvents {
     ): Promise<DappStakingEventData[]>;
     getAggregatedData(network: NetworkType, period: PeriodType): Promise<DappStakingAggregatedData[]>;
     getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
+    getDappStakingStakersCount(network: NetworkType, contractAddress: string, period: PeriodType): Promise<Pair[]>;
 }
 
 @injectable()
@@ -107,7 +108,6 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         }
 
         const range = this.getDateRange(period);
-        console.log('range', range);
 
         try {
             const result = await axios.post(this.getApiUrl(network), {
@@ -127,6 +127,47 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
             });
 
             return indexedTvl;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
+    public async getDappStakingStakersCount(
+        network: NetworkType,
+        contractAddress: string,
+        period: PeriodType,
+    ): Promise<Pair[]> {
+        if (network !== 'astar') {
+            return [];
+        }
+
+        const range = this.getDateRange(period);
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query {
+                    dappAggregatedDailies(
+                      orderBy: timestamp_DESC
+                      where: {
+                        dappAddress_eq: "${contractAddress}"
+                        timestamp_gte: "${range.start.getTime()}"
+                        timestamp_lte: "${range.end.getTime()}"
+                      }
+                    ) {
+                      stakersCount
+                      timestamp
+                    }
+                  }`,
+            });
+
+            const stakersCount = result.data.data.dappAggregatedDailies.map(
+                (node: { timestamp: string; stakersCount: number }) => {
+                    return [node.timestamp, node.stakersCount];
+                },
+            );
+
+            return stakersCount;
         } catch (e) {
             console.error(e);
             return [];

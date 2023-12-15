@@ -367,6 +367,44 @@
         }
       }
     },
+    "/api/v3/{network}/dapps-staking/tvl/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking TVL for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar"
+            ]
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year",
+            "enum": [
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/{network}/dapps-staking/earned/{address}": {
       "get": {
         "tags": [
@@ -484,6 +522,11 @@
             "required": true,
             "type": "string",
             "description": "The dapp address"
+          },
+          {
+            "name": "forEdit",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
@@ -645,7 +688,7 @@
             "name": "startDate",
             "in": "query",
             "description": "Start date for filtering the staking events (inclusive). Format: YYYY-MM-DD",
-            "required": false,
+            "required": true,
             "type": "string",
             "format": "date"
           },
@@ -653,7 +696,7 @@
             "name": "endDate",
             "in": "query",
             "description": "End date for filtering the staking events (inclusive). Format: YYYY-MM-DD",
-            "required": false,
+            "required": true,
             "type": "string",
             "format": "date"
           },
@@ -664,7 +707,7 @@
             "required": false,
             "type": "integer",
             "format": "int32",
-            "default": 10
+            "default": 100
           },
           {
             "name": "offset",
