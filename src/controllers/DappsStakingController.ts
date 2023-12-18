@@ -125,7 +125,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                         }
                         #swagger.parameters['period'] = {
                             in: 'path',
-                            description: 'The period type. Supported values: 7 days 30 days, 90 days, 1 year',
+                            description: 'The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year',
                             required: true,
                             enum: ['1 day', '7 days', '30 days', '90 days', '1 year']
                         }
@@ -156,7 +156,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                         }
                         #swagger.parameters['period'] = {
                             in: 'path',
-                            description: 'The period type. Supported values: 7 days 30 days, 90 days, 1 year',
+                            description: 'The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year',
                             required: true,
                             enum: ['1 day', '7 days', '30 days', '90 days', '1 year']
                         }
