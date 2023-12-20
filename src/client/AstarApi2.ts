@@ -16,7 +16,7 @@ export class AstarApi2 extends BaseApi implements IAstarApi {
     public async getAprCalculationData(): Promise<AprCalculationData> {
         await this.ensureConnection();
         const results = await Promise.all([
-            this._api.consts.blockReward.rewardAmount,
+            this._api.consts.blockReward.maxBlockRewardAmount,
             this._api.query.timestamp.now(),
             this._api.rpc.chain.getHeader(),
             this._api.query.blockReward.rewardDistributionConfigStorage<RewardDistributionConfig>(),
