@@ -15,7 +15,7 @@ import { ControllerBase } from './ControllerBase';
 import { IControllerBase } from './IControllerBase';
 import { IGiantSquidService } from '../services/GiantSquidService';
 import { IDappsStakingEvents } from '../services/DappsStakingEvents';
-
+ 
 @injectable()
 export class DappsStakingController extends ControllerBase implements IControllerBase {
     constructor(

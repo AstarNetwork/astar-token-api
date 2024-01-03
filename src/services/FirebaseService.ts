@@ -20,6 +20,7 @@ export interface IFirebaseService {
     registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem>;
     updateCache<T>(key: string, item: T): Promise<void>;
     readCache<T>(key: string): Promise<Cache<T> | undefined>;
+    getEnvVariable(keyPart1: string, keyPart2: string): string;
 }
 
 @injectable()
@@ -147,6 +148,13 @@ export class FirebaseService implements IFirebaseService {
         } else {
             return undefined;
         }
+    }
+
+    public getEnvVariable(keyPart1: string, keyPart2: string): string {
+        Guard.ThrowIfUndefined('keyPart1', keyPart1);
+        Guard.ThrowIfUndefined('keyPart2', keyPart2);
+
+        return String(functions.config()[keyPart1][keyPart2]);
     }
 
     private async uploadImage(fileInfo: FileInfo, collectionKey: string, contractAddress: string): Promise<string> {
