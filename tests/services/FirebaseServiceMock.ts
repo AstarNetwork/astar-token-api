@@ -26,4 +26,8 @@ export class FirebaseServiceMock implements IFirebaseService {
     public async readCache<T>(key: string): Promise<Cache<T> | undefined> {
         throw new Error('Method not implemented.');
     }
+
+    public getEnvVariable(keyPart1: string, keyPart2: string): string {
+        return '';
+    }
 }
