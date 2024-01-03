@@ -54,7 +54,7 @@ export class CoinGeckoPriceProvider implements IPriceProvider {
         if (apiKey) {
             options.headers = { 'x-cg-pro-api-key': apiKey };
         }
-    
+
         return options;
-    };
+    }
 }

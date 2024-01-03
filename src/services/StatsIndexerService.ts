@@ -32,8 +32,10 @@ const API_URLS_TVL = {
  * Fetches statistics from external data source
  */
 export class StatsIndexerService extends ServiceBase implements IStatsIndexerService {
-    constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory,
-    @inject(ContainerTypes.PriceProvider) private _priceProvider: CoinGeckoPriceProvider) {
+    constructor(
+        @inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory,
+        @inject(ContainerTypes.PriceProvider) private _priceProvider: CoinGeckoPriceProvider,
+    ) {
         super();
     }
 
