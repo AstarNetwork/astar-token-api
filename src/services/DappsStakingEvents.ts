@@ -11,6 +11,7 @@ import {
 } from './DappStaking/ResponseData';
 
 export interface IDappsStakingEvents {
+    getDapps(network: NetworkType): Promise<[]>;
     getStakingEvents(
         network: NetworkType,
         address: string,
@@ -168,6 +169,32 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
             );
 
             return stakersCount;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
+    public async getDapps(network: NetworkType): Promise<[]> {
+        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
+            return [];
+        }
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query {
+                    dapps (orderBy: registeredAt_ASC) {
+                        contractAddress: id
+                        stakersCount
+                        registeredAt
+                        registrationBlockNumber
+                        unregisteredAt
+                        unregistrationBlockNumber
+                    }
+                }`,
+            });
+
+            return result.data.data.dapps;
         } catch (e) {
             console.error(e);
             return [];

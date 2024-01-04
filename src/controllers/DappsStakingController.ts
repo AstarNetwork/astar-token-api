@@ -121,7 +121,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                             in: 'path',
                             description: 'The network name. Supported networks: astar',
                             required: true,
-                            enum: ['astar']
+                            enum: ['astar', 'shiden', 'shibuya']
                         }
                         #swagger.parameters['period'] = {
                             in: 'path',
@@ -147,7 +147,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                             in: 'path',
                             description: 'The network name. Supported networks: astar',
                             required: true,
-                            enum: ['astar']
+                            enum: ['astar', 'shiden', 'shibuya']
                         }
                         #swagger.parameters['contractAddress'] = {
                             in: 'path',
@@ -221,6 +221,20 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 }
             */
             res.json(await this._firebaseService.getDapps(req.params.network as NetworkType));
+        });
+
+        app.route('/api/v3/:network/dapps-staking/dappssimple').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retrieves list of dapps (basic info) registered for dapps staking'
+                #swagger.tags = ['Dapps Staking']
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya']
+                }
+            */
+            res.json(await this._dappsStakingEvents.getDapps(req.params.network as NetworkType));
         });
 
         app.route('/api/v1/:network/dapps-staking/dapps/:address').get(async (req: Request, res: Response) => {
