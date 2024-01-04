@@ -103,7 +103,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
     }
 
     public async getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]> {
-        if (network !== 'astar') {
+        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
             return [];
         }
 
@@ -138,7 +138,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         contractAddress: string,
         period: PeriodType,
     ): Promise<Pair[]> {
-        if (network !== 'astar') {
+        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
             return [];
         }
 
@@ -175,6 +175,14 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
     }
 
     private getApiUrl(network: NetworkType): string {
-        return `https://squid.subsquid.io/dapps-staking-indexer/graphql`;
+        // For local development: `http://localhost:4350/graphql`;
+        switch (network) {
+            case 'astar':
+                return 'https://squid.subsquid.io/dapps-staking-indexer/graphql';
+            case 'shibuya':
+                return 'https://squid.subsquid.io/dapps-staking-indexer-shibuya/v/v1/graphql';
+            default:
+                return 'https://squid.subsquid.io/dapps-staking-indexer/graphql';
+        }
     }
 }
