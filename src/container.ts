@@ -14,6 +14,7 @@ import { IAstarApi } from './client/BaseApi';
 import { networks } from './networks';
 import { ApiFactory, IApiFactory } from './client/ApiFactory';
 import { DappsStakingController } from './controllers/DappsStakingController';
+import { DappsStakingV3Controller } from './controllers/DappsStakingV3Controller';
 import { IDappsStakingService, DappsStakingService } from './services/DappsStakingService';
 import { IStatsIndexerService, StatsIndexerService } from './services/StatsIndexerService';
 import { NodeController } from './controllers/NodeController';
@@ -136,6 +137,7 @@ container.bind<ICallParser>(CallNameMapping.batch).to(BatchCallParser).inSinglet
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(DappsStakingController);
+container.bind<IControllerBase>(ContainerTypes.Controller).to(DappsStakingV3Controller);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(NodeController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TxQueryController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(MonthlyActiveWalletsController);
