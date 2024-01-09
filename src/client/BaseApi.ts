@@ -19,6 +19,16 @@ export interface DappInfo extends Struct {
     state: string;
 }
 
+export interface DappInfoV3 extends Struct {
+    owner: AccountId;
+    state: string;
+}
+
+export interface RegisteredDapp {
+    developer: string;
+    state: string;
+}
+
 interface SmartContract extends Enum {
     readonly Evm: string;
     readonly Wasm: string;
@@ -37,7 +47,7 @@ export interface IAstarApi {
     sendTransaction(transaction: Transaction): Promise<string>;
     getCallFromHex(callHex: string): Promise<Call>;
     getRegisterDappPayload(dappAddress: string, developerAddress: string): Promise<string>;
-    getRegisteredDapp(dappAddress: string): Promise<DappInfo | undefined>;
+    getRegisteredDapp(dappAddress: string): Promise<RegisteredDapp | undefined>;
     getCurrentEra(): Promise<number>;
     getApiPromise(): Promise<ApiPromise>;
 }
@@ -152,18 +162,31 @@ export class BaseApi implements IAstarApi {
 
     public async getRegisterDappPayload(dappAddress: string, developerAddress: string): Promise<string> {
         await this.ensureConnection();
-        const payload = this._api.tx.dappsStaking.register(developerAddress, this.getAddressEnum(dappAddress)).toHex();
+        const payload = this._api.tx[this.isStakingV3() ? 'dappStaking' : 'dappsStaking']
+            .register(developerAddress, this.getAddressEnum(dappAddress))
+            .toHex();
 
         return payload;
     }
 
-    public async getRegisteredDapp(dappAddress: string): Promise<DappInfo | undefined> {
+    public async getRegisteredDapp(dappAddress: string): Promise<RegisteredDapp | undefined> {
         await this.ensureConnection();
-        const dapp = await this._api.query.dappsStaking.registeredDapps<Option<DappInfo>>(
-            this.getAddressEnum(dappAddress),
-        );
+        if (this.isStakingV3()) {
+            const dapp = await this._api.query.dappStaking.integratedDApps<Option<DappInfoV3>>(
+                this.getAddressEnum(dappAddress),
+            );
+            const dappUnwrapped = dapp.unwrapOrDefault();
 
-        return dapp.unwrapOrDefault();
+            return { developer: dappUnwrapped.owner.toString(), state: dappUnwrapped.state.toString() };
+        } else {
+            // TODO remove after Astar deployment.
+            const dapp = await this._api.query.dappsStaking.registeredDapps<Option<DappInfo>>(
+                this.getAddressEnum(dappAddress),
+            );
+            const dappUnwrapped = dapp.unwrapOrDefault();
+
+            return { developer: dappUnwrapped.developer.toString(), state: dappUnwrapped.state.toString() };
+        }
     }
 
     public async getCurrentEra(): Promise<number> {
@@ -252,5 +275,9 @@ export class BaseApi implements IAstarApi {
         } catch (error) {
             return false;
         }
+    }
+
+    private isStakingV3(): boolean {
+        return this._api.tx.hasOwnProperty('dappStaking');
     }
 }

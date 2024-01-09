@@ -40,7 +40,7 @@ export const networks = {
     },
     development: {
         name: 'development',
-        endpoints: ['ws://localhost:9944'],
+        endpoints: ['ws://127.0.0.1:9944'],
         evmRpc: '',
         evmId: '',
         token: '',
