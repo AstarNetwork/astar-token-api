@@ -2,7 +2,7 @@ import { injectable } from 'inversify';
 import axios from 'axios';
 import { NetworkType } from '../networks';
 import { Guard } from '../guard';
-import { PeriodType, ServiceBase } from './ServiceBase';
+import { Pair, PeriodType, ServiceBase } from './ServiceBase';
 import {
     DappStakingEventData,
     DappStakingEventResponse,
@@ -11,6 +11,7 @@ import {
 } from './DappStaking/ResponseData';
 
 export interface IDappsStakingEvents {
+    getDapps(network: NetworkType): Promise<[]>;
     getStakingEvents(
         network: NetworkType,
         address: string,
@@ -20,6 +21,8 @@ export interface IDappsStakingEvents {
         offset?: number,
     ): Promise<DappStakingEventData[]>;
     getAggregatedData(network: NetworkType, period: PeriodType): Promise<DappStakingAggregatedData[]>;
+    getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
+    getDappStakingStakersCount(network: NetworkType, contractAddress: string, period: PeriodType): Promise<Pair[]>;
 }
 
 @injectable()
@@ -100,7 +103,113 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         return result.data.data.groupedStakingEvents;
     }
 
+    public async getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]> {
+        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
+            return [];
+        }
+
+        const range = this.getDateRange(period);
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query {
+                    tvlAggregatedDailies(
+                      orderBy: id_ASC
+                      where: { id_gte: "${range.start.getTime()}", id_lte: "${range.end.getTime()}" }
+                    ) {
+                      id
+                      tvl
+                    }
+                  }`,
+            });
+
+            const indexedTvl = result.data.data.tvlAggregatedDailies.map((node: { id: string; tvl: number }) => {
+                return [node.id, node.tvl];
+            });
+
+            return indexedTvl;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
+    public async getDappStakingStakersCount(
+        network: NetworkType,
+        contractAddress: string,
+        period: PeriodType,
+    ): Promise<Pair[]> {
+        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
+            return [];
+        }
+
+        const range = this.getDateRange(period);
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query {
+                    dappAggregatedDailies(
+                      orderBy: timestamp_DESC
+                      where: {
+                        dappAddress_eq: "${contractAddress}"
+                        timestamp_gte: "${range.start.getTime()}"
+                        timestamp_lte: "${range.end.getTime()}"
+                      }
+                    ) {
+                      stakersCount
+                      timestamp
+                    }
+                  }`,
+            });
+
+            const stakersCount = result.data.data.dappAggregatedDailies.map(
+                (node: { timestamp: string; stakersCount: number }) => {
+                    return [node.timestamp, node.stakersCount];
+                },
+            );
+
+            return stakersCount;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
+    public async getDapps(network: NetworkType): Promise<[]> {
+        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
+            return [];
+        }
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query {
+                    dapps (orderBy: registeredAt_ASC) {
+                        contractAddress: id
+                        stakersCount
+                        registeredAt
+                        registrationBlockNumber
+                        unregisteredAt
+                        unregistrationBlockNumber
+                    }
+                }`,
+            });
+
+            return result.data.data.dapps;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
     private getApiUrl(network: NetworkType): string {
-        return `https://squid.subsquid.io/dapps-staking-indexer/graphql`;
+        // For local development: `http://localhost:4350/graphql`;
+        switch (network) {
+            case 'astar':
+                return 'https://squid.subsquid.io/dapps-staking-indexer/graphql';
+            case 'shibuya':
+                return 'https://squid.subsquid.io/dapps-staking-indexer-shibuya/v/v1/graphql';
+            default:
+                return 'https://squid.subsquid.io/dapps-staking-indexer/graphql';
+        }
     }
 }

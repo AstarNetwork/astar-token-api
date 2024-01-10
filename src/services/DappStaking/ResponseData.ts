@@ -34,3 +34,8 @@ export interface DappStakingAggregatedData {
     amount: bigint;
     timestamp: bigint;
 }
+
+export interface DappStakingTvlData {
+    timestamp: bigint;
+    amount: bigint;
+}
