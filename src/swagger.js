@@ -4,6 +4,7 @@ const outputFile = 'public/swagger.json';
 const endpointsFiles = [
     'src/controllers/TokenStatsController.ts',
     'src/controllers/DappsStakingController.ts',
+    'src/controllers/DappsStakingV3Controller.ts',
     'src/controllers/NodeController.ts',
     'src/controllers/TxQueryController.ts',
     'src/controllers/MonthlyActiveWalletsController.ts',

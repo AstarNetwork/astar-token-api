@@ -484,6 +484,11 @@
             "required": true,
             "type": "string",
             "description": "The dapp address"
+          },
+          {
+            "name": "forEdit",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
@@ -617,6 +622,122 @@
         }
       }
     },
+    "/api/v3/{network}/dapps-staking/tvl/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking TVL for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year",
+            "enum": [
+              "1 day",
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/stakerscount/{contractAddress}/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking stakers count for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "contractAddress",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Contract address to get stats for"
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year",
+            "enum": [
+              "1 day",
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/chaindapps": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves list of dapps (basic info) registered for dapps staking",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v3/{network}/dapps-staking/stats/dapp/{contractAddress}": {
       "get": {
         "tags": [
@@ -645,7 +766,7 @@
             "name": "startDate",
             "in": "query",
             "description": "Start date for filtering the staking events (inclusive). Format: YYYY-MM-DD",
-            "required": false,
+            "required": true,
             "type": "string",
             "format": "date"
           },
@@ -653,7 +774,7 @@
             "name": "endDate",
             "in": "query",
             "description": "End date for filtering the staking events (inclusive). Format: YYYY-MM-DD",
-            "required": false,
+            "required": true,
             "type": "string",
             "format": "date"
           },
@@ -664,7 +785,7 @@
             "required": false,
             "type": "integer",
             "format": "int32",
-            "default": 10
+            "default": 100
           },
           {
             "name": "offset",
