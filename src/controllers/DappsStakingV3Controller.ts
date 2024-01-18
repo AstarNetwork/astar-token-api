@@ -188,5 +188,63 @@ export class DappsStakingV3Controller extends ControllerBase implements IControl
                 }
             },
         );
+
+        app.route('/api/v3/:network/dapps-staking/rewards/:period').get(async (req: Request, res: Response) => {
+            /*
+                    #swagger.description = 'Retrieves dapps staking rewards for a given network and period.'
+                    #swagger.tags = ['Dapps Staking']
+                    #swagger.parameters['network'] = {
+                        in: 'path',
+                        description: 'The network name. Supported networks: astar',
+                        required: true,
+                        enum: ['astar', 'shiden', 'shibuya']
+                    }
+                    #swagger.parameters['period'] = {
+                        in: 'path',
+                        description: 'The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year',
+                        required: true,
+                        enum: ['1 day', '7 days', '30 days', '90 days', '1 year']
+                    }
+                */
+            res.json(
+                await this._dappsStakingEvents.getDappStakingRewards(
+                    req.params.network as NetworkType,
+                    req.params.period as PeriodType,
+                ),
+            );
+        });
+
+        app.route('/api/v3/:network/dapps-staking/rewards-aggregated/:address/:period').get(
+            async (req: Request, res: Response) => {
+                /*
+                    #swagger.description = 'Retrieves dapps staking rewards for a given network and period.'
+                    #swagger.tags = ['Dapps Staking']
+                    #swagger.parameters['network'] = {
+                        in: 'path',
+                        description: 'The network name. Supported networks: astar',
+                        required: true,
+                        enum: ['astar', 'shiden', 'shibuya']
+                    }
+                    #swagger.parameters['address'] = {
+                        in: 'path',
+                        description: 'User address or contract address who received rewards',
+                        required: true
+                    }
+                    #swagger.parameters['period'] = {
+                        in: 'path',
+                        description: 'The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year',
+                        required: true,
+                        enum: ['1 day', '7 days', '30 days', '90 days', '1 year']
+                    }
+                */
+                res.json(
+                    await this._dappsStakingEvents.getDappStakingRewardsAggregated(
+                        req.params.network as NetworkType,
+                        req.params.address as string,
+                        req.params.period as PeriodType,
+                    ),
+                );
+            },
+        );
     }
 }
