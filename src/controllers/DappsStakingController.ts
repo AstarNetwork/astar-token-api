@@ -199,7 +199,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
             body('description').notEmpty().trim().escape(),
             body('shortDescription').optional().trim().escape(),
             body('url').isURL(),
-            body('license').notEmpty().trim().isIn(['GPL-3.0', 'MIT', 'GNU']),
+            body('license').optional().trim().escape(),
             body('address').notEmpty().trim().escape(),
             body('iconFile').notEmpty(),
             body('iconFile.name').notEmpty().isString(),
@@ -229,7 +229,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
             ]),
             body('communities.*.handle').notEmpty().isURL(),
             body('contractType').notEmpty().isIn(['wasm+evm', 'wasm', 'evm']),
-            body('mainCategory').notEmpty().isIn(['defi', 'nft', 'tooling', 'utility', 'others']),
+            body('mainCategory').notEmpty().isIn(['defi', 'nft', 'tooling', 'utility', 'others', 'unstoppable-grants']),
             async (req: Request, res: Response) => {
                 /*
                     #swagger.description = 'Registers a new dapp'
