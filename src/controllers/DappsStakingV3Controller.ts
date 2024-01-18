@@ -5,7 +5,7 @@ import { NetworkType } from '../networks';
 import { PeriodType } from '../services/ServiceBase';
 import { ControllerBase } from './ControllerBase';
 import { IControllerBase } from './IControllerBase';
-import { IDappsStakingEvents } from '../services/DappsStakingEvents';
+import { IDappsStakingEvents, RewardEventType } from '../services/DappsStakingEvents';
 
 @injectable()
 export class DappsStakingV3Controller extends ControllerBase implements IControllerBase {
@@ -205,11 +205,19 @@ export class DappsStakingV3Controller extends ControllerBase implements IControl
                         required: true,
                         enum: ['1 day', '7 days', '30 days', '90 days', '1 year']
                     }
+                    #swagger.parameters['transaction'] = {
+                        in: 'query',
+                        description: 'The Reward Event transaction type. Supported values: Reward', 'BonusReward', 'DAppReward',
+                        required: false,
+                        type: 'string',
+                        enum: ['Reward', 'BonusReward', 'DAppReward']
+                    }
                 */
             res.json(
                 await this._dappsStakingEvents.getDappStakingRewards(
                     req.params.network as NetworkType,
                     req.params.period as PeriodType,
+                    req.query.transaction as RewardEventType,
                 ),
             );
         });

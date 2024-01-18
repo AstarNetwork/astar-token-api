@@ -23,9 +23,11 @@ export interface IDappsStakingEvents {
     getAggregatedData(network: NetworkType, period: PeriodType): Promise<DappStakingAggregatedData[]>;
     getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
     getDappStakingStakersCount(network: NetworkType, contractAddress: string, period: PeriodType): Promise<Pair[]>;
-    getDappStakingRewards(network: NetworkType, period: PeriodType): Promise<Pair[]>;
+    getDappStakingRewards(network: NetworkType, period: PeriodType, transaction: RewardEventType): Promise<Pair[]>;
     getDappStakingRewardsAggregated(network: NetworkType, address: string, period: PeriodType): Promise<Pair[]>;
 }
+
+export type RewardEventType = 'Reward' | 'BonusReward' | 'DAppReward';
 
 @injectable()
 export class DappsStakingEvents extends ServiceBase implements IDappsStakingEvents {
@@ -136,7 +138,11 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         }
     }
 
-    public async getDappStakingRewards(network: NetworkType, period: PeriodType): Promise<Pair[]> {
+    public async getDappStakingRewards(
+        network: NetworkType,
+        period: PeriodType,
+        transaction: RewardEventType,
+    ): Promise<Pair[]> {
         if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
             return [];
         }
@@ -149,7 +155,8 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
                     rewardEvents(
                         where: {
                             timestamp_gte: "${range.start.getTime()}",
-                            timestamp_lte: "${range.end.getTime()}"},
+                            timestamp_lte: "${range.end.getTime()}",
+                            ${transaction ? `transaction_in: [${transaction}]}` : '}'}
                       orderBy: id_ASC) {
                       amount
                       blockNumber

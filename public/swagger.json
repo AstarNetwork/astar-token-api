@@ -874,6 +874,11 @@
               "90 days",
               "1 year"
             ]
+          },
+          {
+            "name": "transaction",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
