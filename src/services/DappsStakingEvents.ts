@@ -195,6 +195,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
                 query: `query {
                     stakes(
                       where: {
+                        expiredAt_isNull: true,
                         dappAddress_eq: "${contractAddress}"
                       }
                     ) {
