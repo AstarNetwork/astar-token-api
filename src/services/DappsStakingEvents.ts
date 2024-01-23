@@ -23,8 +23,12 @@ export interface IDappsStakingEvents {
     getAggregatedData(network: NetworkType, period: PeriodType): Promise<DappStakingAggregatedData[]>;
     getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
     getDappStakingStakersCount(network: NetworkType, contractAddress: string, period: PeriodType): Promise<Pair[]>;
+    getDappStakingRewards(network: NetworkType, period: PeriodType, transaction: RewardEventType): Promise<Pair[]>;
+    getDappStakingRewardsAggregated(network: NetworkType, address: string, period: PeriodType): Promise<Pair[]>;
     getDappStakingStakersList(network: NetworkType, contractAddress: string): Promise<List[]>;
 }
+
+export type RewardEventType = 'Reward' | 'BonusReward' | 'DAppReward';
 
 declare global {
     interface BigInt {
@@ -138,6 +142,88 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
             });
 
             return indexedTvl;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
+    public async getDappStakingRewards(
+        network: NetworkType,
+        period: PeriodType,
+        transaction: RewardEventType,
+    ): Promise<Pair[]> {
+        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
+            return [];
+        }
+
+        const range = this.getDateRange(period);
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query MyQuery {
+                    rewardEvents(
+                        where: {
+                            timestamp_gte: "${range.start.getTime()}",
+                            timestamp_lte: "${range.end.getTime()}",
+                            ${transaction ? `transaction_in: [${transaction}]}` : '}'}
+                      orderBy: id_ASC) {
+                      amount
+                      blockNumber
+                      contractAddress
+                      era
+                      id
+                      period
+                      tierId
+                      timestamp
+                      transaction
+                      userAddress
+                    }
+                  }`,
+            });
+
+            return result.data.data.rewardEvents;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
+    public async getDappStakingRewardsAggregated(
+        network: NetworkType,
+        address: string,
+        period: PeriodType,
+    ): Promise<Pair[]> {
+        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
+            return [];
+        }
+
+        const range = this.getDateRange(period);
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query {
+                    rewardAggregatedDailies(
+                      orderBy: timestamp_DESC
+                      where: {
+                        beneficiary_eq: "${address}"
+                        timestamp_gte: "${range.start.getTime()}"
+                        timestamp_lte: "${range.end.getTime()}"
+                      }
+                    ) {
+                      amount
+                      timestamp
+                    }
+                  }`,
+            });
+
+            const stakersCount = result.data.data.rewardAggregatedDailies.map(
+                (node: { timestamp: string; amount: number }) => {
+                    return [node.timestamp, node.amount];
+                },
+            );
+
+            return stakersCount;
         } catch (e) {
             console.error(e);
             return [];

@@ -876,6 +876,100 @@
         }
       }
     },
+    "/api/v3/{network}/dapps-staking/rewards/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking rewards for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year",
+            "enum": [
+              "1 day",
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          },
+          {
+            "name": "transaction",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/rewards-aggregated/{address}/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking rewards for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "User address or contract address who received rewards"
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year",
+            "enum": [
+              "1 day",
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/{network}/node/tx-perblock/total": {
       "get": {
         "tags": [
