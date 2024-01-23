@@ -83,13 +83,13 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
 
     public async getParticipantStake(network: NetworkType, address: string): Promise<bigint> {
         Guard.ThrowIfUndefined(network, 'network');
+        Guard.ThrowIfUndefined(address, 'address');
 
         try {
             const api = this._apiFactory.getApiInstance(network);
             const stakerInfo = await api.getStakerInfo(address);
 
-            console.log('stakerInfo', stakerInfo);
-            return BigInt(0);
+            return stakerInfo;
         } catch (e) {
             console.error(e);
             throw new Error('Unable to fetch token statistics from a node.');

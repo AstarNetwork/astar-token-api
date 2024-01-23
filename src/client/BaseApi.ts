@@ -15,6 +15,15 @@ import { networks } from '../networks';
 import { EraRewardAndStake } from '../types/DappsStaking';
 import { AccountData } from '../models/AccountData';
 
+declare global {
+    interface BigInt {
+        toJSON: () => string;
+    }
+}
+BigInt.prototype.toJSON = function () {
+    return this.toString();
+};
+
 export interface DappInfo extends Struct {
     developer: AccountId;
     state: string;
@@ -23,6 +32,25 @@ export interface DappInfo extends Struct {
 export interface DappInfoV3 extends Struct {
     owner: AccountId;
     state: string;
+}
+
+export interface PalletDappStakingV3ProtocolState extends Struct {
+    era: Compact<u32>;
+    nextEraStart: Compact<u32>;
+    periodInfo: PalletDappStakingV3PeriodInfo;
+    maintenance: bool;
+}
+
+interface PalletDappStakingV3PeriodInfo extends Struct {
+    number: Compact<u32>;
+    subperiod: PalletDappStakingV3PeriodType;
+    nextSubperiodStartEra: Compact<u32>;
+}
+
+interface PalletDappStakingV3PeriodType extends Enum {
+    isVoting: boolean;
+    isBuildAndEarn: boolean;
+    type: 'Voting' | 'BuildAndEarn';
 }
 
 export interface PalletDappStakingV3SingularStakingInfo {
@@ -63,7 +91,7 @@ export interface IAstarApi {
     getRegisteredDapp(dappAddress: string): Promise<RegisteredDapp | undefined>;
     getCurrentEra(): Promise<number>;
     getApiPromise(): Promise<ApiPromise>;
-    getStakerInfo(address: string): Promise<string>;
+    getStakerInfo(address: string): Promise<bigint>;
 }
 
 export class BaseApi implements IAstarApi {
@@ -203,18 +231,29 @@ export class BaseApi implements IAstarApi {
         }
     }
 
-    public async getStakerInfo(address: string): Promise<string> {
+    public async getStakerInfo(address: string): Promise<bigint> {
         await this.ensureConnection();
-        const result =
-            await this._api.query.dappStaking.stakerInfo.entries<Option<PalletDappStakingV3StakeAmount>>(address);
 
-        const total = result.map(([key, value]: [StorageKey<AnyTuple>, Option<PalletDappStakingV3StakeAmount>]) => {
+        const [state, result] = await Promise.all([
+            this._api.query.dappStaking.activeProtocolState<PalletDappStakingV3ProtocolState>(),
+            this._api.query.dappStaking.stakerInfo.entries<Option<PalletDappStakingV3StakeAmount>>(address),
+        ]);
+        const period = state.periodInfo.number.toNumber();
+
+        const total = result.reduce((sum, [key, value]) => {
             const SingularStakingInfo = JSON.parse(JSON.stringify(value.unwrap().toJSON()));
 
-            console.log('SingularStakingInfo', SingularStakingInfo); // .staked.buildAndEarn.toNumber());
-        });
+            if (SingularStakingInfo.staked.period !== period) {
+                return sum;
+            }
 
-        return '';
+            const buildAndEarn = BigInt(SingularStakingInfo.staked.buildAndEarn ?? 0);
+            const vote = BigInt(SingularStakingInfo.staked.vote ?? 0);
+
+            return sum + buildAndEarn + vote;
+        }, BigInt(0));
+
+        return total;
     }
 
     public async getCurrentEra(): Promise<number> {
