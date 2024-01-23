@@ -711,6 +711,40 @@
         }
       }
     },
+    "/api/v3/{network}/dapps-staking/stakerslist/{contractAddress}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking stakers list for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "contractAddress",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Contract address to get stats for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v3/{network}/dapps-staking/chaindapps": {
       "get": {
         "tags": [

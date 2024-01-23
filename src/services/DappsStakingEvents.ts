@@ -2,7 +2,7 @@ import { injectable } from 'inversify';
 import axios from 'axios';
 import { NetworkType } from '../networks';
 import { Guard } from '../guard';
-import { Pair, PeriodType, ServiceBase } from './ServiceBase';
+import { Pair, PeriodType, ServiceBase, List } from './ServiceBase';
 import {
     DappStakingEventData,
     DappStakingEventResponse,
@@ -25,9 +25,19 @@ export interface IDappsStakingEvents {
     getDappStakingStakersCount(network: NetworkType, contractAddress: string, period: PeriodType): Promise<Pair[]>;
     getDappStakingRewards(network: NetworkType, period: PeriodType, transaction: RewardEventType): Promise<Pair[]>;
     getDappStakingRewardsAggregated(network: NetworkType, address: string, period: PeriodType): Promise<Pair[]>;
+    getDappStakingStakersList(network: NetworkType, contractAddress: string): Promise<List[]>;
 }
 
 export type RewardEventType = 'Reward' | 'BonusReward' | 'DAppReward';
+
+declare global {
+    interface BigInt {
+        toJSON: () => string;
+    }
+}
+BigInt.prototype.toJSON = function () {
+    return this.toString();
+};
 
 @injectable()
 export class DappsStakingEvents extends ServiceBase implements IDappsStakingEvents {
@@ -255,6 +265,48 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
             );
 
             return stakersCount;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
+    public async getDappStakingStakersList(network: NetworkType, contractAddress: string): Promise<List[]> {
+        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
+            return [];
+        }
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query {
+                    stakes(
+                      where: {
+                        expiredAt_isNull: true,
+                        dappAddress_eq: "${contractAddress}"
+                      }
+                    ) {
+                      stakerAddress
+                      amount
+                    }
+                  }`,
+            });
+
+            const sumsByStaker: { [key: string]: bigint } = result.data.data.stakes.reduce(
+                (acc: { [key: string]: bigint }, { stakerAddress, amount }: List) => {
+                    acc[stakerAddress] = (acc[stakerAddress] || BigInt(0)) + BigInt(amount);
+                    return acc;
+                },
+                {},
+            );
+
+            const stakersList: List[] = Object.entries(sumsByStaker)
+                .map(([stakerAddress, amount]) => ({
+                    stakerAddress,
+                    amount,
+                }))
+                .filter((staker) => staker.amount !== BigInt(0));
+
+            return stakersList;
         } catch (e) {
             console.error(e);
             return [];
