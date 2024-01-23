@@ -75,6 +75,32 @@ export class DappsStakingV3Controller extends ControllerBase implements IControl
             },
         );
 
+        app.route('/api/v3/:network/dapps-staking/stakerslist/:contractAddress').get(
+            async (req: Request, res: Response) => {
+                /*
+                        #swagger.description = 'Retrieves dapps staking stakers list for a given network and period.'
+                        #swagger.tags = ['Dapps Staking']
+                        #swagger.parameters['network'] = {
+                            in: 'path',
+                            description: 'The network name. Supported networks: astar',
+                            required: true,
+                            enum: ['astar', 'shiden', 'shibuya']
+                        }
+                        #swagger.parameters['contractAddress'] = {
+                            in: 'path',
+                            description: 'Contract address to get stats for',
+                            required: true
+                        }
+                    */
+                res.json(
+                    await this._dappsStakingEvents.getDappStakingStakersList(
+                        req.params.network as NetworkType,
+                        req.params.contractAddress as string,
+                    ),
+                );
+            },
+        );
+
         app.route('/api/v3/:network/dapps-staking/chaindapps').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves list of dapps (basic info) registered for dapps staking'
