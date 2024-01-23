@@ -3,7 +3,7 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { isEthereumAddress, checkAddress, decodeAddress, encodeAddress } from '@polkadot/util-crypto';
 import { hexToU8a, isHex } from '@polkadot/util';
-import { u32, u128, Option, Struct, Enum } from '@polkadot/types';
+import { u32, u128, Option, Struct, Enum, Compact, bool } from '@polkadot/types';
 import { Header, AccountId, DispatchError, Call } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { ISubmittableResult, ITuple } from '@polkadot/types/types';
@@ -22,6 +22,22 @@ export interface DappInfo extends Struct {
 export interface DappInfoV3 extends Struct {
     owner: AccountId;
     state: string;
+}
+
+export interface PalletDappStakingV3ArrayStakingInfo {
+    [index: number]: [[AccountId, SmartContract], PalletDappStakingV3SingularStakingInfo];
+}
+
+export interface PalletDappStakingV3SingularStakingInfo {
+    staked: PalletDappStakingV3StakeAmount;
+    loyalStaker: bool;
+}
+
+export interface PalletDappStakingV3StakeAmount extends Struct {
+    voting: Compact<u128>;
+    buildAndEarn: Compact<u128>;
+    era: Compact<u32>;
+    period: Compact<u32>;
 }
 
 export interface RegisteredDapp {
@@ -50,6 +66,7 @@ export interface IAstarApi {
     getRegisteredDapp(dappAddress: string): Promise<RegisteredDapp | undefined>;
     getCurrentEra(): Promise<number>;
     getApiPromise(): Promise<ApiPromise>;
+    getStakerInfo(address: string): Promise<string>;
 }
 
 export class BaseApi implements IAstarApi {
@@ -187,6 +204,19 @@ export class BaseApi implements IAstarApi {
 
             return { developer: dappUnwrapped.developer.toString(), state: dappUnwrapped.state.toString() };
         }
+    }
+
+    public async getStakerInfo(address: string): Promise<string> {
+        await this.ensureConnection();
+        const result = await this._api.query.dappStaking.stakerInfo<Option<PalletDappStakingV3StakeAmount>>(
+            address,
+            null,
+        );
+
+        console.log('result', result);
+        // const stakerInfo = result.unwrap();
+        // console.log('stakerInfo', stakerInfo);
+        return '';
     }
 
     public async getCurrentEra(): Promise<number> {

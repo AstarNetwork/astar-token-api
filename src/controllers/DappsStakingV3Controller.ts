@@ -89,6 +89,30 @@ export class DappsStakingV3Controller extends ControllerBase implements IControl
             res.json(await this._dappsStakingEvents.getDapps(req.params.network as NetworkType));
         });
 
+        app.route('/api/v3/:network/dapps-staking/stake-info/:address').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retrieves the amount of stake of participant'
+                #swagger.tags = ['Dapps Staking']
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya',
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya']
+                }
+                #swagger.parameters['address'] = {
+                    in: 'path',
+                    description: 'Participant address to get stats for',
+                    required: true
+                }
+            */
+            res.json(
+                await this._dappsStakingEvents.getParticipantStake(
+                    req.params.network as NetworkType,
+                    req.params.address as string,
+                ),
+            );
+        });
+
         app.route('/api/v3/:network/dapps-staking/stats/dapp/:contractAddress').get(
             async (req: Request, res: Response) => {
                 /*

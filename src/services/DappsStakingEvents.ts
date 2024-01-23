@@ -1,8 +1,10 @@
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 import axios from 'axios';
 import { NetworkType } from '../networks';
 import { Guard } from '../guard';
 import { Pair, PeriodType, ServiceBase } from './ServiceBase';
+import { IApiFactory } from '../client/ApiFactory';
+import { ContainerTypes } from '../containertypes';
 import {
     DappStakingEventData,
     DappStakingEventResponse,
@@ -23,10 +25,15 @@ export interface IDappsStakingEvents {
     getAggregatedData(network: NetworkType, period: PeriodType): Promise<DappStakingAggregatedData[]>;
     getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
     getDappStakingStakersCount(network: NetworkType, contractAddress: string, period: PeriodType): Promise<Pair[]>;
+    getParticipantStake(network: NetworkType, address: string): Promise<bigint>;
 }
 
 @injectable()
 export class DappsStakingEvents extends ServiceBase implements IDappsStakingEvents {
+    constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory) {
+        super();
+    }
+
     public async getStakingEvents(
         network: NetworkType,
         contractAddress: string,
@@ -72,6 +79,21 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         });
 
         return result.data.data.stakingEvents;
+    }
+
+    public async getParticipantStake(network: NetworkType, address: string): Promise<bigint> {
+        Guard.ThrowIfUndefined(network, 'network');
+
+        try {
+            const api = this._apiFactory.getApiInstance(network);
+            const stakerInfo = await api.getStakerInfo(address);
+
+            console.log('stakerInfo', stakerInfo);
+            return BigInt(0);
+        } catch (e) {
+            console.error(e);
+            throw new Error('Unable to fetch token statistics from a node.');
+        }
     }
 
     public async getAggregatedData(network: NetworkType, period: PeriodType): Promise<DappStakingAggregatedData[]> {
