@@ -3,7 +3,8 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { isEthereumAddress, checkAddress, decodeAddress, encodeAddress } from '@polkadot/util-crypto';
 import { hexToU8a, isHex } from '@polkadot/util';
-import { u32, u128, Option, Struct, Enum, Compact, bool } from '@polkadot/types';
+import { u32, u128, Option, Struct, Enum, Compact, bool, StorageKey } from '@polkadot/types';
+import { AnyTuple, Codec } from '@polkadot/types/types';
 import { Header, AccountId, DispatchError, Call } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { ISubmittableResult, ITuple } from '@polkadot/types/types';
@@ -22,10 +23,6 @@ export interface DappInfo extends Struct {
 export interface DappInfoV3 extends Struct {
     owner: AccountId;
     state: string;
-}
-
-export interface PalletDappStakingV3ArrayStakingInfo {
-    [index: number]: [[AccountId, SmartContract], PalletDappStakingV3SingularStakingInfo];
 }
 
 export interface PalletDappStakingV3SingularStakingInfo {
@@ -208,14 +205,15 @@ export class BaseApi implements IAstarApi {
 
     public async getStakerInfo(address: string): Promise<string> {
         await this.ensureConnection();
-        const result = await this._api.query.dappStaking.stakerInfo<Option<PalletDappStakingV3StakeAmount>>(
-            address,
-            null,
-        );
+        const result =
+            await this._api.query.dappStaking.stakerInfo.entries<Option<PalletDappStakingV3StakeAmount>>(address);
 
-        console.log('result', result);
-        // const stakerInfo = result.unwrap();
-        // console.log('stakerInfo', stakerInfo);
+        const total = result.map(([key, value]: [StorageKey<AnyTuple>, Option<PalletDappStakingV3StakeAmount>]) => {
+            const SingularStakingInfo = JSON.parse(JSON.stringify(value.unwrap().toJSON()));
+
+            console.log('SingularStakingInfo', SingularStakingInfo); // .staked.buildAndEarn.toNumber());
+        });
+
         return '';
     }
 
