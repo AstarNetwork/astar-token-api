@@ -323,6 +323,9 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
                 query: `query {
                     dapps (orderBy: registeredAt_ASC) {
                         contractAddress: id
+                        beneficiary
+                        owner
+                        state
                         stakersCount
                         registeredAt
                         registrationBlockNumber
