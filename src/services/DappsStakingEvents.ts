@@ -313,12 +313,12 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
             return [];
         }
     }
-    
+
     public async getDappStakingStakersCountTotal(network: NetworkType, period: PeriodType): Promise<Pair[]> {
         if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
             return [];
         }
-        
+
         const range = this.getDateRange(period);
 
         try {

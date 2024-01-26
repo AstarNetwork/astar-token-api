@@ -100,7 +100,7 @@ export class DappsStakingV3Controller extends ControllerBase implements IControl
                 );
             },
         );
-        
+
         app.route('/api/v3/:network/dapps-staking/stakerscount-total/:period').get(
             async (req: Request, res: Response) => {
                 /*
