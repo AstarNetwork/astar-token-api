@@ -1,7 +1,8 @@
 // TODO remove use of any
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import { ApiPromise, WsProvider } from '@polkadot/api';
-import { isEthereumAddress, checkAddress, decodeAddress, encodeAddress } from '@polkadot/util-crypto';
+import { isEthereumAddress, checkAddress, decodeAddress, encodeAddress, evmToAddress } from '@polkadot/util-crypto';
+import { ASTAR_SS58_FORMAT } from '../services/TxQueryService';
 import { hexToU8a, isHex } from '@polkadot/util';
 import { u32, u128, Option, Struct, Enum, Compact, bool, StorageKey } from '@polkadot/types';
 import { AnyTuple, Codec } from '@polkadot/types/types';
@@ -233,24 +234,32 @@ export class BaseApi implements IAstarApi {
 
     public async getStakerInfo(address: string): Promise<bigint> {
         await this.ensureConnection();
+        let ss558Address = address;
+
+        if (isEthereumAddress(address)) {
+            const unifiedAccount = await this._api.query.unifiedAccounts.evmToNative<AccountId>(address);
+            ss558Address = unifiedAccount.isEmpty
+                ? evmToAddress(address, ASTAR_SS58_FORMAT)
+                : unifiedAccount.toString();
+        }
 
         const [state, result] = await Promise.all([
             this._api.query.dappStaking.activeProtocolState<PalletDappStakingV3ProtocolState>(),
-            this._api.query.dappStaking.stakerInfo.entries<Option<PalletDappStakingV3StakeAmount>>(address),
+            this._api.query.dappStaking.stakerInfo.entries<Option<PalletDappStakingV3StakeAmount>>(ss558Address),
         ]);
         const period = state.periodInfo.number.toNumber();
 
         const total = result.reduce((sum, [key, value]) => {
-            const SingularStakingInfo = JSON.parse(JSON.stringify(value.unwrap().toJSON()));
+            const singularStakingInfo = JSON.parse(JSON.stringify(value.unwrap().toJSON()));
 
-            if (SingularStakingInfo.staked.period !== period) {
+            if (singularStakingInfo.staked.period !== period) {
                 return sum;
             }
 
-            const buildAndEarn = BigInt(SingularStakingInfo.staked.buildAndEarn ?? 0);
-            const vote = BigInt(SingularStakingInfo.staked.vote ?? 0);
+            const buildAndEarn = BigInt(singularStakingInfo.staked.buildAndEarn ?? 0);
+            const voting = BigInt(singularStakingInfo.staked.voting ?? 0);
 
-            return sum + buildAndEarn + vote;
+            return sum + buildAndEarn + voting;
         }, BigInt(0));
 
         return total;
