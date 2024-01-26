@@ -11,17 +11,15 @@ type CoinGeckoTokenInfo = { id: string; symbol: string; name: string };
 
 @injectable()
 export class CoinGeckoPriceProvider implements IPriceProvider {
-    public static BaseUrl = 'https://pro-api.coingecko.com/api/v3';
+    public static BaseUrl = 'https://api.coingecko.com/api/v3';
     private static tokens: CoinGeckoTokenInfo[];
-
-    constructor(@inject(ContainerTypes.FirebaseService) private firebaseService: IFirebaseService) {}
 
     public async getUsdPrice(symbol: string): Promise<number> {
         const tokenSymbol = await this.getTokenId(symbol);
 
         if (tokenSymbol) {
             const url = `${CoinGeckoPriceProvider.BaseUrl}/simple/price?ids=${tokenSymbol}&vs_currencies=usd`;
-            const result = await axios.get(url, this.getOptions());
+            const result = await axios.get(url);
 
             if (result.data[tokenSymbol]) {
                 const price = result.data[tokenSymbol].usd;
@@ -43,18 +41,8 @@ export class CoinGeckoPriceProvider implements IPriceProvider {
 
     private async getTokenList(): Promise<CoinGeckoTokenInfo[]> {
         const url = `${CoinGeckoPriceProvider.BaseUrl}/coins/list`;
-        const result = await axios.get<CoinGeckoTokenInfo[]>(url, this.getOptions());
+        const result = await axios.get<CoinGeckoTokenInfo[]>(url);
 
         return result.data;
-    }
-
-    public getOptions(): AxiosRequestConfig {
-        const apiKey = this.firebaseService.getEnvVariable('coingecko', 'apikey');
-        const options: AxiosRequestConfig = {};
-        if (apiKey) {
-            options.headers = { 'x-cg-pro-api-key': apiKey };
-        }
-
-        return options;
     }
 }

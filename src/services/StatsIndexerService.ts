@@ -6,7 +6,6 @@ import { ContainerTypes } from '../containertypes';
 import { NetworkType } from '../networks';
 import { getDateUTC, getDateYyyyMmDd, getSubscanUrl, getSubscanOption } from '../utils';
 import { Pair, PeriodType, ServiceBase } from './ServiceBase';
-import { CoinGeckoPriceProvider } from './CoinGeckoPriceProvider';
 
 export interface IStatsIndexerService {
     getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
@@ -32,10 +31,7 @@ const API_URLS_TVL = {
  * Fetches statistics from external data source
  */
 export class StatsIndexerService extends ServiceBase implements IStatsIndexerService {
-    constructor(
-        @inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory,
-        @inject(ContainerTypes.PriceProvider) private _priceProvider: CoinGeckoPriceProvider,
-    ) {
+    constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory) {
         super();
     }
 
@@ -146,8 +142,7 @@ export class StatsIndexerService extends ServiceBase implements IStatsIndexerSer
         try {
             const interval = 'daily';
             const result = await axios.get(
-                `https://pro-api.coingecko.com/api/v3/coins/${network}/market_chart?vs_currency=usd&days=${numberOfDays}&interval=${interval}`,
-                this._priceProvider.getOptions(),
+                `https://api.coingecko.com/api/v3/coins/${network}/market_chart?vs_currency=usd&days=${numberOfDays}&interval=${interval}`,
             );
             return result.data.prices;
         } catch (e) {

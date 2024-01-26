@@ -2,12 +2,16 @@ import { injectable } from 'inversify';
 import container from '../container';
 import { ContainerTypes } from '../containertypes';
 import { IPriceProvider } from './IPriceProvider';
+import { CacheService } from './CacheService';
+import { Guard } from '../guard';
 
 /**
  * Uses registered price providers to fetch token price.
  */
 @injectable()
 export class PriceProviderWithFailover implements IPriceProvider {
+    private readonly priceCache = new CacheService<number>(60000);
+
     /**
      * Fetches all registered price providers and tries to fetch data from a first one.
      * If call fails it moves to second price provider and so on.
@@ -15,13 +19,22 @@ export class PriceProviderWithFailover implements IPriceProvider {
      * @returns Token price or 0 if unable to fetch price.
      */
     public async getUsdPrice(symbol: string): Promise<number> {
-        const providers = container.getAll<IPriceProvider>(ContainerTypes.PriceProvider);
+        Guard.ThrowIfUndefined('symbol', symbol);
 
+        const providers = container.getAll<IPriceProvider>(ContainerTypes.PriceProvider);
         for (const provider of providers) {
             try {
-                return await provider.getUsdPrice(symbol);
+                const cacheItem = this.priceCache.getItem(symbol);
+                if (cacheItem) {
+                    return cacheItem;
+                } else {
+                    const price = await provider.getUsdPrice(symbol);
+                    this.priceCache.setItem(symbol, price);
+
+                    return price;
+                }
             } catch (error) {
-                // execution will move to next price provider
+                // Execution moves to next price provider, so nothing special to do here.
                 console.log(error);
             }
         }
