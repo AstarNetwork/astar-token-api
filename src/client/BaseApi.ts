@@ -54,7 +54,7 @@ interface PalletDappStakingV3PeriodType extends Enum {
     type: 'Voting' | 'BuildAndEarn';
 }
 
-export interface PalletDappStakingV3SingularStakingInfo {
+export interface PalletDappStakingV3SingularStakingInfo extends Struct {
     staked: PalletDappStakingV3StakeAmount;
     loyalStaker: bool;
 }
@@ -237,27 +237,32 @@ export class BaseApi implements IAstarApi {
         let ss558Address = address;
 
         if (isEthereumAddress(address)) {
-            const unifiedAccount = await this._api.query.unifiedAccounts.evmToNative<AccountId>(address);
-            ss558Address = unifiedAccount.isEmpty
-                ? evmToAddress(address, ASTAR_SS58_FORMAT)
-                : unifiedAccount.toString();
+            ss558Address = evmToAddress(address, ASTAR_SS58_FORMAT);
+
+            if (Object.prototype.hasOwnProperty.call(this._api.query, 'unifiedAccounts')) {
+                const unifiedAccount = await this._api.query.unifiedAccounts.evmToNative<AccountId>(address);
+                if (!unifiedAccount.isEmpty) {
+                    ss558Address = unifiedAccount.toString();
+                }
+            }
         }
 
         const [state, result] = await Promise.all([
             this._api.query.dappStaking.activeProtocolState<PalletDappStakingV3ProtocolState>(),
-            this._api.query.dappStaking.stakerInfo.entries<Option<PalletDappStakingV3StakeAmount>>(ss558Address),
+            this._api.query.dappStaking.stakerInfo.entries(ss558Address),
         ]);
         const period = state.periodInfo.number.toNumber();
 
         const total = result.reduce((sum, [key, value]) => {
-            const singularStakingInfo = JSON.parse(JSON.stringify(value.unwrap().toJSON()));
+            const singularStakingInfo = <Option<PalletDappStakingV3SingularStakingInfo>>value;
+            const unwrapped = singularStakingInfo.unwrapOrDefault();
 
-            if (singularStakingInfo.staked.period !== period) {
+            if (unwrapped.staked.period.toNumber() !== period) {
                 return sum;
             }
 
-            const buildAndEarn = BigInt(singularStakingInfo.staked.buildAndEarn ?? 0);
-            const voting = BigInt(singularStakingInfo.staked.voting ?? 0);
+            const buildAndEarn = unwrapped.staked.buildAndEarn.toBigInt();
+            const voting = unwrapped.staked.voting.toBigInt();
 
             return sum + buildAndEarn + voting;
         }, BigInt(0));
