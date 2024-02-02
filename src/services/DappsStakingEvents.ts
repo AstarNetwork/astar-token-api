@@ -354,14 +354,15 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
                       }
                     ) {
                       stakersCount
+                      stakersAmount
                       id
                     }
                   }`,
             });
 
             const stakersCount = result.data.data.stakersCountAggregatedDailies.map(
-                (node: { id: string; stakersCount: number }) => {
-                    return [node.id, node.stakersCount];
+                (node: { id: string; stakersCount: number; stakersAmount: number }) => {
+                    return [node.id, node.stakersCount, node.stakersAmount];
                 },
             );
 
@@ -404,13 +405,6 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
 
     private getApiUrl(network: NetworkType): string {
         // For local development: `http://localhost:4350/graphql`;
-        switch (network) {
-            case 'astar':
-                return 'https://squid.subsquid.io/dapps-staking-indexer/graphql';
-            case 'shibuya':
-                return 'https://squid.subsquid.io/dapps-staking-indexer-shibuya/v/v1/graphql';
-            default:
-                return 'https://squid.subsquid.io/dapps-staking-indexer/graphql';
-        }
+        return `https://squid.subsquid.io/dapps-staking-indexer-${network}/graphql`;
     }
 }
