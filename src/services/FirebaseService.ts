@@ -116,7 +116,7 @@ export class FirebaseService implements IFirebaseService {
             communities: dapp.communities,
             contractType: dapp.contractType,
             mainCategory: dapp.mainCategory,
-            license: dapp.license,
+            license: dapp.license ?? '',
             tags: dapp.tags,
         } as DappItem;
         await admin.firestore().collection(collectionKey).doc(dapp.address).set(firebasePayload);
