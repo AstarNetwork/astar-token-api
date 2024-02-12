@@ -238,7 +238,9 @@ export class FirebaseService implements IFirebaseService {
         data.forEach((x) => {
             const data = x.data() as DappItem;
             data.creationTime = x.createTime.seconds;
-            data.description = this.decode(data.description);
+            if (data.description) {
+                data.description = this.decode(data.description);
+            }
             data.shortDescription = this.decode(data.shortDescription ?? '');
             result.push(data);
         });
