@@ -79,6 +79,7 @@ export class FirebaseService implements IFirebaseService {
                 dapp.images = images.filter((x) => x !== null) as FileInfo[];
             }
 
+            dapp.description = this.decode(dapp.description);
             dapp.shortDescription = this.decode(dapp.shortDescription ?? '');
             return dapp;
         }
@@ -237,6 +238,7 @@ export class FirebaseService implements IFirebaseService {
         data.forEach((x) => {
             const data = x.data() as DappItem;
             data.creationTime = x.createTime.seconds;
+            data.description = this.decode(data.description);
             data.shortDescription = this.decode(data.shortDescription ?? '');
             result.push(data);
         });
