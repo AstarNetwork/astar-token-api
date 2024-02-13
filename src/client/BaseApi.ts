@@ -220,7 +220,8 @@ export class BaseApi implements IAstarApi {
             );
             const dappUnwrapped = dapp.unwrapOrDefault();
 
-            return { developer: dappUnwrapped.owner.toString(), state: dappUnwrapped.state.toString() };
+            // All dApps returned by th query above are registered.
+            return { developer: dappUnwrapped.owner.toString(), state: 'Registered' };
         } else {
             // TODO remove after Astar deployment.
             const dapp = await this._api.query.dappsStaking.registeredDapps<Option<DappInfo>>(
