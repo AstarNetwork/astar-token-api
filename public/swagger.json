@@ -627,7 +627,7 @@
         "tags": [
           "Dapps Staking"
         ],
-        "description": "Retrieves dapps staking TVL for a given network and period.",
+        "description": "Retrieves dapps staking TVL and total number of unique lockers for a given network and period.",
         "parameters": [
           {
             "name": "network",
@@ -987,7 +987,14 @@
           {
             "name": "transaction",
             "in": "query",
-            "type": "string"
+            "description": "The Reward Event transaction type. Supported values: Reward, BonusReward, DAppReward",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "Reward",
+              "BonusReward",
+              "DAppReward"
+            ]
           }
         ],
         "responses": {

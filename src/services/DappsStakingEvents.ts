@@ -156,13 +156,16 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
                     ) {
                       id
                       tvl
+                      lockersCount
                     }
                   }`,
             });
 
-            const indexedTvl = result.data.data.tvlAggregatedDailies.map((node: { id: string; tvl: number }) => {
-                return [node.id, node.tvl];
-            });
+            const indexedTvl = result.data.data.tvlAggregatedDailies.map(
+                (node: { id: string; tvl: number; lockersCount: number }) => {
+                    return [node.id, node.tvl, node.lockersCount];
+                },
+            );
 
             return indexedTvl;
         } catch (e) {

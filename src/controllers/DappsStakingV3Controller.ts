@@ -19,7 +19,7 @@ export class DappsStakingV3Controller extends ControllerBase implements IControl
          */
         app.route('/api/v3/:network/dapps-staking/tvl/:period').get(async (req: Request, res: Response) => {
             /*
-                        #swagger.description = 'Retrieves dapps staking TVL for a given network and period.'
+                        #swagger.description = 'Retrieves dapps staking TVL and total number of unique lockers for a given network and period.'
                         #swagger.tags = ['Dapps Staking']
                         #swagger.parameters['network'] = {
                             in: 'path',
@@ -284,7 +284,7 @@ export class DappsStakingV3Controller extends ControllerBase implements IControl
                     }
                     #swagger.parameters['transaction'] = {
                         in: 'query',
-                        description: 'The Reward Event transaction type. Supported values: Reward', 'BonusReward', 'DAppReward',
+                        description: 'The Reward Event transaction type. Supported values: Reward, BonusReward, DAppReward',
                         required: false,
                         type: 'string',
                         enum: ['Reward', 'BonusReward', 'DAppReward']
