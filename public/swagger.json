@@ -627,7 +627,130 @@
         "tags": [
           "Dapps Staking"
         ],
-        "description": "Retrieves dapps staking TVL and total number of unique lockers for a given network and period.",
+        "description": "Retrieves dapps staking TVL for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year",
+            "enum": [
+              "1 day",
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/stakers-total/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking Total Value Staked and Total Number of Unique Stakers for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year",
+            "enum": [
+              "1 day",
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/lockers-total/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking Total Value Locked and Total Number of Unique Lockers for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year",
+            "enum": [
+              "1 day",
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/lockers-and-stakers-total/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking Total Value Locked & Staked and Total Number of Unique Lockers & Stakers for a given network and period.",
         "parameters": [
           {
             "name": "network",

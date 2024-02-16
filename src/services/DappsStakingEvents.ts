@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import axios from 'axios';
 import { NetworkType } from '../networks';
 import { Guard } from '../guard';
-import { Pair, PeriodType, ServiceBase, List } from './ServiceBase';
+import { TotalAmountCount, Triplet, Pair, PeriodType, ServiceBase, List } from './ServiceBase';
 import { IApiFactory } from '../client/ApiFactory';
 import { ContainerTypes } from '../containertypes';
 import {
@@ -27,6 +27,9 @@ export interface IDappsStakingEvents {
     getDappStakingStakersCount(network: NetworkType, contractAddress: string, period: PeriodType): Promise<Pair[]>;
     getParticipantStake(network: NetworkType, address: string): Promise<bigint>;
     getDappStakingStakersCountTotal(network: NetworkType, period: PeriodType): Promise<Pair[]>;
+    getDappStakingStakersTotal(network: NetworkType, period: PeriodType): Promise<Triplet[]>;
+    getDappStakingLockersTotal(network: NetworkType, period: PeriodType): Promise<Triplet[]>;
+    getDappStakingLockersAndStakersTotal(network: NetworkType, period: PeriodType): Promise<TotalAmountCount[]>;
     getDappStakingRewards(network: NetworkType, period: PeriodType, transaction: RewardEventType): Promise<Pair[]>;
     getDappStakingRewardsAggregated(network: NetworkType, address: string, period: PeriodType): Promise<Pair[]>;
     getDappStakingStakersList(network: NetworkType, contractAddress: string): Promise<List[]>;
@@ -156,16 +159,13 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
                     ) {
                       id
                       tvl
-                      lockersCount
                     }
                   }`,
             });
 
-            const indexedTvl = result.data.data.tvlAggregatedDailies.map(
-                (node: { id: string; tvl: number; lockersCount: number }) => {
-                    return [node.id, node.tvl, node.lockersCount];
-                },
-            );
+            const indexedTvl = result.data.data.tvlAggregatedDailies.map((node: { id: string; tvl: number }) => {
+                return [node.id, node.tvl];
+            });
 
             return indexedTvl;
         } catch (e) {
@@ -370,6 +370,125 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
             );
 
             return stakersCount;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
+    public async getDappStakingStakersTotal(network: NetworkType, period: PeriodType): Promise<Triplet[]> {
+        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
+            return [];
+        }
+
+        const range = this.getDateRange(period);
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query {
+                    stakersCountAggregatedDailies(
+                      orderBy: id_DESC
+                      where: {
+                        id_gte: "${range.start.getTime()}"
+                        id_lte: "${range.end.getTime()}"
+                      }
+                    ) {
+                      date: id
+                      count: stakersCount
+                      amount: stakersAmount
+                    }
+                  }`,
+            });
+
+            const results: Triplet[] = result.data.data.stakersCountAggregatedDailies;
+            return results;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
+    public async getDappStakingLockersTotal(network: NetworkType, period: PeriodType): Promise<Triplet[]> {
+        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
+            return [];
+        }
+
+        const range = this.getDateRange(period);
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query {
+                    tvlAggregatedDailies(
+                      orderBy: id_DESC
+                      where: { id_gte: "${range.start.getTime()}", id_lte: "${range.end.getTime()}" }
+                    ) {
+                      date: id
+                      count: lockersCount
+                      amount: tvl
+                    }
+                  }`,
+            });
+
+            const results: Triplet[] = result.data.data.tvlAggregatedDailies;
+            return results;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
+    public async getDappStakingLockersAndStakersTotal(
+        network: NetworkType,
+        period: PeriodType,
+    ): Promise<TotalAmountCount[]> {
+        if (!['astar', 'shiden', 'shibuya'].includes(network)) {
+            return [];
+        }
+
+        const range = this.getDateRange(period);
+
+        const query = `query {
+            tvlAggregatedDailies(
+                orderBy: id_DESC
+                where: { id_gte: "${range.start.getTime()}", id_lte: "${range.end.getTime()}" }
+            ) {
+                date: id
+                count: lockersCount
+                amount: tvl
+            }
+            stakersCountAggregatedDailies(
+                orderBy: id_DESC
+                where: { id_gte: "${range.start.getTime()}", id_lte: "${range.end.getTime()}" }
+            ) {
+                date: id
+                count: stakersCount
+                amount: stakersAmount
+            }
+        }`;
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), { query });
+
+            const combinedData: TotalAmountCount[] = [];
+
+            const lockersData: Triplet[] = result.data.data.tvlAggregatedDailies;
+            const stakersData: Triplet[] = result.data.data.stakersCountAggregatedDailies;
+            const lockersMap = new Map(lockersData.map((item) => [item.date, item]));
+            const stakersMap = new Map(stakersData.map((item) => [item.date, item]));
+
+            const allIds = new Set([...lockersMap.keys(), ...stakersMap.keys()]);
+
+            allIds.forEach((date) => {
+                combinedData.push({
+                    date,
+                    tvl: lockersMap.has(date) ? lockersMap.get(date)?.amount : undefined,
+                    lockersCount: lockersMap.has(date) ? lockersMap.get(date)?.count : undefined,
+                    tvs: stakersMap.has(date) ? stakersMap.get(date)?.amount : undefined,
+                    stakersCount: stakersMap.has(date) ? stakersMap.get(date)?.count : undefined,
+                });
+            });
+
+            return combinedData;
         } catch (e) {
             console.error(e);
             return [];

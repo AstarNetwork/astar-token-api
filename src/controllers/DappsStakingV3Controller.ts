@@ -19,7 +19,7 @@ export class DappsStakingV3Controller extends ControllerBase implements IControl
          */
         app.route('/api/v3/:network/dapps-staking/tvl/:period').get(async (req: Request, res: Response) => {
             /*
-                        #swagger.description = 'Retrieves dapps staking TVL and total number of unique lockers for a given network and period.'
+                        #swagger.description = 'Retrieves dapps staking TVL for a given network and period.'
                         #swagger.tags = ['Dapps Staking']
                         #swagger.parameters['network'] = {
                             in: 'path',
@@ -41,6 +41,83 @@ export class DappsStakingV3Controller extends ControllerBase implements IControl
                 ),
             );
         });
+
+        app.route('/api/v3/:network/dapps-staking/stakers-total/:period').get(async (req: Request, res: Response) => {
+            /*
+                        #swagger.description = 'Retrieves dapps staking Total Value Staked and Total Number of Unique Stakers for a given network and period.'
+                        #swagger.tags = ['Dapps Staking']
+                        #swagger.parameters['network'] = {
+                            in: 'path',
+                            description: 'The network name. Supported networks: astar',
+                            required: true,
+                            enum: ['astar', 'shiden', 'shibuya']
+                        }
+                        #swagger.parameters['period'] = {
+                            in: 'path',
+                            description: 'The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year',
+                            required: true,
+                            enum: ['1 day', '7 days', '30 days', '90 days', '1 year']
+                        }
+                    */
+            res.json(
+                await this._dappsStakingEvents.getDappStakingStakersTotal(
+                    req.params.network as NetworkType,
+                    req.params.period as PeriodType,
+                ),
+            );
+        });
+
+        app.route('/api/v3/:network/dapps-staking/lockers-total/:period').get(async (req: Request, res: Response) => {
+            /*
+                        #swagger.description = 'Retrieves dapps staking Total Value Locked and Total Number of Unique Lockers for a given network and period.'
+                        #swagger.tags = ['Dapps Staking']
+                        #swagger.parameters['network'] = {
+                            in: 'path',
+                            description: 'The network name. Supported networks: astar',
+                            required: true,
+                            enum: ['astar', 'shiden', 'shibuya']
+                        }
+                        #swagger.parameters['period'] = {
+                            in: 'path',
+                            description: 'The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year',
+                            required: true,
+                            enum: ['1 day', '7 days', '30 days', '90 days', '1 year']
+                        }
+                    */
+            res.json(
+                await this._dappsStakingEvents.getDappStakingLockersTotal(
+                    req.params.network as NetworkType,
+                    req.params.period as PeriodType,
+                ),
+            );
+        });
+
+        app.route('/api/v3/:network/dapps-staking/lockers-and-stakers-total/:period').get(
+            async (req: Request, res: Response) => {
+                /*
+                        #swagger.description = 'Retrieves dapps staking Total Value Locked & Staked and Total Number of Unique Lockers & Stakers for a given network and period.'
+                        #swagger.tags = ['Dapps Staking']
+                        #swagger.parameters['network'] = {
+                            in: 'path',
+                            description: 'The network name. Supported networks: astar',
+                            required: true,
+                            enum: ['astar', 'shiden', 'shibuya']
+                        }
+                        #swagger.parameters['period'] = {
+                            in: 'path',
+                            description: 'The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year',
+                            required: true,
+                            enum: ['1 day', '7 days', '30 days', '90 days', '1 year']
+                        }
+                    */
+                res.json(
+                    await this._dappsStakingEvents.getDappStakingLockersAndStakersTotal(
+                        req.params.network as NetworkType,
+                        req.params.period as PeriodType,
+                    ),
+                );
+            },
+        );
 
         app.route('/api/v3/:network/dapps-staking/stakerscount/:contractAddress/:period').get(
             async (req: Request, res: Response) => {
