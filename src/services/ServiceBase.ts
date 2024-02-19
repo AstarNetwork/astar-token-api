@@ -3,8 +3,16 @@ import { injectable } from 'inversify';
 export type PeriodType = '1 day' | '7 days' | '30 days' | '90 days' | '1 year';
 export type PeriodTypeEra = '7 eras' | '30 eras' | '90 eras' | 'all';
 export type Pair = { date: number; value: number };
+export type Triplet = { date: string; count: number; amount: number };
 export type List = { stakerAddress: string; amount: bigint };
 export type DateRange = { start: Date; end: Date };
+export type TotalAmountCount = {
+    date: string;
+    tvl: number | undefined;
+    lockersCount: number | undefined;
+    tvs: number | undefined;
+    stakersCount: number | undefined;
+};
 
 const DEFAULT_RANGE_LENGTH_DAYS = 7;
 
