@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import axios from 'axios';
 import { NetworkType } from '../networks';
 import { Guard } from '../guard';
-import { TotalAmountCount, Triplet, Pair, PeriodType, ServiceBase, List } from './ServiceBase';
+import { TotalAmountCount, Quartet, Pair, PeriodType, ServiceBase, List } from './ServiceBase';
 import { IApiFactory } from '../client/ApiFactory';
 import { ContainerTypes } from '../containertypes';
 import {
@@ -27,8 +27,8 @@ export interface IDappsStakingEvents {
     getDappStakingStakersCount(network: NetworkType, contractAddress: string, period: PeriodType): Promise<Pair[]>;
     getParticipantStake(network: NetworkType, address: string): Promise<bigint>;
     getDappStakingStakersCountTotal(network: NetworkType, period: PeriodType): Promise<Pair[]>;
-    getDappStakingStakersTotal(network: NetworkType, period: PeriodType): Promise<Triplet[]>;
-    getDappStakingLockersTotal(network: NetworkType, period: PeriodType): Promise<Triplet[]>;
+    getDappStakingStakersTotal(network: NetworkType, period: PeriodType): Promise<Quartet[]>;
+    getDappStakingLockersTotal(network: NetworkType, period: PeriodType): Promise<Quartet[]>;
     getDappStakingLockersAndStakersTotal(network: NetworkType, period: PeriodType): Promise<TotalAmountCount[]>;
     getDappStakingRewards(network: NetworkType, period: PeriodType, transaction: RewardEventType): Promise<Pair[]>;
     getDappStakingRewardsAggregated(network: NetworkType, address: string, period: PeriodType): Promise<Pair[]>;
@@ -376,7 +376,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         }
     }
 
-    public async getDappStakingStakersTotal(network: NetworkType, period: PeriodType): Promise<Triplet[]> {
+    public async getDappStakingStakersTotal(network: NetworkType, period: PeriodType): Promise<Quartet[]> {
         if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
             return [];
         }
@@ -396,11 +396,12 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
                       date: id
                       count: stakersCount
                       amount: stakersAmount
+                      price: usdPrice
                     }
                   }`,
             });
 
-            const results: Triplet[] = result.data.data.stakersCountAggregatedDailies;
+            const results: Quartet[] = result.data.data.stakersCountAggregatedDailies;
             return results;
         } catch (e) {
             console.error(e);
@@ -408,7 +409,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         }
     }
 
-    public async getDappStakingLockersTotal(network: NetworkType, period: PeriodType): Promise<Triplet[]> {
+    public async getDappStakingLockersTotal(network: NetworkType, period: PeriodType): Promise<Quartet[]> {
         if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
             return [];
         }
@@ -425,11 +426,12 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
                       date: id
                       count: lockersCount
                       amount: tvl
+                      price: usdPrice
                     }
                   }`,
             });
 
-            const results: Triplet[] = result.data.data.tvlAggregatedDailies;
+            const results: Quartet[] = result.data.data.tvlAggregatedDailies;
             return results;
         } catch (e) {
             console.error(e);
@@ -455,6 +457,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
                 date: id
                 count: lockersCount
                 amount: tvl
+                price: usdPrice
             }
             stakersCountAggregatedDailies(
                 orderBy: id_DESC
@@ -463,6 +466,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
                 date: id
                 count: stakersCount
                 amount: stakersAmount
+                price: usdPrice
             }
         }`;
 
@@ -471,8 +475,8 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
 
             const combinedData: TotalAmountCount[] = [];
 
-            const lockersData: Triplet[] = result.data.data.tvlAggregatedDailies;
-            const stakersData: Triplet[] = result.data.data.stakersCountAggregatedDailies;
+            const lockersData: Quartet[] = result.data.data.tvlAggregatedDailies;
+            const stakersData: Quartet[] = result.data.data.stakersCountAggregatedDailies;
             const lockersMap = new Map(lockersData.map((item) => [item.date, item]));
             const stakersMap = new Map(stakersData.map((item) => [item.date, item]));
 
@@ -485,6 +489,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
                     lockersCount: lockersMap.has(date) ? lockersMap.get(date)?.count : undefined,
                     tvs: stakersMap.has(date) ? stakersMap.get(date)?.amount : undefined,
                     stakersCount: stakersMap.has(date) ? stakersMap.get(date)?.count : undefined,
+                    usdPrice: lockersMap.has(date) ? lockersMap.get(date)?.price : undefined,
                 });
             });
 
