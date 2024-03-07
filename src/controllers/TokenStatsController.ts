@@ -63,7 +63,8 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 }
             */
             try {
-                res.json(await this._priceProvider.getUsdPrice(req.params.symbol));
+                const currency = req.query.currency as string | undefined;
+                res.json(await this._priceProvider.getPrice(req.params.symbol, currency));
             } catch (err) {
                 this.handleError(res, err as Error);
             }
