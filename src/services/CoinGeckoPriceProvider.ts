@@ -14,15 +14,15 @@ export class CoinGeckoPriceProvider implements IPriceProvider {
     public static BaseUrl = 'https://api.coingecko.com/api/v3';
     private static tokens: CoinGeckoTokenInfo[];
 
-    public async getUsdPrice(symbol: string): Promise<number> {
+    public async getPrice(symbol: string, currency = 'usd'): Promise<number> {
         const tokenSymbol = await this.getTokenId(symbol);
 
         if (tokenSymbol) {
-            const url = `${CoinGeckoPriceProvider.BaseUrl}/simple/price?ids=${tokenSymbol}&vs_currencies=usd`;
+            const url = `${CoinGeckoPriceProvider.BaseUrl}/simple/price?ids=${tokenSymbol}&vs_currencies=${currency}`;
             const result = await axios.get(url);
 
             if (result.data[tokenSymbol]) {
-                const price = result.data[tokenSymbol].usd;
+                const price = result.data[tokenSymbol][currency];
                 return Number(price);
             }
         }

@@ -18,18 +18,19 @@ export class PriceProviderWithFailover implements IPriceProvider {
      * @param tokenInfo Token information.
      * @returns Token price or 0 if unable to fetch price.
      */
-    public async getUsdPrice(symbol: string): Promise<number> {
+    public async getPrice(symbol: string, currency = 'usd'): Promise<number> {
         Guard.ThrowIfUndefined('symbol', symbol);
 
         const providers = container.getAll<IPriceProvider>(ContainerTypes.PriceProvider);
+        const cacheKey = `${symbol}-${currency}`;
         for (const provider of providers) {
             try {
-                const cacheItem = this.priceCache.getItem(symbol);
+                const cacheItem = this.priceCache.getItem(cacheKey);
                 if (cacheItem) {
                     return cacheItem;
                 } else {
-                    const price = await provider.getUsdPrice(symbol);
-                    this.priceCache.setItem(symbol, price);
+                    const price = await provider.getPrice(symbol, currency);
+                    this.priceCache.setItem(cacheKey, price);
 
                     return price;
                 }
