@@ -6,5 +6,5 @@ export interface IPriceProvider {
      * Gets current token price in USD.
      * @param tokenInfo Token information.
      */
-    getUsdPrice(symbol: string): Promise<number>;
+    getPrice(symbol: string, currency: string | undefined): Promise<number>;
 }

@@ -4,6 +4,7 @@ const outputFile = 'public/swagger.json';
 const endpointsFiles = [
     'src/controllers/TokenStatsController.ts',
     'src/controllers/DappsStakingController.ts',
+    'src/controllers/DappsStakingV3Controller.ts',
     'src/controllers/NodeController.ts',
     'src/controllers/TxQueryController.ts',
     'src/controllers/MonthlyActiveWalletsController.ts',
@@ -13,7 +14,7 @@ const getDocumentation = (host) => ({
     info: {
         version: '1.0.1',
         title: 'Astar token statistics API',
-        description: 'Provides network statistic information.',
+        description: 'Provides Astar networks statistic information.',
     },
     host: host ? host : 'localhost:3000',
     schemes: ['https', 'http'],

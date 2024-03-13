@@ -13,6 +13,7 @@ import { PeriodType, PeriodTypeEra } from '../services/ServiceBase';
 import { IStatsIndexerService } from '../services/StatsIndexerService';
 import { ControllerBase } from './ControllerBase';
 import { IControllerBase } from './IControllerBase';
+import { IGiantSquidService } from '../services/GiantSquidService';
 
 @injectable()
 export class DappsStakingController extends ControllerBase implements IControllerBase {
@@ -21,6 +22,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         @inject(ContainerTypes.FirebaseService) private _firebaseService: IFirebaseService,
         @inject(ContainerTypes.DappsStakingStatsService) private _statsService: IDappsStakingStatsService,
         @inject(ContainerTypes.DappRadarService) private _dappRadarService: IDappRadarService,
+        @inject(ContainerTypes.GiantSquidService) private _giantSquidService: IGiantSquidService,
     ) {
         super();
     }
@@ -106,9 +108,6 @@ export class DappsStakingController extends ControllerBase implements IControlle
             );
         });
 
-        /**
-         * @description Dapps staking TVL route v1.
-         */
         app.route('/api/v1/:network/dapps-staking/earned/:address').get(async (req: Request, res: Response) => {
             /*
                 #swagger.description = 'Retrieves earned staking rewards for dapps staking'
@@ -135,7 +134,21 @@ export class DappsStakingController extends ControllerBase implements IControlle
 
         app.route('/api/v1/:network/dapps-staking/dapps').get(async (req: Request, res: Response) => {
             /*
-                #swagger.description = 'Retrieves list of dapps registered for dapps staking'
+                #swagger.description = 'Retrieves list of dapps (full model) registered for dapps staking'
+                #swagger.tags = ['Dapps Staking']
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar, development',
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
+                }
+            */
+            res.json(await this._firebaseService.getDappsFull(req.params.network as NetworkType));
+        });
+
+        app.route('/api/v1/:network/dapps-staking/dappssimple').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retrieves list of dapps (basic info) registered for dapps staking'
                 #swagger.tags = ['Dapps Staking']
                 #swagger.parameters['network'] = {
                     in: 'path',
@@ -165,7 +178,11 @@ export class DappsStakingController extends ControllerBase implements IControlle
             */
 
             try {
-                const data = await this._firebaseService.getDapp(req.params.address, req.params.network as NetworkType);
+                const data = await this._firebaseService.getDapp(
+                    req.params.address,
+                    req.params.network as NetworkType,
+                    req.query.forEdit?.toString()?.toLowerCase() === 'true',
+                );
 
                 if (data) {
                     res.json(data);
@@ -180,8 +197,9 @@ export class DappsStakingController extends ControllerBase implements IControlle
         app.route('/api/v1/:network/dapps-staking/register').post(
             body('name').notEmpty().trim().escape(),
             body('description').notEmpty().trim().escape(),
+            body('shortDescription').optional().trim().escape(),
             body('url').isURL(),
-            body('license').notEmpty().trim().isIn(['GPL-3.0', 'MIT', 'GNU']),
+            body('license').optional().trim().escape(),
             body('address').notEmpty().trim().escape(),
             body('iconFile').notEmpty(),
             body('iconFile.name').notEmpty().isString(),
@@ -211,7 +229,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
             ]),
             body('communities.*.handle').notEmpty().isURL(),
             body('contractType').notEmpty().isIn(['wasm+evm', 'wasm', 'evm']),
-            body('mainCategory').notEmpty().isIn(['defi', 'nft', 'tooling', 'utility', 'others']),
+            body('mainCategory').notEmpty().isIn(['defi', 'nft', 'tooling', 'utility', 'others', 'unstoppable-grants']),
             async (req: Request, res: Response) => {
                 /*
                     #swagger.description = 'Registers a new dapp'
@@ -266,13 +284,17 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     enum: ['7 eras', '30 eras', '90 eras', 'all']
                 }
             */
-                res.json(
-                    await this._statsService.getContractStatistics(
-                        req.params.network as NetworkType,
-                        req.params.contractAddress,
-                        req.params.period as PeriodTypeEra,
-                    ),
-                );
+                try {
+                    res.json(
+                        await this._statsService.getContractStatistics(
+                            req.params.network as NetworkType,
+                            req.params.contractAddress,
+                            req.params.period as PeriodTypeEra,
+                        ),
+                    );
+                } catch (err) {
+                    this.handleError(res, err as Error);
+                }
             },
         );
 
@@ -299,19 +321,24 @@ export class DappsStakingController extends ControllerBase implements IControlle
                     enum: ['7 days', '30 days', '90 days', '1 year']
                 }
             */
-                res.json(
-                    await this._statsService.getUserEvents(
-                        req.params.network as NetworkType,
-                        req.params.userAddress,
-                        req.params.period as PeriodType,
-                    ),
-                );
+                // this._giantSquidService.getUserCalls(req.params.network as NetworkType, req.params.userAddress, req.params.period as PeriodType);
+                try {
+                    res.json(
+                        await this._giantSquidService.getUserCalls(
+                            req.params.network as NetworkType,
+                            req.params.userAddress,
+                            req.params.period as PeriodType,
+                        ),
+                    );
+                } catch (err) {
+                    this.handleError(res, err as Error);
+                }
             },
         );
 
         app.route('/api/v1/:network/dapps-staking/stats/transactions').get(async (req: Request, res: Response) => {
             /*
-                #swagger.tags = ['Dapps Staking']
+                #swagger.ignore = true
             */
             try {
                 res.json(
@@ -328,7 +355,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
 
         app.route('/api/v1/:network/dapps-staking/stats/uaw').get(async (req: Request, res: Response) => {
             /*
-                #swagger.tags = ['Dapps Staking']
+                #swagger.ignore = true
             */
             try {
                 res.json(
@@ -345,7 +372,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
 
         app.route('/api/v1/:network/dapps-staking/stats/nexteraeta').get(async (req: Request, res: Response) => {
             /*
-                #swagger.tags = ['Dapps Staking']
+                #swagger.ignore = true
             */
             try {
                 const network = req.params.network as NetworkType;
@@ -361,7 +388,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
 
         app.route('/api/v1/:network/dapps-staking/stats/aggregated').get(async (req: Request, res: Response) => {
             /*
-                #swagger.tags = ['Dapps Staking']
+                #swagger.ignore = true
             */
             try {
                 res.json(

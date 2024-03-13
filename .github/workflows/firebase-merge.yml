@@ -21,7 +21,7 @@ jobs:
           channelId: live
           projectId: astar-token-api
       - name: Deploy Firebase Function
-        uses: w9jds/firebase-action@master
+        uses: w9jds/firebase-action@v13.0.3
         with:
           args: deploy --only functions --debug
         env:

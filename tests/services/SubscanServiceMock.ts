@@ -1,3 +1,5 @@
+// TODO remove use of any
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import { NetworkType } from '../../src/networks';
 import { ISubscanService, QueryPath } from '../../src/services/SubscanService';
 import { transferExtrinsicData, transferExtrinsicsData } from '../mock/TxQueryService';

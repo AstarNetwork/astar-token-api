@@ -14,7 +14,8 @@
         "experimentalDecorators": true,
         // we set this to false because of TypeORM entity decorators
         "strictPropertyInitialization": false,
-        "removeComments": true
+        "removeComments": true,
+        "typeRoots": ["./src/@types", "./node_modules/@types"]
     },
     "include": ["src/**/*", "swagger.js"],
     "exclude": ["node_modules", "build", "dist", "scripts", "tests"]

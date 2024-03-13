@@ -20,4 +20,5 @@ app.use(cors());
 const controllers: IControllerBase[] = container.getAll<IControllerBase>(ContainerTypes.Controller);
 controllers.forEach((controller) => controller.register(app));
 
+functions.runWith({ memory: '2GB' });
 exports.app = functions.https.onRequest(app);

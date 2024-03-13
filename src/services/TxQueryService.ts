@@ -13,7 +13,7 @@ import { networks } from './../networks';
 import { ISubscanService } from './SubscanService';
 import { ContractPromise } from '@polkadot/api-contract';
 import ABI_XVM_ERC20 from '../modules/tx-query/abi/XVM_ERC20_TRANSFER.json';
-import { ethers } from 'ethers';
+import { formatEther } from 'ethers';
 import { encodeAddress } from '@polkadot/util-crypto';
 
 export const ASTAR_SS58_FORMAT = 5;
@@ -68,7 +68,7 @@ export class TxQueryService implements ITxQueryService {
                     const { account_id, params, success } = data;
                     const toPublicKey = params.find((it: any) => it.name === 'dest').value.Id as string;
                     const amountDecimals = params.find((it: any) => it.name === 'value').value as string;
-                    const amount = String(Number(ethers.utils.formatEther(amountDecimals)));
+                    const amount = String(Number(formatEther(amountDecimals)));
                     const to = encodeAddress(toPublicKey, ASTAR_SS58_FORMAT);
                     return { from: account_id, to, symbol: nativeToken, amount, isSuccess: success, timestamp };
                 }

@@ -4,6 +4,7 @@ import { IApiFactory } from '../client/ApiFactory';
 import { ContainerTypes } from '../containertypes';
 import { NetworkType } from '../networks';
 import { PeriodType, PeriodTypeEra, ServiceBase } from './ServiceBase';
+import { UserEvent } from '../models/DappStaking';
 
 const API_URLS = {
     astar: 'https://api.subquery.network/sq/bobo-k2/astar-dapp-staking-v2',
@@ -22,13 +23,6 @@ interface ContractStatsResponse {
             nodes: ContractStats[];
         };
     };
-}
-
-interface UserEvent {
-    timestamp: number;
-    contractAddress: number;
-    transaction: string;
-    amount: string;
 }
 
 interface UserEventsResponse {

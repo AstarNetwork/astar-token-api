@@ -3,6 +3,7 @@ export const ContainerTypes = {
     StatsService: 'StatsService',
     Api: 'Api',
     ApiFactory: 'ApiFactory',
+    DappsStakingEvents: 'DappsStakingEvents',
     DappsStakingService: 'DappsStakingService',
     StatsIndexerService: 'StatsIndexerService',
     FirebaseService: 'FirebaseService',
@@ -13,4 +14,6 @@ export const ContainerTypes = {
     MonthlyActiveWalletsService: 'MonthlyActiveWalletsService',
     DappsStakingStatsService: 'DappsStakingStatsService',
     DappRadarService: 'DappRadarService',
+    GiantSquidService: 'GiantSquidService',
+    BluezNftService: 'BluezNftService',
 };

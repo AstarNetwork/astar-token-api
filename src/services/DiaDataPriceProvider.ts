@@ -9,7 +9,7 @@ import { IPriceProvider } from './IPriceProvider';
 export class DiaDataPriceProvider implements IPriceProvider {
     public static BaseUrl = 'https://api.diadata.org/v1/quotation';
 
-    public async getUsdPrice(symbol: string): Promise<number> {
+    public async getPrice(symbol: string): Promise<number> {
         const url = `${DiaDataPriceProvider.BaseUrl}/${symbol}`;
         const result = await axios.get(url);
 

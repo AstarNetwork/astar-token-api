@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ethers } from 'ethers';
+import { formatUnits } from 'ethers';
 import { inject, injectable } from 'inversify';
 import { IApiFactory } from '../client/ApiFactory';
 import { ContainerTypes } from '../containertypes';
@@ -193,7 +193,7 @@ export class StatsIndexerService extends ServiceBase implements IStatsIndexerSer
                 lastBorrow[0] = lastTvl[0];
             }
 
-            // match tvl and borrow by date and increase tvl by borrow ammount
+            // match tvl and borrow by date and increase tvl by borrow amount
             // todo optimize
             for (let i = 0; i < tvl.length; i++) {
                 for (let j = 0; j < borrows.length; j++) {
@@ -219,7 +219,7 @@ export class StatsIndexerService extends ServiceBase implements IStatsIndexerSer
         ]);
 
         const decimals = await api.getChainDecimals();
-        const totalStaked = Number(ethers.utils.formatUnits(tvl.toString(), decimals));
+        const totalStaked = Number(formatUnits(tvl.toString(), decimals));
         const price = priceResult.data[network].usd;
         const utcNow = getDateUTC(new Date());
 

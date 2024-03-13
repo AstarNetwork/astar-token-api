@@ -7,11 +7,15 @@ export class FirebaseServiceMock implements IFirebaseService {
         return [];
     }
 
+    public async getDappsFull(network: NetworkType): Promise<DappItem[]> {
+        return [];
+    }
+
     public async registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem> {
         throw new Error('Method not implemented.');
     }
 
-    public async getDapp(address: string, network: NetworkType): Promise<NewDappItem | undefined> {
+    public async getDapp(address: string, network: NetworkType, forEdit = false): Promise<NewDappItem | undefined> {
         throw new Error('Method not implemented.');
     }
 
@@ -21,5 +25,9 @@ export class FirebaseServiceMock implements IFirebaseService {
 
     public async readCache<T>(key: string): Promise<Cache<T> | undefined> {
         throw new Error('Method not implemented.');
+    }
+
+    public getEnvVariable(keyPart1: string, keyPart2: string): string {
+        return '';
     }
 }

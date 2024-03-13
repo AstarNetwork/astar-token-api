@@ -14,6 +14,7 @@ import { IAstarApi } from './client/BaseApi';
 import { networks } from './networks';
 import { ApiFactory, IApiFactory } from './client/ApiFactory';
 import { DappsStakingController } from './controllers/DappsStakingController';
+import { DappsStakingV3Controller } from './controllers/DappsStakingV3Controller';
 import { IDappsStakingService, DappsStakingService } from './services/DappsStakingService';
 import { IStatsIndexerService, StatsIndexerService } from './services/StatsIndexerService';
 import { NodeController } from './controllers/NodeController';
@@ -25,10 +26,24 @@ import { DiaDataPriceProvider } from './services/DiaDataPriceProvider';
 import { CoinGeckoPriceProvider } from './services/CoinGeckoPriceProvider';
 import { PriceProviderWithFailover } from './services/PriceProviderWithFailover';
 import { DappsStakingService2 } from './services/DappsStakingService2';
+import { DappsStakingEvents, IDappsStakingEvents } from './services/DappsStakingEvents';
 import { IMonthlyActiveWalletsService, MonthlyActiveWalletsService } from './services/MonthlyActiveWalletsService';
 import { MonthlyActiveWalletsController } from './controllers/MonthlyActiveWalletsController';
 import { DappsStakingStatsService, IDappsStakingStatsService } from './services/DappsStakingStatsService';
 import { IDappRadarService, DappRadarService } from './services/DappRadarService';
+import { GiantSquidService, IGiantSquidService } from './services/GiantSquidService';
+import {
+    BatchCallParser,
+    BondAndStakeParser,
+    CallNameMapping,
+    ICallParser,
+    NominationTransferParser,
+    UnbondAndUnstakeParser,
+    WithdrawFromUnbondedParser,
+    WithdrawParser,
+} from './services/GiantSquid';
+import { BluezNftService, INftService } from './services/NftService';
+import { NftController } from './controllers/NftController';
 
 const container = new Container();
 
@@ -58,6 +73,8 @@ container.bind<IApiFactory>(ContainerTypes.ApiFactory).to(ApiFactory).inSingleto
 // services registration
 container.bind<IStatsService>(ContainerTypes.StatsService).to(StatsService).inSingletonScope();
 
+container.bind<IDappsStakingEvents>(ContainerTypes.DappsStakingEvents).to(DappsStakingEvents).inSingletonScope();
+
 container
     .bind<IDappsStakingService>(ContainerTypes.DappsStakingService)
     .to(DappsStakingService2)
@@ -86,7 +103,8 @@ container
 
 container.bind<IStatsIndexerService>(ContainerTypes.StatsIndexerService).to(StatsIndexerService).inSingletonScope();
 container.bind<IFirebaseService>(ContainerTypes.FirebaseService).to(FirebaseService).inSingletonScope();
-container.bind<IPriceProvider>(ContainerTypes.PriceProvider).to(DiaDataPriceProvider).inSingletonScope();
+// Disabled because results from DIA are not reliable
+//container.bind<IPriceProvider>(ContainerTypes.PriceProvider).to(DiaDataPriceProvider).inSingletonScope();
 container.bind<IPriceProvider>(ContainerTypes.PriceProvider).to(CoinGeckoPriceProvider).inSingletonScope();
 container
     .bind<IPriceProvider>(ContainerTypes.PriceProviderWithFailover)
@@ -103,12 +121,27 @@ container
     .to(DappsStakingStatsService)
     .inRequestScope();
 container.bind<IDappRadarService>(ContainerTypes.DappRadarService).to(DappRadarService).inRequestScope();
+container.bind<IGiantSquidService>(ContainerTypes.GiantSquidService).to(GiantSquidService).inRequestScope();
+container.bind<INftService>(ContainerTypes.BluezNftService).to(BluezNftService).inRequestScope();
+
+// Giant squid parsers
+container.bind<ICallParser>(CallNameMapping.bond_and_stake).to(BondAndStakeParser).inSingletonScope();
+container.bind<ICallParser>(CallNameMapping.unbond_and_unstake).to(UnbondAndUnstakeParser).inSingletonScope();
+container.bind<ICallParser>(CallNameMapping.nomination_transfer).to(NominationTransferParser).inSingletonScope();
+container.bind<ICallParser>(CallNameMapping.withdraw_unbonded).to(WithdrawParser).inSingletonScope();
+container
+    .bind<ICallParser>(CallNameMapping.withdraw_from_unregistered)
+    .to(WithdrawFromUnbondedParser)
+    .inSingletonScope();
+container.bind<ICallParser>(CallNameMapping.batch).to(BatchCallParser).inSingletonScope();
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(DappsStakingController);
+container.bind<IControllerBase>(ContainerTypes.Controller).to(DappsStakingV3Controller);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(NodeController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TxQueryController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(MonthlyActiveWalletsController);
+container.bind<IControllerBase>(ContainerTypes.Controller).to(NftController);
 
 export default container;

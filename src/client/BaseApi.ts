@@ -1,7 +1,11 @@
+// TODO remove use of any
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import { ApiPromise, WsProvider } from '@polkadot/api';
-import { isEthereumAddress, checkAddress, decodeAddress, encodeAddress } from '@polkadot/util-crypto';
+import { isEthereumAddress, checkAddress, decodeAddress, encodeAddress, evmToAddress } from '@polkadot/util-crypto';
+import { ASTAR_SS58_FORMAT } from '../services/TxQueryService';
 import { hexToU8a, isHex } from '@polkadot/util';
-import { u32, u128, Option, Struct, Enum } from '@polkadot/types';
+import { u32, u128, Option, Struct, Enum, Compact, bool, StorageKey } from '@polkadot/types';
+import { AnyTuple, Codec } from '@polkadot/types/types';
 import { Header, AccountId, DispatchError, Call } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { ISubmittableResult, ITuple } from '@polkadot/types/types';
@@ -12,8 +16,58 @@ import { networks } from '../networks';
 import { EraRewardAndStake } from '../types/DappsStaking';
 import { AccountData } from '../models/AccountData';
 
+declare global {
+    interface BigInt {
+        toJSON: () => string;
+    }
+}
+BigInt.prototype.toJSON = function () {
+    return this.toString();
+};
+
 export interface DappInfo extends Struct {
     developer: AccountId;
+    state: string;
+}
+
+export interface DappInfoV3 extends Struct {
+    owner: AccountId;
+    state: string;
+}
+
+export interface PalletDappStakingV3ProtocolState extends Struct {
+    era: Compact<u32>;
+    nextEraStart: Compact<u32>;
+    periodInfo: PalletDappStakingV3PeriodInfo;
+    maintenance: bool;
+}
+
+interface PalletDappStakingV3PeriodInfo extends Struct {
+    number: Compact<u32>;
+    subperiod: PalletDappStakingV3PeriodType;
+    nextSubperiodStartEra: Compact<u32>;
+}
+
+interface PalletDappStakingV3PeriodType extends Enum {
+    isVoting: boolean;
+    isBuildAndEarn: boolean;
+    type: 'Voting' | 'BuildAndEarn';
+}
+
+export interface PalletDappStakingV3SingularStakingInfo extends Struct {
+    staked: PalletDappStakingV3StakeAmount;
+    loyalStaker: bool;
+}
+
+export interface PalletDappStakingV3StakeAmount extends Struct {
+    voting: Compact<u128>;
+    buildAndEarn: Compact<u128>;
+    era: Compact<u32>;
+    period: Compact<u32>;
+}
+
+export interface RegisteredDapp {
+    developer: string;
     state: string;
 }
 
@@ -35,9 +89,10 @@ export interface IAstarApi {
     sendTransaction(transaction: Transaction): Promise<string>;
     getCallFromHex(callHex: string): Promise<Call>;
     getRegisterDappPayload(dappAddress: string, developerAddress: string): Promise<string>;
-    getRegisteredDapp(dappAddress: string): Promise<DappInfo | undefined>;
+    getRegisteredDapp(dappAddress: string): Promise<RegisteredDapp | undefined>;
     getCurrentEra(): Promise<number>;
     getApiPromise(): Promise<ApiPromise>;
+    getStakerInfo(address: string): Promise<bigint>;
 }
 
 export class BaseApi implements IAstarApi {
@@ -68,7 +123,7 @@ export class BaseApi implements IAstarApi {
     public async getAprCalculationData(): Promise<AprCalculationData> {
         await this.ensureConnection();
         const results = await Promise.all([
-            this._api.consts.blockReward.rewardAmount,
+            this._api.consts.blockReward.maxBlockRewardAmount,
             this._api.query.timestamp.now(),
             this._api.rpc.chain.getHeader(),
             this._api.consts.dappsStaking.developerRewardPercentage.toHuman(),
@@ -150,18 +205,70 @@ export class BaseApi implements IAstarApi {
 
     public async getRegisterDappPayload(dappAddress: string, developerAddress: string): Promise<string> {
         await this.ensureConnection();
-        const payload = this._api.tx.dappsStaking.register(developerAddress, this.getAddressEnum(dappAddress)).toHex();
+        const payload = this._api.tx[this.isStakingV3() ? 'dappStaking' : 'dappsStaking']
+            .register(developerAddress, this.getAddressEnum(dappAddress))
+            .toHex();
 
         return payload;
     }
 
-    public async getRegisteredDapp(dappAddress: string): Promise<DappInfo | undefined> {
+    public async getRegisteredDapp(dappAddress: string): Promise<RegisteredDapp | undefined> {
         await this.ensureConnection();
-        const dapp = await this._api.query.dappsStaking.registeredDapps<Option<DappInfo>>(
-            this.getAddressEnum(dappAddress),
-        );
+        if (this.isStakingV3()) {
+            const dapp = await this._api.query.dappStaking.integratedDApps<Option<DappInfoV3>>(
+                this.getAddressEnum(dappAddress),
+            );
+            const dappUnwrapped = dapp.unwrapOrDefault();
 
-        return dapp.unwrapOrDefault();
+            // All dApps returned by th query above are registered.
+            return { developer: dappUnwrapped.owner.toString(), state: 'Registered' };
+        } else {
+            // TODO remove after Astar deployment.
+            const dapp = await this._api.query.dappsStaking.registeredDapps<Option<DappInfo>>(
+                this.getAddressEnum(dappAddress),
+            );
+            const dappUnwrapped = dapp.unwrapOrDefault();
+
+            return { developer: dappUnwrapped.developer.toString(), state: dappUnwrapped.state.toString() };
+        }
+    }
+
+    public async getStakerInfo(address: string): Promise<bigint> {
+        await this.ensureConnection();
+        let ss558Address = address;
+
+        if (isEthereumAddress(address)) {
+            ss558Address = evmToAddress(address, ASTAR_SS58_FORMAT);
+
+            if (Object.prototype.hasOwnProperty.call(this._api.query, 'unifiedAccounts')) {
+                const unifiedAccount = await this._api.query.unifiedAccounts.evmToNative<AccountId>(address);
+                if (!unifiedAccount.isEmpty) {
+                    ss558Address = unifiedAccount.toString();
+                }
+            }
+        }
+
+        const [state, result] = await Promise.all([
+            this._api.query.dappStaking.activeProtocolState<PalletDappStakingV3ProtocolState>(),
+            this._api.query.dappStaking.stakerInfo.entries(ss558Address),
+        ]);
+        const period = state.periodInfo.number.toNumber();
+
+        const total = result.reduce((sum, [key, value]) => {
+            const singularStakingInfo = <Option<PalletDappStakingV3SingularStakingInfo>>value;
+            const unwrapped = singularStakingInfo.unwrapOrDefault();
+
+            if (unwrapped.staked.period.toNumber() !== period) {
+                return sum;
+            }
+
+            const buildAndEarn = unwrapped.staked.buildAndEarn.toBigInt();
+            const voting = unwrapped.staked.voting.toBigInt();
+
+            return sum + buildAndEarn + voting;
+        }, BigInt(0));
+
+        return total;
     }
 
     public async getCurrentEra(): Promise<number> {
@@ -250,5 +357,9 @@ export class BaseApi implements IAstarApi {
         } catch (error) {
             return false;
         }
+    }
+
+    private isStakingV3(): boolean {
+        return this._api.tx.hasOwnProperty('dappStaking');
     }
 }

@@ -7,9 +7,11 @@ import { TokenStats } from '../models/TokenStats';
 import { NetworkType } from '../networks';
 import { addressesToExclude } from './AddressesToExclude';
 import { AccountData } from '../models/AccountData';
+import { Guard } from '../guard';
 
 export interface IStatsService {
-    getTokenStats(network?: NetworkType): Promise<TokenStats>;
+    getTokenStats(network: NetworkType): Promise<TokenStats>;
+    getTotalSupply(network: NetworkType): Promise<number>;
 }
 
 @injectable()
@@ -22,10 +24,13 @@ export class StatsService implements IStatsService {
     /**
      * Calculates token circulation supply by substracting sum of all token holder accounts
      * not in circulation from total token supply.
-     * @param network Network (astar or shiden) to calculate token supply for.
+     * @param network NetworkType (astar or shiden) to calculate token supply for.
      * @returns Token statistics including total supply and circulating supply.
      */
-    public async getTokenStats(network = 'astar'): Promise<TokenStats> {
+    public async getTokenStats(network: NetworkType): Promise<TokenStats> {
+        Guard.ThrowIfUndefined(network, 'network');
+        this.throwIfNetworkIsNotSupported(network);
+
         try {
             const api = this._apiFactory.getApiInstance(network);
             const chainDecimals = await api.getChainDecimals();
@@ -46,6 +51,22 @@ export class StatsService implements IStatsService {
         }
     }
 
+    public async getTotalSupply(network: NetworkType): Promise<number> {
+        Guard.ThrowIfUndefined(network, 'network');
+        this.throwIfNetworkIsNotSupported(network);
+
+        try {
+            const api = this._apiFactory.getApiInstance(network);
+            const chainDecimals = await api.getChainDecimals();
+            const totalSupply = await api.getTotalSupply();
+
+            return this.formatBalance(totalSupply, chainDecimals);
+        } catch (e) {
+            console.error(e);
+            throw new Error('Unable to fetch token total supply from a node.');
+        }
+    }
+
     private getTotalBalanceToExclude(balances: AccountData[]): BN {
         const sum = balances
             .map((balance) => {
@@ -60,5 +81,11 @@ export class StatsService implements IStatsService {
         const result = formatBalance(balance, { withSi: false, forceUnit: '-', decimals: chainDecimals }).split('.')[0];
 
         return parseInt(result.replaceAll(',', ''));
+    }
+
+    private throwIfNetworkIsNotSupported(network: NetworkType): void {
+        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya' && network !== 'rocstar') {
+            throw new Error(`Network ${network} is not supported.`);
+        }
     }
 }

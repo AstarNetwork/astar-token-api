@@ -6,6 +6,7 @@ import { ContainerTypes } from '../containertypes';
 import { Guard } from '../guard';
 import { DappItem, FileInfo, NewDappItem } from '../models/Dapp';
 import { NetworkType } from '../networks';
+import { CollectionReference, DocumentData, Query } from 'firebase-admin/firestore';
 
 export interface Cache<T> {
     updatedAt?: number;
@@ -13,11 +14,13 @@ export interface Cache<T> {
 }
 
 export interface IFirebaseService {
+    getDappsFull(network: NetworkType): Promise<DappItem[]>;
     getDapps(network: NetworkType): Promise<DappItem[]>;
-    getDapp(address: string, network: NetworkType): Promise<NewDappItem | undefined>;
+    getDapp(address: string, network: NetworkType, forEdit: boolean): Promise<NewDappItem | undefined>;
     registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem>;
     updateCache<T>(key: string, item: T): Promise<void>;
     readCache<T>(key: string): Promise<Cache<T> | undefined>;
+    getEnvVariable(keyPart1: string, keyPart2: string): string;
 }
 
 @injectable()
@@ -27,59 +30,61 @@ export class FirebaseService implements IFirebaseService {
 
     constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory) {}
 
-    public async getDapps(network: NetworkType = 'astar'): Promise<DappItem[]> {
+    public async getDappsFull(network: NetworkType = 'astar'): Promise<DappItem[]> {
         this.initApp();
 
         const collectionKey = await this.getCollectionKey(network);
         const query = admin.firestore().collection(collectionKey);
-        const data = await query.orderBy('name').get();
 
-        const result: DappItem[] = [];
-        data.forEach((x) => {
-            const data = x.data() as DappItem;
-            result.push(data);
-        });
-
-        return result;
+        return await this.getDappsData(query);
     }
 
-    public async getDapp(address: string, network: NetworkType): Promise<NewDappItem | undefined> {
-        Guard.ThrowIfUndefined('address', address);
-
+    public async getDapps(network: NetworkType = 'astar'): Promise<DappItem[]> {
         this.initApp();
+
         const collectionKey = await this.getCollectionKey(network);
         const query = admin
             .firestore()
             .collection(collectionKey)
-            .orderBy('address')
-            .startAt(address.toUpperCase())
-            .endAt(address.toLowerCase + '\uf8ff');
+            .select('name', 'iconUrl', 'address', 'mainCategory', 'imagesUrl', 'shortDescription');
+
+        return this.getDappsData(query);
+    }
+
+    public async getDapp(address: string, network: NetworkType, forEdit = false): Promise<NewDappItem | undefined> {
+        Guard.ThrowIfUndefined('address', address);
+
+        this.initApp();
+        const collectionKey = await this.getCollectionKey(network);
+        // Fetch all addresses because Firebase search is case sensitive.
+        const query = admin.firestore().collection(collectionKey).select('address');
         const data = await query.get();
 
-        if (!data.empty) {
-            // TODO fix this and filter data on Firebase side.
-            // A problem here is that Firebase search is case sensitive and because of that
-            // there is no way to get dapp by address.
-            for (let i = 0; i < data.docs.length; i++) {
-                const dapp = data.docs[i].data() as NewDappItem;
+        const fbAddressData = data.docs.find((x) => x.data().address.toUpperCase() === address.toUpperCase());
+        if (fbAddressData) {
+            const fbAddress = fbAddressData.data().address;
+            const dapp = (
+                await admin.firestore().collection(collectionKey).doc(fbAddress).get()
+            ).data() as unknown as NewDappItem;
 
-                if (dapp.address.toLowerCase() === address.toLowerCase()) {
-                    const icon = await this.getFileInfo(dapp.iconUrl, collectionKey);
-                    if (icon) {
-                        dapp.iconFile = icon;
-                    }
-
-                    const images = dapp.imagesUrl
-                        ? await Promise.all(dapp.imagesUrl.map((x) => this.getFileInfo(x, collectionKey)))
-                        : [];
-                    dapp.images = images.filter((x) => x !== null) as FileInfo[];
-
-                    return dapp;
+            if (forEdit) {
+                const icon = await this.getFileInfo(dapp.iconUrl, collectionKey);
+                if (icon) {
+                    dapp.iconFile = icon;
                 }
+
+                const images = dapp.imagesUrl
+                    ? await Promise.all(dapp.imagesUrl.map((x) => this.getFileInfo(x, collectionKey)))
+                    : [];
+                dapp.images = images.filter((x) => x !== null) as FileInfo[];
             }
-        } else {
-            return undefined;
+
+            dapp.description = this.decode(dapp.description);
+            dapp.shortDescription = this.decode(dapp.shortDescription ?? '');
+            return dapp;
         }
+
+        return undefined;
     }
 
     public async registerDapp(dapp: NewDappItem, network: NetworkType): Promise<DappItem> {
@@ -109,10 +114,11 @@ export class FirebaseService implements IFirebaseService {
             imagesUrl: dapp.imagesUrl,
             developers: dapp.developers,
             description: dapp.description,
+            shortDescription: dapp.shortDescription ?? '',
             communities: dapp.communities,
             contractType: dapp.contractType,
             mainCategory: dapp.mainCategory,
-            license: dapp.license,
+            license: dapp.license ?? '',
             tags: dapp.tags,
         } as DappItem;
         await admin.firestore().collection(collectionKey).doc(dapp.address).set(firebasePayload);
@@ -144,6 +150,13 @@ export class FirebaseService implements IFirebaseService {
         } else {
             return undefined;
         }
+    }
+
+    public getEnvVariable(keyPart1: string, keyPart2: string): string {
+        Guard.ThrowIfUndefined('keyPart1', keyPart1);
+        Guard.ThrowIfUndefined('keyPart2', keyPart2);
+
+        return String(functions.config()[keyPart1][keyPart2]);
     }
 
     private async uploadImage(fileInfo: FileInfo, collectionKey: string, contractAddress: string): Promise<string> {
@@ -216,5 +229,22 @@ export class FirebaseService implements IFirebaseService {
      */
     private decode(data: string): string {
         return data.split('&#x2F;').join('/');
+    }
+
+    private async getDappsData(query: CollectionReference<DocumentData> | Query<DocumentData>): Promise<DappItem[]> {
+        const data = await query.orderBy('name').get();
+
+        const result: DappItem[] = [];
+        data.forEach((x) => {
+            const data = x.data() as DappItem;
+            data.creationTime = x.createTime.seconds;
+            if (data.description) {
+                data.description = this.decode(data.description);
+            }
+            data.shortDescription = this.decode(data.shortDescription ?? '');
+            result.push(data);
+        });
+
+        return result;
     }
 }

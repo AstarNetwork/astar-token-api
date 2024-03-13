@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import * as functions from 'firebase-functions';
 import { Dapp, Metric } from '../models/DappRadar';
 import { NetworkType } from '../networks';
@@ -44,12 +44,15 @@ enum DappRadarMetricType {
 
 @injectable()
 export class DappRadarService {
-    public static BaseUrl = 'https://api.dappradar.com/97c1ov0nxxr0jjh8/';
+    public static BaseUrl = 'https://apis.dappradar.com/v2/';
     readonly RESULTS_PER_PAGE = 50;
 
     constructor(@inject(ContainerTypes.FirebaseService) private firebase: IFirebaseService) {}
 
     public async getDapps(network: NetworkType): Promise<Dapp[]> {
+        Guard.ThrowIfUndefined('network', network);
+        this.ThrowIfNetworkNotSupported(network);
+
         const result: Dapp[] = [];
         let currentPage = 1;
 
@@ -60,9 +63,7 @@ export class DappRadarService {
             }/dapps?chain=${network.toLowerCase()}&page=${currentPage}&resultsPerPage=${this.RESULTS_PER_PAGE}`;
 
             try {
-                const response = await axios.get<ApiResponse<Dapp>>(url, {
-                    headers: { 'X-BLOBR-KEY': `${functions.config().dappradar.apikey}` },
-                });
+                const response = await axios.get<ApiResponse<Dapp>>(url, this.getOptions());
 
                 if (response.status !== 200 && !response.data.success) {
                     break;
@@ -118,6 +119,7 @@ export class DappRadarService {
         Guard.ThrowIfUndefined('dappName', dappName);
         Guard.ThrowIfUndefined('dappUrl', dappUrl);
         Guard.ThrowIfUndefined('network', network);
+        this.ThrowIfNetworkNotSupported(network);
 
         const dappId = await this.getDappId(dappName, dappUrl, network);
         return await this.getMetricHistory(dappId, network, DappRadarMetricType.Transactions);
@@ -127,12 +129,17 @@ export class DappRadarService {
         Guard.ThrowIfUndefined('dappName', dappName);
         Guard.ThrowIfUndefined('dappUrl', dappUrl);
         Guard.ThrowIfUndefined('network', network);
+        this.ThrowIfNetworkNotSupported(network);
 
         const dappId = await this.getDappId(dappName, dappUrl, network);
         return await this.getMetricHistory(dappId, network, DappRadarMetricType.UniqueActiveWallets);
     }
 
     public async getAggregatedData(network: NetworkType, period: string): Promise<AggregatedMetrics[]> {
+        Guard.ThrowIfUndefined('network', network);
+        Guard.ThrowIfUndefined('period', period);
+        this.ThrowIfNetworkNotSupported(network);
+
         const result: AggregatedMetrics[] = [];
         let currentPage = 1;
 
@@ -143,9 +150,7 @@ export class DappRadarService {
                 }/dapps/aggregated/metrics?chain=${network.toLowerCase()}&range=${period}&resultsPerPage=${
                     this.RESULTS_PER_PAGE
                 }&page=${currentPage}`;
-                const response = await axios.get<ApiResponse<AggregatedMetrics>>(url, {
-                    headers: { 'X-BLOBR-KEY': `${functions.config().dappradar.apikey}` },
-                });
+                const response = await axios.get<ApiResponse<AggregatedMetrics>>(url, this.getOptions());
 
                 if (response.data.success) {
                     // Add url to result.
@@ -182,9 +187,7 @@ export class DappRadarService {
 
         if (dappId) {
             const url = `${DappRadarService.BaseUrl}/dapps/${dappId}/history/${metric}?chain=${network.toLowerCase()}`;
-            const response = await axios.get<ApiResponse<Metric>>(url, {
-                headers: { 'X-BLOBR-KEY': `${functions.config().dappradar.apikey}` },
-            });
+            const response = await axios.get<ApiResponse<Metric>>(url, this.getOptions());
 
             if (response.data.success) {
                 result.push(...response.data.results);
@@ -222,5 +225,22 @@ export class DappRadarService {
 
     private getCacheKey(network: NetworkType): string {
         return `${network}_dapps`;
+    }
+
+    private ThrowIfNetworkNotSupported(network: NetworkType): void {
+        if (network !== 'astar' && network !== 'shiden') {
+            throw new Error(`Network ${network} is not supported.`);
+        }
+    }
+
+    public getOptions(): AxiosRequestConfig {
+        // dappradar.apikey is deprecated, use dappradar.apikey2 instead.
+        const apiKey = this.firebase.getEnvVariable('dappradar', 'apikey2');
+        const options: AxiosRequestConfig = {};
+        if (apiKey) {
+            options.headers = { 'x-api-key': apiKey };
+        }
+
+        return options;
     }
 }

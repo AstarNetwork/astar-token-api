@@ -1,9 +1,8 @@
 import { TransferDetails } from './../../../models/TxQuery';
-import { ethers } from 'ethers';
+import { formatEther, formatUnits } from 'ethers';
 import Web3 from 'web3';
 import abiDecoder from 'abi-decoder';
 import ABI from '../abi/ERC20.json';
-import { AbiItem } from 'web3-utils';
 import { networks } from '../../../networks';
 
 export const createWeb3Instance = (endpoint: string): Web3 => {
@@ -23,29 +22,29 @@ export const fetchEvmTransferDetails = async ({
         web3.eth.getChainId(),
     ]);
     const isNativeToken = tx.input === '0x';
-    const blockNumber = tx.blockNumber as number;
+    const blockNumber = (tx.blockNumber ?? -1) as number;
     const isSuccess = blockNumber > 0;
     const block = await web3.eth.getBlock(blockNumber);
-    const timestamp = block && (block.timestamp as number);
+    const timestamp = block && Number(block.timestamp);
     const from = receipt.from;
     if (isNativeToken) {
-        const amount = ethers.utils.formatEther(tx.value as string);
+        const amount = formatEther(tx.value as string);
         const network = Object.values(networks).find((it) => it.evmId === String(chainId));
         const symbol = network?.token || '';
         const to = tx.to as string;
         return { from, to, symbol, amount, isSuccess, timestamp };
     } else {
-        const contract = new web3.eth.Contract(ABI as AbiItem[], tx.to as string);
+        const contract = new web3.eth.Contract(ABI, tx.to as string);
         abiDecoder.addABI(ABI);
         const from = receipt.from;
         const [symbol, decimals, txInput] = await Promise.all([
-            contract.methods.symbol().call(),
+            contract.methods.symbol().call() as unknown as string,
             contract.methods.decimals().call(),
             abiDecoder.decodeMethod(tx.input),
         ]);
         const to = txInput.params[0].value;
         const amt = txInput.params[1].value;
-        const amount = ethers.utils.formatUnits(amt as string, decimals);
+        const amount = formatUnits(amt as string, decimals as unknown as number);
         return { from, to, symbol, amount, isSuccess, timestamp };
     }
 };

@@ -3,7 +3,7 @@
   "info": {
     "version": "1.0.1",
     "title": "Astar token statistics API",
-    "description": "Provides network statistic information."
+    "description": "Provides Astar networks statistic information."
   },
   "host": "api.astar.network",
   "basePath": "/",
@@ -12,6 +12,16 @@
     "http"
   ],
   "paths": {
+    "/api/token/stats": {
+      "get": {
+        "description": "Test endpoint, returns token stats for Astar Network",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/token/price/{symbol}": {
       "get": {
         "tags": [
@@ -66,12 +76,68 @@
         }
       }
     },
+    "/api/{network}/token/circulation": {
+      "get": {
+        "tags": [
+          "Token"
+        ],
+        "description": "Retrieves a token circulation supply for a given network.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/{network}/token/circulation": {
       "get": {
         "tags": [
           "Token"
         ],
         "description": "Retrieves token circulation for a given network.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/token/supply": {
+      "get": {
+        "tags": [
+          "Token"
+        ],
+        "description": "Retrieves a token total supply for a given network.",
         "parameters": [
           {
             "name": "network",
@@ -341,7 +407,35 @@
         "tags": [
           "Dapps Staking"
         ],
-        "description": "Retrieves list of dapps registered for dapps staking",
+        "description": "Retrieves list of dapps (full model) registered for dapps staking",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar, development",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya",
+              "rocstar"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/{network}/dapps-staking/dappssimple": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves list of dapps (basic info) registered for dapps staking",
         "parameters": [
           {
             "name": "network",
@@ -390,6 +484,11 @@
             "required": true,
             "type": "string",
             "description": "The dapp address"
+          },
+          {
+            "name": "forEdit",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
@@ -523,103 +622,550 @@
         }
       }
     },
-    "/api/v1/{network}/dapps-staking/stats/transactions": {
+    "/api/v3/{network}/dapps-staking/tvl/{period}": {
       "get": {
         "tags": [
           "Dapps Staking"
         ],
-        "description": "",
+        "description": "Retrieves dapps staking TVL for a given network and period.",
         "parameters": [
           {
             "name": "network",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "dappName",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "dappUrl",
-            "in": "query",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/v1/{network}/dapps-staking/stats/uaw": {
-      "get": {
-        "tags": [
-          "Dapps Staking"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "network",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "dappName",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "dappUrl",
-            "in": "query",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/v1/{network}/dapps-staking/stats/nexteraeta": {
-      "get": {
-        "tags": [
-          "Dapps Staking"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "network",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/v1/{network}/dapps-staking/stats/aggregated": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "network",
-            "in": "path",
-            "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
           },
           {
             "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year",
+            "enum": [
+              "1 day",
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/stakers-total/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking Total Value Staked and Total Number of Unique Stakers for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year",
+            "enum": [
+              "1 day",
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/lockers-total/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking Total Value Locked and Total Number of Unique Lockers for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year",
+            "enum": [
+              "1 day",
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/lockers-and-stakers-total/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking Total Value Locked & Staked and Total Number of Unique Lockers & Stakers for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year",
+            "enum": [
+              "1 day",
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/stakerscount/{contractAddress}/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking stakers count for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "contractAddress",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Contract address to get stats for"
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year",
+            "enum": [
+              "1 day",
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/stakerslist/{contractAddress}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking stakers list for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "contractAddress",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Contract address to get stats for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/stakerscount-total/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves total stakers count for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year",
+            "enum": [
+              "1 day",
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/chaindapps": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves list of dapps (basic info) registered for dapps staking",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/stake-info/{address}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves the amount of stake of participant",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Participant address to get stats for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/stats/dapp/{contractAddress}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves raw stats of dapps staking events with types for a given smart contract address.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar"
+            ]
+          },
+          {
+            "name": "contractAddress",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Smart Contract address to get stats for"
+          },
+          {
+            "name": "startDate",
             "in": "query",
-            "type": "string"
+            "description": "Start date for filtering the staking events (inclusive). Format: YYYY-MM-DD",
+            "required": true,
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "End date for filtering the staking events (inclusive). Format: YYYY-MM-DD",
+            "required": true,
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of records to retrieve per page. Defaults to 100 if not provided.",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "default": 100
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Number of records to skip for pagination. Defaults to 0 if not provided.",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/stats/aggregated/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves aggregated stats of dapps staking events for a given period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar"
+            ]
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 7 days 30 days, 90 days, 1 year",
+            "enum": [
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/rewards/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking rewards for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year",
+            "enum": [
+              "1 day",
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
+          },
+          {
+            "name": "transaction",
+            "in": "query",
+            "description": "The Reward Event transaction type. Supported values: Reward, BonusReward, DAppReward",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "Reward",
+              "BonusReward",
+              "DAppReward"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v3/{network}/dapps-staking/rewards-aggregated/{address}/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retrieves dapps staking rewards for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "User address or contract address who received rewards"
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The period type. Supported values: 1 day, 7 days, 30 days, 90 days, 1 year",
+            "enum": [
+              "1 day",
+              "7 days",
+              "30 days",
+              "90 days",
+              "1 year"
+            ]
           }
         ],
         "responses": {
