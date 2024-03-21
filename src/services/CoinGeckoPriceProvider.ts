@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { inject, injectable } from 'inversify';
-import { IPriceProvider } from './IPriceProvider';
+import { IPriceProvider, TokenInfo } from './IPriceProvider';
 import { ContainerTypes } from '../containertypes';
 import { IFirebaseService } from './FirebaseService';
 
@@ -28,6 +28,15 @@ export class CoinGeckoPriceProvider implements IPriceProvider {
         }
 
         return 0;
+    }
+
+    public async getPriceWithTimestamp(symbol: string, currency: string | undefined): Promise<TokenInfo>{
+        const price = await this.getPrice(symbol, currency);
+
+        return {
+            price,
+            lastUpdated: Date.now(),
+        };
     }
 
     private async getTokenId(symbol: string): Promise<string | undefined> {
