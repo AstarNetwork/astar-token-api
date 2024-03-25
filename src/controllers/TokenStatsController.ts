@@ -66,7 +66,8 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 const currency = req.query.currency as string | undefined;
                 res.json(await this._priceProvider.getPrice(req.params.symbol, currency));
             } catch (err) {
-                this.handleError(res, err as Error);
+                // For the sake of backward compatibility
+                res.json(0);
             }
         });
 

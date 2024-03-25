@@ -24,7 +24,6 @@ export class CacheService<T> {
 
     public setItem(key: string, item: T): void {
         Guard.ThrowIfUndefined('key', key);
-        Guard.ThrowIfUndefined('item', item);
 
         this.cache.set(key, {
             data: item,
