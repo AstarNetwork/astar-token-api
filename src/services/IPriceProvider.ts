@@ -1,8 +1,7 @@
 export type TokenInfo = {
     price: number;
     lastUpdated: number;
-}
-
+};
 
 /**
  * Definition of provider for access token price.

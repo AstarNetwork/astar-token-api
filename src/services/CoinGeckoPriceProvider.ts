@@ -30,7 +30,7 @@ export class CoinGeckoPriceProvider implements IPriceProvider {
         return 0;
     }
 
-    public async getPriceWithTimestamp(symbol: string, currency: string | undefined): Promise<TokenInfo>{
+    public async getPriceWithTimestamp(symbol: string, currency: string | undefined): Promise<TokenInfo> {
         const price = await this.getPrice(symbol, currency);
 
         return {
