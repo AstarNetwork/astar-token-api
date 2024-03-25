@@ -10,7 +10,7 @@ export class CacheService<T> {
 
     constructor(private cachedItemValidityTimeMs: number = 60000) {}
 
-    public getItem(key: string): CacheItem<T> | undefined{
+    public getItem(key: string): CacheItem<T> | undefined {
         Guard.ThrowIfUndefined('key', key);
 
         const cacheItem = this.cache.get(key);
@@ -24,7 +24,6 @@ export class CacheService<T> {
 
     public setItem(key: string, item: T): void {
         Guard.ThrowIfUndefined('key', key);
-        Guard.ThrowIfUndefined('item', item);
 
         this.cache.set(key, {
             data: item,
