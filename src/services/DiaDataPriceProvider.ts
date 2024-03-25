@@ -19,4 +19,13 @@ export class DiaDataPriceProvider implements IPriceProvider {
 
         return 0;
     }
+
+    public async getPriceWithTimestamp(symbol: string): Promise<{ price: number; lastUpdated: number }> {
+        const price = await this.getPrice(symbol);
+
+        return {
+            price,
+            lastUpdated: Date.now(),
+        };
+    }
 }

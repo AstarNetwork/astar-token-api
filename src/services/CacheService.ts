@@ -10,7 +10,7 @@ export class CacheService<T> {
 
     constructor(private cachedItemValidityTimeMs: number = 60000) {}
 
-    public getItem(key: string): T | undefined {
+    public getItem(key: string): CacheItem<T> | undefined{
         Guard.ThrowIfUndefined('key', key);
 
         const cacheItem = this.cache.get(key);
@@ -19,12 +19,7 @@ export class CacheService<T> {
             return undefined;
         }
 
-        if (this.isExpired(cacheItem)) {
-            this.cache.delete(key);
-            return undefined;
-        }
-
-        return cacheItem.data;
+        return cacheItem;
     }
 
     public setItem(key: string, item: T): void {
@@ -37,7 +32,7 @@ export class CacheService<T> {
         });
     }
 
-    private isExpired(cacheItem: CacheItem<T>): boolean {
+    public isExpired(cacheItem: CacheItem<T>): boolean {
         return cacheItem.updatedAt + this.cachedItemValidityTimeMs < Date.now();
     }
 }
