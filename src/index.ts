@@ -22,3 +22,5 @@ controllers.forEach((controller) => controller.register(app));
 
 functions.runWith({ memory: '2GB' });
 exports.app = functions.https.onRequest(app);
+
+export default app;
