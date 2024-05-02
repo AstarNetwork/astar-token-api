@@ -5,7 +5,9 @@ import { Response } from 'express';
 export class ControllerBase {
     protected handleError(res: Response, err: Error) {
         const ERROR_STATUS = 500;
-        res.status(ERROR_STATUS).send(err.message);
+        res.status(ERROR_STATUS).json({
+            message: err.message,
+        });
     }
 
     protected handleNotFound(res: Response) {
