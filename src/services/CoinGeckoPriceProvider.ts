@@ -23,7 +23,7 @@ export class CoinGeckoPriceProvider implements IPriceProvider {
 
             if (result.data[tokenSymbol]) {
                 const price = result.data[tokenSymbol][currency];
-                return Number(price);
+                return Number(price ?? 0);
             }
         }
 
