@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import container from '../container';
 import { ContainerTypes } from '../containertypes';
-import { IPriceProvider } from './IPriceProvider';
+import { IPriceProvider, TokenInfo } from './IPriceProvider';
 import { CacheService } from './CacheService';
 import { Guard } from '../guard';
 
@@ -20,26 +20,41 @@ export class PriceProviderWithFailover implements IPriceProvider {
      */
     public async getPrice(symbol: string, currency = 'usd'): Promise<number> {
         Guard.ThrowIfUndefined('symbol', symbol);
+        const priceInfo = await this.getPriceWithTimestamp(symbol, currency);
+
+        return priceInfo.price;
+    }
+
+    public async getPriceWithTimestamp(symbol: string, currency = 'usd'): Promise<TokenInfo> {
+        Guard.ThrowIfUndefined('symbol', symbol);
 
         const providers = container.getAll<IPriceProvider>(ContainerTypes.PriceProvider);
         const cacheKey = `${symbol}-${currency}`;
+        const cacheItem = this.priceCache.getItem(cacheKey);
+
+        if (cacheItem && !this.priceCache.isExpired(cacheItem)) {
+            // Price is cached and still valid.
+            return { price: cacheItem.data, lastUpdated: cacheItem.updatedAt };
+        }
+
+        // Fetch a new price.
         for (const provider of providers) {
             try {
-                const cacheItem = this.priceCache.getItem(cacheKey);
-                if (cacheItem) {
-                    return cacheItem;
-                } else {
-                    const price = await provider.getPrice(symbol, currency);
-                    this.priceCache.setItem(cacheKey, price);
+                const price = await provider.getPrice(symbol, currency);
+                this.priceCache.setItem(cacheKey, price);
 
-                    return price;
-                }
+                return { price, lastUpdated: Date.now() };
             } catch (error) {
                 // Execution moves to next price provider, so nothing special to do here.
                 console.log(error);
             }
         }
 
-        return 0;
+        // Last resort, all providers failed. Return from cache.
+        if (cacheItem) {
+            return { price: cacheItem.data, lastUpdated: cacheItem.updatedAt };
+        } else {
+            throw new Error('Unable to fetch price from any provider.');
+        }
     }
 }

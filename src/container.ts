@@ -44,6 +44,7 @@ import {
 } from './services/GiantSquid';
 import { BluezNftService, INftService } from './services/NftService';
 import { NftController } from './controllers/NftController';
+import { TokenStatsControllerV2 } from './controllers/TokenStatsControllerV2';
 
 const container = new Container();
 
@@ -137,6 +138,7 @@ container.bind<ICallParser>(CallNameMapping.batch).to(BatchCallParser).inSinglet
 
 // controllers registration
 container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsController);
+container.bind<IControllerBase>(ContainerTypes.Controller).to(TokenStatsControllerV2);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(DappsStakingController);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(DappsStakingV3Controller);
 container.bind<IControllerBase>(ContainerTypes.Controller).to(NodeController);
