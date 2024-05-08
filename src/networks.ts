@@ -1,4 +1,4 @@
-export type NetworkType = 'astar' | 'shiden' | 'shibuya' | 'rocstar' | 'development';
+export type NetworkType = 'astar' | 'shiden' | 'shibuya' | 'rocstar' | 'development' | 'astar-zkevm' | 'zkyoto';
 
 export const networks = {
     astar: {
@@ -44,5 +44,19 @@ export const networks = {
         evmRpc: '',
         evmId: '',
         token: '',
+    },
+    ['astar-zkevm']: {
+        name: 'astar-zkevm',
+        endpoints: [''],
+        evmRpc: 'https://rpc.startale.com/astar-zkevm',
+        evmId: '3776',
+        token: 'ETH',
+    },
+    zkyoto: {
+        name: 'zkyoto',
+        endpoints: [''],
+        evmRpc: 'https://rpc.startale.com/zkyoto',
+        evmId: '6038361',
+        token: 'ETH',
     },
 };

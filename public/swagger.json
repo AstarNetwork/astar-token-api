@@ -39,6 +39,11 @@
               "ASTR",
               "SDN"
             ]
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
