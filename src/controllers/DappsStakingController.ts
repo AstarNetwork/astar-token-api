@@ -14,6 +14,7 @@ import { IStatsIndexerService } from '../services/StatsIndexerService';
 import { ControllerBase } from './ControllerBase';
 import { IControllerBase } from './IControllerBase';
 import { IGiantSquidService } from '../services/GiantSquidService';
+import { IDappsStakingEvents } from '../services/DappsStakingEvents';
 
 @injectable()
 export class DappsStakingController extends ControllerBase implements IControllerBase {
@@ -23,6 +24,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
         @inject(ContainerTypes.DappsStakingStatsService) private _statsService: IDappsStakingStatsService,
         @inject(ContainerTypes.DappRadarService) private _dappRadarService: IDappRadarService,
         @inject(ContainerTypes.GiantSquidService) private _giantSquidService: IGiantSquidService,
+        @inject(ContainerTypes.DappsStakingEvents) private _eventsService: IDappsStakingEvents,
     ) {
         super();
     }
@@ -101,7 +103,7 @@ export class DappsStakingController extends ControllerBase implements IControlle
                 }
             */
             res.json(
-                await this._indexerService.getDappStakingTvl(
+                await this._eventsService.getDappStakingTvl(
                     req.params.network as NetworkType,
                     req.params.period as PeriodType,
                 ),
