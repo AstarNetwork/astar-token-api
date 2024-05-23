@@ -1,5 +1,6 @@
 import { injectable, inject } from 'inversify';
 import axios from 'axios';
+import { formatEther } from 'ethers';
 import { NetworkType } from '../networks';
 import { Guard } from '../guard';
 import { TotalAmountCount, Triplet, Pair, PeriodType, ServiceBase, List } from './ServiceBase';
@@ -11,6 +12,7 @@ import {
     DappStakingAggregatedData,
     DappStakingAggregatedResponse,
 } from './DappStaking/ResponseData';
+import { IStatsIndexerService } from './StatsIndexerService';
 
 export interface IDappsStakingEvents {
     getDapps(network: NetworkType): Promise<[]>;
@@ -48,7 +50,10 @@ BigInt.prototype.toJSON = function () {
 
 @injectable()
 export class DappsStakingEvents extends ServiceBase implements IDappsStakingEvents {
-    constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory) {
+    constructor(
+        @inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory,
+        @inject(ContainerTypes.StatsIndexerService) private _statsService: IStatsIndexerService,
+    ) {
         super();
     }
 
@@ -159,15 +164,26 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
                     ) {
                       id
                       tvl
+                      usdPrice
                     }
                   }`,
             });
 
-            const indexedTvl = result.data.data.tvlAggregatedDailies.map((node: { id: string; tvl: number }) => {
-                return [node.id, node.tvl];
-            });
+            const indexedTvl = result.data.data.tvlAggregatedDailies.map(
+                (node: { id: string; tvl: number; usdPrice: number }) => {
+                    return [node.id, node.usdPrice * Number(formatEther(node.tvl.toString()))];
+                },
+            );
 
-            return indexedTvl;
+            // Concat TVL from staking v2 if needed.
+            const missingDays = this.getPeriodDurationInDays(period) - indexedTvl.length;
+            let v2tvl: Pair[] = [];
+            if (missingDays > 0) {
+                const v2data = await this._statsService.getDappStakingTvl(network, period);
+                v2tvl = v2data.slice(-Math.min(missingDays, v2data.length));
+            }
+
+            return v2tvl.concat(indexedTvl);
         } catch (e) {
             console.error(e);
             return [];
@@ -527,8 +543,20 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
 
     private getApiUrl(network: NetworkType): string {
         // For local development: `http://localhost:4350/graphql`;
-        return ['astar', 'shiden', 'shibuya'].includes(network)
-            ? `https://squid.subsquid.io/dapps-staking-indexer-${network}/graphql`
-            : '';
+        switch (network) {
+            case 'astar':
+                // Latest indexer version is not deployed to production yet, so we are using staging deployment for now.
+                return `https://squid.subsquid.io/dapps-staking-indexer-${network}/v/v4/graphql`;
+            case 'shiden':
+            case 'shibuya':
+                return `https://squid.subsquid.io/dapps-staking-indexer-${network}/graphql`;
+            default:
+                return '';
+        }
+
+        // TODO revert to below after deployment of astar indexer
+        // return ['astar', 'shiden', 'shibuya'].includes(network)
+        //     ? `https://squid.subsquid.io/dapps-staking-indexer-${network}/v/v4/graphql`
+        //     : '';
     }
 }
