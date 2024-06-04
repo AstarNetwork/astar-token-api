@@ -544,8 +544,8 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
     }
 
     public async getAggregatedPeriodData(network: NetworkType, period: number): Promise<PeriodDataResponse[]> {
-        if (!['astar', 'shiden', 'shibuya'].includes(network)) {
-            return [];
+        if (!['shibuya'].includes(network)) {
+            throw new Error(`This method is not supported for the network ${network}`);
         }
 
         try {

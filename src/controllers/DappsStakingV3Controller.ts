@@ -426,12 +426,16 @@ export class DappsStakingV3Controller extends ControllerBase implements IControl
                         required: true,
                     }
                 */
-                res.json(
-                    await this._dappsStakingEvents.getAggregatedPeriodData(
-                        req.params.network as NetworkType,
-                        Number(req.params.period),
-                    ),
-                );
+                try {
+                    res.json(
+                        await this._dappsStakingEvents.getAggregatedPeriodData(
+                            req.params.network as NetworkType,
+                            Number(req.params.period),
+                        ),
+                    );
+                } catch (err) {
+                    this.handleError(res, err as Error);
+                }
             },
         );
     }
