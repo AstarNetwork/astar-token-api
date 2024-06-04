@@ -11,6 +11,7 @@ import {
     DappStakingEventResponse,
     DappStakingAggregatedData,
     DappStakingAggregatedResponse,
+    PeriodDataResponse,
 } from './DappStaking/ResponseData';
 import { IStatsIndexerService } from './StatsIndexerService';
 
@@ -35,6 +36,7 @@ export interface IDappsStakingEvents {
     getDappStakingRewards(network: NetworkType, period: PeriodType, transaction: RewardEventType): Promise<Pair[]>;
     getDappStakingRewardsAggregated(network: NetworkType, address: string, period: PeriodType): Promise<Pair[]>;
     getDappStakingStakersList(network: NetworkType, contractAddress: string): Promise<List[]>;
+    getAggregatedPeriodData(network: NetworkType, period: number): Promise<PeriodDataResponse[]>;
 }
 
 export type RewardEventType = 'Reward' | 'BonusReward' | 'DAppReward';
@@ -541,6 +543,29 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         }
     }
 
+    public async getAggregatedPeriodData(network: NetworkType, period: number): Promise<PeriodDataResponse[]> {
+        if (!['shibuya'].includes(network)) {
+            throw new Error(`This method is not supported for the network ${network}`);
+        }
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query {
+                    stakesPerDapAndPeriods(where: {period_eq: ${period}}) {
+                        dappAddress
+                        rewardAmount
+                        stakeAmount
+                      }
+                }`,
+            });
+
+            return result.data.data.stakesPerDapAndPeriods;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
     private getApiUrl(network: NetworkType): string {
         // For local development: `http://localhost:4350/graphql`;
         switch (network) {
@@ -548,8 +573,9 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
                 // Latest indexer version is not deployed to production yet, so we are using staging deployment for now.
                 return `https://squid.subsquid.io/dapps-staking-indexer-${network}/v/v4/graphql`;
             case 'shiden':
-            case 'shibuya':
                 return `https://squid.subsquid.io/dapps-staking-indexer-${network}/graphql`;
+            case 'shibuya':
+                return 'https://astar-network.squids.live/dapps-staking-indexer-shibuya/v/v4/graphql';
             default:
                 return '';
         }

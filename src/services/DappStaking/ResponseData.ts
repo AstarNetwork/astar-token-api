@@ -39,3 +39,9 @@ export interface DappStakingTvlData {
     timestamp: bigint;
     amount: bigint;
 }
+
+export type PeriodDataResponse = {
+    dappAddress: string;
+    rewardAmount: bigint;
+    stakeAmount: bigint;
+};
