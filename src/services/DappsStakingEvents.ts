@@ -1,5 +1,6 @@
 import { injectable, inject } from 'inversify';
 import axios from 'axios';
+import { formatEther } from 'ethers';
 import { NetworkType } from '../networks';
 import { Guard } from '../guard';
 import { TotalAmountCount, Triplet, Pair, PeriodType, ServiceBase, List } from './ServiceBase';
@@ -10,7 +11,9 @@ import {
     DappStakingEventResponse,
     DappStakingAggregatedData,
     DappStakingAggregatedResponse,
+    PeriodDataResponse,
 } from './DappStaking/ResponseData';
+import { IStatsIndexerService } from './StatsIndexerService';
 
 export interface IDappsStakingEvents {
     getDapps(network: NetworkType): Promise<[]>;
@@ -33,6 +36,7 @@ export interface IDappsStakingEvents {
     getDappStakingRewards(network: NetworkType, period: PeriodType, transaction: RewardEventType): Promise<Pair[]>;
     getDappStakingRewardsAggregated(network: NetworkType, address: string, period: PeriodType): Promise<Pair[]>;
     getDappStakingStakersList(network: NetworkType, contractAddress: string): Promise<List[]>;
+    getAggregatedPeriodData(network: NetworkType, period: number): Promise<PeriodDataResponse[]>;
 }
 
 export type RewardEventType = 'Reward' | 'BonusReward' | 'DAppReward';
@@ -48,7 +52,10 @@ BigInt.prototype.toJSON = function () {
 
 @injectable()
 export class DappsStakingEvents extends ServiceBase implements IDappsStakingEvents {
-    constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory) {
+    constructor(
+        @inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory,
+        @inject(ContainerTypes.StatsIndexerService) private _statsService: IStatsIndexerService,
+    ) {
         super();
     }
 
@@ -159,15 +166,26 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
                     ) {
                       id
                       tvl
+                      usdPrice
                     }
                   }`,
             });
 
-            const indexedTvl = result.data.data.tvlAggregatedDailies.map((node: { id: string; tvl: number }) => {
-                return [node.id, node.tvl];
-            });
+            const indexedTvl = result.data.data.tvlAggregatedDailies.map(
+                (node: { id: string; tvl: number; usdPrice: number }) => {
+                    return [node.id, node.usdPrice * Number(formatEther(node.tvl.toString()))];
+                },
+            );
 
-            return indexedTvl;
+            // Concat TVL from staking v2 if needed.
+            const missingDays = this.getPeriodDurationInDays(period) - indexedTvl.length;
+            let v2tvl: Pair[] = [];
+            if (missingDays > 0) {
+                const v2data = await this._statsService.getDappStakingTvl(network, period);
+                v2tvl = v2data.slice(-Math.min(missingDays, v2data.length));
+            }
+
+            return v2tvl.concat(indexedTvl);
         } catch (e) {
             console.error(e);
             return [];
@@ -519,6 +537,29 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
             });
 
             return result.data.data.dapps;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
+    public async getAggregatedPeriodData(network: NetworkType, period: number): Promise<PeriodDataResponse[]> {
+        if (!['shibuya'].includes(network)) {
+            throw new Error(`This method is not supported for the network ${network}`);
+        }
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query {
+                    stakesPerDapAndPeriods(where: {period_eq: ${period}}) {
+                        dappAddress
+                        rewardAmount
+                        stakeAmount
+                      }
+                }`,
+            });
+
+            return result.data.data.stakesPerDapAndPeriods;
         } catch (e) {
             console.error(e);
             return [];

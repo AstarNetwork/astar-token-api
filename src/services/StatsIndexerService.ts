@@ -67,13 +67,6 @@ export class StatsIndexerService extends ServiceBase implements IStatsIndexerSer
                 return [node.timestamp, node.tvlUsd];
             });
 
-            // Add current TVL to the result, so we provide up to date TVL info.
-            try {
-                indexedTvl.push(await this.getCurrentTvlInUsd(network));
-            } catch (err) {
-                console.error(`Unable to fetch current TVL ${err}`);
-            }
-
             return indexedTvl;
         } catch (e) {
             console.error(e);
