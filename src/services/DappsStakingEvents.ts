@@ -528,7 +528,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
     private getApiUrl(network: NetworkType): string {
         // For local development: `http://localhost:4350/graphql`;
         return ['astar', 'shiden', 'shibuya'].includes(network)
-            ? `https://squid.subsquid.io/dapps-staking-indexer-${network}/graphql`
+            ? `https://astar-network.squids.live/dapps-staking-indexer-${network}/graphql`
             : '';
     }
 }
