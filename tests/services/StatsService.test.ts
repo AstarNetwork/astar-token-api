@@ -18,7 +18,7 @@ describe('getTokenStats', () => {
 
         const result = await service.getTokenStats('astar');
 
-        expect(result.circulatingSupply).toBe(83);
+        expect(result.circulatingSupply).toBe(85);
     });
 
     it('returns valid total supply', async () => {

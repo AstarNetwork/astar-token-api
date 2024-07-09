@@ -70,7 +70,7 @@ export class StatsService implements IStatsService {
     private getTotalBalanceToExclude(balances: AccountData[]): BN {
         const sum = balances
             .map((balance) => {
-                return balance.free.add(balance.miscFrozen ?? balance.frozen);
+                return balance.free;
             })
             .reduce((partialSum, b) => partialSum.add(b), new BN(0));
 
