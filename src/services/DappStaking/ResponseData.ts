@@ -45,3 +45,18 @@ export type PeriodDataResponse = {
     rewardAmount: bigint;
     stakeAmount: bigint;
 };
+
+export type StakerPeriodDataResponse = {
+    stakerAddress: string;
+    period: number;
+    stakerRewardAmount: bigint;
+    bonusRewardAmount: bigint;
+    stakeAmount: bigint;
+};
+
+export type StakerPeriodTotalResponse = {
+    stakerAddress: string;
+    totalBonusRewardsClaimed: bigint;
+    totalStakerRewardsClaimed: bigint;
+    currentStake: bigint;
+};
