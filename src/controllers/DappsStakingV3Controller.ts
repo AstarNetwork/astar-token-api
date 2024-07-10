@@ -442,7 +442,7 @@ export class DappsStakingV3Controller extends ControllerBase implements IControl
         app.route('/api/v3/:network/dapps-staking/staker-aggregated/:address').get(
             async (req: Request, res: Response) => {
                 /*
-                    #swagger.description = 'Retrieves aggregated period data for the given staker.'
+                    #swagger.description = 'Retrieves aggregated period data for the given staker containing all stakes and rewards per period.'
                     #swagger.tags = ['Dapps Staking']
                     #swagger.parameters['network'] = {
                         in: 'path',
@@ -472,7 +472,7 @@ export class DappsStakingV3Controller extends ControllerBase implements IControl
         app.route('/api/v3/:network/dapps-staking/staker-aggregated-total/:address').get(
             async (req: Request, res: Response) => {
                 /*
-                    #swagger.description = 'Retrieves aggregated period data for the given staker.'
+                    #swagger.description = 'Retrieves aggregated period data for the given staker containing sum of all rewards claimed and the current period stake.'
                     #swagger.tags = ['Dapps Staking']
                     #swagger.parameters['network'] = {
                         in: 'path',
