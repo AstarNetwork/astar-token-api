@@ -438,5 +438,65 @@ export class DappsStakingV3Controller extends ControllerBase implements IControl
                 }
             },
         );
+
+        app.route('/api/v3/:network/dapps-staking/staker-aggregated/:address').get(
+            async (req: Request, res: Response) => {
+                /*
+                    #swagger.description = 'Retrieves aggregated period data for the given staker containing all stakes and rewards per period.'
+                    #swagger.tags = ['Dapps Staking']
+                    #swagger.parameters['network'] = {
+                        in: 'path',
+                        description: 'The network name. Supported networks: astar',
+                        required: true,
+                        enum: ['astar', 'shiden', 'shibuya']
+                    }
+                    #swagger.parameters['address'] = {
+                        in: 'path',
+                        description: 'Staker address.',
+                        required: true,
+                    }
+                */
+                try {
+                    res.json(
+                        await this._dappsStakingEvents.getAggregatedStakerData(
+                            req.params.network as NetworkType,
+                            req.params.address,
+                        ),
+                    );
+                } catch (err) {
+                    this.handleError(res, err as Error);
+                }
+            },
+        );
+
+        app.route('/api/v3/:network/dapps-staking/staker-aggregated-total/:address').get(
+            async (req: Request, res: Response) => {
+                /*
+                    #swagger.description = 'Retrieves aggregated period data for the given staker containing sum of all rewards claimed and the current period stake.'
+                    #swagger.tags = ['Dapps Staking']
+                    #swagger.parameters['network'] = {
+                        in: 'path',
+                        description: 'The network name. Supported networks: astar',
+                        required: true,
+                        enum: ['astar', 'shiden', 'shibuya']
+                    }
+                    #swagger.parameters['address'] = {
+                        in: 'path',
+                        description: 'Staker address.',
+                        required: true,
+                    }
+                */
+                try {
+                    res.json(
+                        await this._dappsStakingEvents.getTotalAggregatedStakerData(
+                            req.params.network as NetworkType,
+                            req.params.address,
+                        ),
+                    );
+                } catch (err) {
+                    this.handleError(res, err as Error);
+                }
+            },
+        );
     }
 }

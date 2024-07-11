@@ -12,6 +12,8 @@ import {
     DappStakingAggregatedData,
     DappStakingAggregatedResponse,
     PeriodDataResponse,
+    StakerPeriodDataResponse,
+    StakerPeriodTotalResponse,
 } from './DappStaking/ResponseData';
 import { IStatsIndexerService } from './StatsIndexerService';
 
@@ -37,6 +39,8 @@ export interface IDappsStakingEvents {
     getDappStakingRewardsAggregated(network: NetworkType, address: string, period: PeriodType): Promise<Pair[]>;
     getDappStakingStakersList(network: NetworkType, contractAddress: string): Promise<List[]>;
     getAggregatedPeriodData(network: NetworkType, period: number): Promise<PeriodDataResponse[]>;
+    getAggregatedStakerData(network: NetworkType, stakerAddress: string): Promise<StakerPeriodDataResponse[]>;
+    getTotalAggregatedStakerData(network: NetworkType, stakerAddress: string): Promise<StakerPeriodTotalResponse>;
 }
 
 export type RewardEventType = 'Reward' | 'BonusReward' | 'DAppReward';
@@ -564,6 +568,63 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
             console.error(e);
             return [];
         }
+    }
+
+    public async getAggregatedStakerData(
+        network: NetworkType,
+        stakerAddress: string,
+    ): Promise<StakerPeriodDataResponse[]> {
+        Guard.ThrowIfUndefined('network', network);
+        Guard.ThrowIfUndefined('stakerAddress', stakerAddress);
+        if (!['shibuya', 'shiden', 'astar'].includes(network)) {
+            throw new Error(`This method is not supported for the network ${network}`);
+        }
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query {
+                  stakesPerStakerAndPeriods(where: {stakerAddress_eq: "${stakerAddress}"}) {
+                    stakerAddress
+                    period
+                    stakeAmount
+                    stakerRewardAmount
+                    bonusRewardAmount
+                  }
+                }`,
+            });
+
+            return result.data.data.stakesPerStakerAndPeriods;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
+    public async getTotalAggregatedStakerData(
+        network: NetworkType,
+        stakerAddress: string,
+    ): Promise<StakerPeriodTotalResponse> {
+        const data = await this.getAggregatedStakerData(network, stakerAddress);
+        let maxPeriod = -1;
+        const total = data.reduce(
+            (acc, item) => {
+                if (item.period > maxPeriod) {
+                    acc.currentStake = BigInt(item.stakeAmount);
+                    maxPeriod = item.period;
+                }
+                acc.totalStakerRewardsClaimed += BigInt(item.stakerRewardAmount);
+                acc.totalBonusRewardsClaimed += BigInt(item.bonusRewardAmount);
+                return acc;
+            },
+            {
+                currentStake: BigInt(0),
+                totalBonusRewardsClaimed: BigInt(0),
+                totalStakerRewardsClaimed: BigInt(0),
+                stakerAddress,
+            },
+        );
+
+        return total;
     }
 
     private getApiUrl(network: NetworkType): string {
