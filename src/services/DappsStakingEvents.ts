@@ -3,7 +3,7 @@ import axios from 'axios';
 import { formatEther } from 'ethers';
 import { NetworkType } from '../networks';
 import { Guard } from '../guard';
-import { TotalAmountCount, Triplet, Pair, PeriodType, ServiceBase, List } from './ServiceBase';
+import { TotalAmountCount, Triplet, Pair, PeriodType, List } from './ServiceBase';
 import { IApiFactory } from '../client/ApiFactory';
 import { ContainerTypes } from '../containertypes';
 import {
@@ -16,6 +16,7 @@ import {
     StakerPeriodTotalResponse,
 } from './DappStaking/ResponseData';
 import { IStatsIndexerService } from './StatsIndexerService';
+import { DappStakingV3IndexerBase } from './DappStakingV3IndexerBase';
 
 export interface IDappsStakingEvents {
     getDapps(network: NetworkType): Promise<[]>;
@@ -55,7 +56,7 @@ BigInt.prototype.toJSON = function () {
 };
 
 @injectable()
-export class DappsStakingEvents extends ServiceBase implements IDappsStakingEvents {
+export class DappsStakingEvents extends DappStakingV3IndexerBase implements IDappsStakingEvents {
     constructor(
         @inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory,
         @inject(ContainerTypes.StatsIndexerService) private _statsService: IStatsIndexerService,
@@ -155,9 +156,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
     }
 
     public async getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]> {
-        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
-            return [];
-        }
+        this.GuardNetwork(network);
 
         const range = this.getDateRange(period);
 
@@ -201,9 +200,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         period: PeriodType,
         transaction: RewardEventType,
     ): Promise<Pair[]> {
-        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
-            return [];
-        }
+        this.GuardNetwork(network);
 
         const range = this.getDateRange(period);
 
@@ -242,9 +239,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         address: string,
         period: PeriodType,
     ): Promise<Pair[]> {
-        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
-            return [];
-        }
+        this.GuardNetwork(network);
 
         const range = this.getDateRange(period);
 
@@ -283,9 +278,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         contractAddress: string,
         period: PeriodType,
     ): Promise<Pair[]> {
-        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
-            return [];
-        }
+        this.GuardNetwork(network);
 
         const range = this.getDateRange(period);
 
@@ -320,9 +313,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
     }
 
     public async getDappStakingStakersList(network: NetworkType, contractAddress: string): Promise<List[]> {
-        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
-            return [];
-        }
+        this.GuardNetwork(network);
 
         try {
             const result = await axios.post(this.getApiUrl(network), {
@@ -362,9 +353,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
     }
 
     public async getDappStakingStakersCountTotal(network: NetworkType, period: PeriodType): Promise<Pair[]> {
-        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
-            return [];
-        }
+        this.GuardNetwork(network);
 
         const range = this.getDateRange(period);
 
@@ -399,9 +388,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
     }
 
     public async getDappStakingStakersTotal(network: NetworkType, period: PeriodType): Promise<Triplet[]> {
-        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
-            return [];
-        }
+        this.GuardNetwork(network);
 
         const range = this.getDateRange(period);
 
@@ -431,9 +418,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
     }
 
     public async getDappStakingLockersTotal(network: NetworkType, period: PeriodType): Promise<Triplet[]> {
-        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
-            return [];
-        }
+        this.GuardNetwork(network);
 
         const range = this.getDateRange(period);
 
@@ -463,9 +448,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         network: NetworkType,
         period: PeriodType,
     ): Promise<TotalAmountCount[]> {
-        if (!['astar', 'shiden', 'shibuya'].includes(network)) {
-            return [];
-        }
+        this.GuardNetwork(network);
 
         const range = this.getDateRange(period);
 
@@ -518,9 +501,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
     }
 
     public async getDapps(network: NetworkType): Promise<[]> {
-        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya') {
-            return [];
-        }
+        this.GuardNetwork(network);
 
         try {
             const result = await axios.post(this.getApiUrl(network), {
@@ -548,9 +529,7 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
     }
 
     public async getAggregatedPeriodData(network: NetworkType, period: number): Promise<PeriodDataResponse[]> {
-        if (!['shibuya', 'shiden', 'astar'].includes(network)) {
-            throw new Error(`This method is not supported for the network ${network}`);
-        }
+        this.GuardNetwork(network);
 
         try {
             const result = await axios.post(this.getApiUrl(network), {
@@ -574,11 +553,8 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         network: NetworkType,
         stakerAddress: string,
     ): Promise<StakerPeriodDataResponse[]> {
-        Guard.ThrowIfUndefined('network', network);
         Guard.ThrowIfUndefined('stakerAddress', stakerAddress);
-        if (!['shibuya', 'shiden', 'astar'].includes(network)) {
-            throw new Error(`This method is not supported for the network ${network}`);
-        }
+        this.GuardNetwork(network);
 
         try {
             const result = await axios.post(this.getApiUrl(network), {
@@ -604,6 +580,8 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         network: NetworkType,
         stakerAddress: string,
     ): Promise<StakerPeriodTotalResponse> {
+        this.GuardNetwork(network);
+
         const data = await this.getAggregatedStakerData(network, stakerAddress);
         let maxPeriod = -1;
         const total = data.reduce(
@@ -625,12 +603,5 @@ export class DappsStakingEvents extends ServiceBase implements IDappsStakingEven
         );
 
         return total;
-    }
-
-    private getApiUrl(network: NetworkType): string {
-        // For local development: `http://localhost:4350/graphql`;
-        return ['astar', 'shiden', 'shibuya'].includes(network)
-            ? `https://astar-network.squids.live/dapps-staking-indexer-${network}/graphql`
-            : '';
     }
 }
