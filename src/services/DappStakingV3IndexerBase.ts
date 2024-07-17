@@ -12,6 +12,6 @@ export class DappStakingV3IndexerBase extends ServiceBase {
 
     protected getApiUrl(network: NetworkType): string {
         // For local development: `http://localhost:4350/graphql`;
-        return `https://astar-network.squids.live/dapps-staking-indexer-${network}/graphql`;
+        return `https://astar-network.squids.live/dapps-staking-indexer-${network}/v/v12/graphql`;
     }
 }
