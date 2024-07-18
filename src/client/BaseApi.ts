@@ -93,6 +93,7 @@ export interface IAstarApi {
     getCurrentEra(): Promise<number>;
     getApiPromise(): Promise<ApiPromise>;
     getStakerInfo(address: string): Promise<bigint>;
+    getProtocolState(): Promise<PalletDappStakingV3ProtocolState>;
 }
 
 export class BaseApi implements IAstarApi {
@@ -231,6 +232,12 @@ export class BaseApi implements IAstarApi {
 
             return { developer: dappUnwrapped.developer.toString(), state: dappUnwrapped.state.toString() };
         }
+    }
+
+    public async getProtocolState(): Promise<PalletDappStakingV3ProtocolState> {
+        await this.ensureConnection();
+
+        return await this._api.query.dappStaking.activeProtocolState<PalletDappStakingV3ProtocolState>();
     }
 
     public async getStakerInfo(address: string): Promise<bigint> {

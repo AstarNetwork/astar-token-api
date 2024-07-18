@@ -314,13 +314,19 @@ export class DappsStakingEvents extends DappStakingV3IndexerBase implements IDap
 
     public async getDappStakingStakersList(network: NetworkType, contractAddress: string): Promise<List[]> {
         this.GuardNetwork(network);
+        Guard.ThrowIfUndefined('contractAddress', contractAddress);
+
+        // Fetch current period
+        const api = this._apiFactory.getApiInstance(network);
+        const protocolState = await api.getProtocolState();
+        const period = protocolState.periodInfo.number.toNumber();
 
         try {
             const result = await axios.post(this.getApiUrl(network), {
                 query: `query {
                     stakes(
                       where: {
-                        expiredAt_isNull: true,
+                        period_eq: ${period},
                         dappAddress_eq: "${contractAddress}"
                       }
                     ) {
