@@ -3,6 +3,7 @@
 import '@polkadot/api-augment';
 // Fix end
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import bodyParser from 'body-parser';
 import * as functions from 'firebase-functions';
 import cors from 'cors';
@@ -11,6 +12,14 @@ import { IControllerBase } from './controllers/IControllerBase';
 import { ContainerTypes } from './containertypes';
 
 const app = express();
+
+// Limit the number or requests to 100 per minute.
+const limiter = rateLimit({
+    windowMs: 1 * 60 * 1000,
+    max: 100,
+});
+app.use(limiter);
+
 app.use(express.json({ limit: '5mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
