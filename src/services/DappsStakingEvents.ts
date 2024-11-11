@@ -1,12 +1,12 @@
 import { injectable, inject } from 'inversify';
 import axios from 'axios';
 import { formatEther } from 'ethers';
-import { NetworkType } from '../networks';
+import type { NetworkType } from '../networks';
 import { Guard } from '../guard';
-import { TotalAmountCount, Triplet, Pair, PeriodType, List } from './ServiceBase';
-import { IApiFactory } from '../client/ApiFactory';
+import type { TotalAmountCount, Triplet, Pair, PeriodType, StakerAmount } from './ServiceBase';
+import type { IApiFactory } from '../client/ApiFactory';
 import { ContainerTypes } from '../containertypes';
-import {
+import type {
     DappStakingEventData,
     DappStakingEventResponse,
     DappStakingAggregatedData,
@@ -15,7 +15,7 @@ import {
     StakerPeriodDataResponse,
     StakerPeriodTotalResponse,
 } from './DappStaking/ResponseData';
-import { IStatsIndexerService } from './StatsIndexerService';
+import type { IStatsIndexerService } from './StatsIndexerService';
 import { DappStakingV3IndexerBase } from './DappStakingV3IndexerBase';
 
 export interface IDappsStakingEvents {
@@ -38,7 +38,7 @@ export interface IDappsStakingEvents {
     getDappStakingLockersAndStakersTotal(network: NetworkType, period: PeriodType): Promise<TotalAmountCount[]>;
     getDappStakingRewards(network: NetworkType, period: PeriodType, transaction: RewardEventType): Promise<Pair[]>;
     getDappStakingRewardsAggregated(network: NetworkType, address: string, period: PeriodType): Promise<Pair[]>;
-    getDappStakingStakersList(network: NetworkType, contractAddress: string): Promise<List[]>;
+    getDappStakingStakersList(network: NetworkType, contractAddress: string): Promise<StakerAmount[]>;
     getAggregatedPeriodData(network: NetworkType, period: number): Promise<PeriodDataResponse[]>;
     getAggregatedStakerData(network: NetworkType, stakerAddress: string): Promise<StakerPeriodDataResponse[]>;
     getTotalAggregatedStakerData(network: NetworkType, stakerAddress: string): Promise<StakerPeriodTotalResponse>;
@@ -312,7 +312,7 @@ export class DappsStakingEvents extends DappStakingV3IndexerBase implements IDap
         }
     }
 
-    public async getDappStakingStakersList(network: NetworkType, contractAddress: string): Promise<List[]> {
+    public async getDappStakingStakersList(network: NetworkType, contractAddress: string): Promise<StakerAmount[]> {
         this.GuardNetwork(network);
         Guard.ThrowIfUndefined('contractAddress', contractAddress);
 
@@ -331,25 +331,31 @@ export class DappsStakingEvents extends DappStakingV3IndexerBase implements IDap
                       }
                     ) {
                       stakerAddress
+                      stakerAddressEvm
                       amount
                     }
                   }`,
             });
 
-            const sumsByStaker: { [key: string]: bigint } = result.data.data.stakes.reduce(
-                (acc: { [key: string]: bigint }, { stakerAddress, amount }: List) => {
-                    acc[stakerAddress] = (acc[stakerAddress] || BigInt(0)) + BigInt(amount);
+            const sumsByStaker: {
+                [key: string]: { amount: bigint; stakerAddress: string; stakerAddressEvm?: string };
+            } = result.data.data.stakes.reduce(
+                (
+                    acc: { [key: string]: { amount: bigint; stakerAddress: string; stakerAddressEvm?: string } },
+                    { stakerAddress, stakerAddressEvm, amount }: StakerAmount,
+                ) => {
+                    if (!acc[stakerAddress]) {
+                        acc[stakerAddress] = { amount: BigInt(0), stakerAddress, stakerAddressEvm };
+                    }
+                    acc[stakerAddress].amount += BigInt(amount);
                     return acc;
                 },
                 {},
             );
 
-            const stakersList: List[] = Object.entries(sumsByStaker)
-                .map(([stakerAddress, amount]) => ({
-                    stakerAddress,
-                    amount,
-                }))
-                .filter((staker) => staker.amount !== BigInt(0));
+            const stakersList: StakerAmount[] = Object.entries(sumsByStaker)
+                .map(([_, stake]) => stake)
+                .filter((s) => s.amount !== BigInt(0));
 
             return stakersList;
         } catch (e) {
