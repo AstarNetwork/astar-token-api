@@ -8,18 +8,29 @@ import { NetworkType } from '../networks';
 import { addressesToExclude } from './AddressesToExclude';
 import { AccountData } from '../models/AccountData';
 import { Guard } from '../guard';
+import { DappStakingV3IndexerBase } from './DappStakingV3IndexerBase';
+import axios from 'axios';
+
+export type TotalSupply = {
+    block: number;
+    timestamp: number;
+    balance: bigint;
+};
 
 export interface IStatsService {
     getTokenStats(network: NetworkType): Promise<TokenStats>;
     getTotalSupply(network: NetworkType): Promise<number>;
+    getTotalIssuanceHistory(network: NetworkType): Promise<TotalSupply[]>;
 }
 
 @injectable()
 /**
  * Token statistics calculation service.
  */
-export class StatsService implements IStatsService {
-    constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory) {}
+export class StatsService extends DappStakingV3IndexerBase implements IStatsService {
+    constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory) {
+        super();
+    }
 
     /**
      * Calculates token circulation supply by substracting sum of all token holder accounts
@@ -29,7 +40,7 @@ export class StatsService implements IStatsService {
      */
     public async getTokenStats(network: NetworkType): Promise<TokenStats> {
         Guard.ThrowIfUndefined(network, 'network');
-        this.throwIfNetworkIsNotSupported(network);
+        this.GuardNetwork(network);
 
         try {
             const api = this._apiFactory.getApiInstance(network);
@@ -53,7 +64,7 @@ export class StatsService implements IStatsService {
 
     public async getTotalSupply(network: NetworkType): Promise<number> {
         Guard.ThrowIfUndefined(network, 'network');
-        this.throwIfNetworkIsNotSupported(network);
+        this.GuardNetwork(network);
 
         try {
             const api = this._apiFactory.getApiInstance(network);
@@ -64,6 +75,33 @@ export class StatsService implements IStatsService {
         } catch (e) {
             console.error(e);
             throw new Error('Unable to fetch token total supply from a node.');
+        }
+    }
+
+    public async getTotalIssuanceHistory(network: NetworkType): Promise<TotalSupply[]> {
+        this.GuardNetwork(network);
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query {
+                    totalIssuances(orderBy: id_ASC) {
+                        id
+                        timestamp
+                        balance
+                    }
+                }`,
+            });
+
+            return result.data.data.totalIssuances.map((item: any) => {
+                return {
+                    block: Number(item.id),
+                    timestamp: Number(item.timestamp),
+                    balance: BigInt(item.balance),
+                };
+            });
+        } catch (e) {
+            console.error(e);
+            return [];
         }
     }
 
@@ -81,11 +119,5 @@ export class StatsService implements IStatsService {
         const result = formatBalance(balance, { withSi: false, forceUnit: '-', decimals: chainDecimals }).split('.')[0];
 
         return parseInt(result.replaceAll(',', ''));
-    }
-
-    private throwIfNetworkIsNotSupported(network: NetworkType): void {
-        if (network !== 'astar' && network !== 'shiden' && network !== 'shibuya' && network !== 'rocstar') {
-            throw new Error(`Network ${network} is not supported.`);
-        }
     }
 }

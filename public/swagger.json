@@ -275,6 +275,27 @@
         }
       }
     },
+    "/api/v1/{network}/token/supply-history/": {
+      "get": {
+        "tags": [
+          "Token"
+        ],
+        "description": "Retreives total supply history at the beginning of a new dApp staking era for a given network and period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/{network}/dapps-staking/apr": {
       "get": {
         "tags": [
