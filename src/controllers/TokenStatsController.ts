@@ -243,5 +243,22 @@ export class TokenStatsController extends ControllerBase implements IControllerB
             */
             res.json(await this._indexerService.getHolders(req.params.network as NetworkType));
         });
+
+        /**
+         * @description Total issuance history.
+         */
+        app.route('/api/v1/:network/token/supply-history/').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retreives total supply history at the beginning of a new dApp staking era for a given network and period.'
+                #swagger.tags = ['Token']
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya'
+                    required: true,
+                    enum: ['astar', 'shiden', 'shibuya']
+                }
+            */
+            res.json(await this._statsService.getTotalIssuanceHistory(req.params.network as NetworkType));
+        });
     }
 }
