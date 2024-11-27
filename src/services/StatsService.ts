@@ -92,7 +92,7 @@ export class StatsService extends DappStakingV3IndexerBase implements IStatsServ
                 }`,
             });
 
-            return result.data.data.totalIssuances.map((item: any) => {
+            return result.data.data.totalIssuances.map((item: { id: string; timestamp: string; balance: string }) => {
                 return {
                     block: Number(item.id),
                     timestamp: Number(item.timestamp),
