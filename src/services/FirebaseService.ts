@@ -80,7 +80,7 @@ export class FirebaseService implements IFirebaseService {
             }
 
             // Check if developer images are stored as base64 and fix them.
-            await this.fixImages(dapp, collectionKey);
+            await this.fixImages(dapp, collectionKey, true);
 
             dapp.description = this.decode(dapp.description);
             dapp.shortDescription = this.decode(dapp.shortDescription ?? '');
@@ -108,13 +108,8 @@ export class FirebaseService implements IFirebaseService {
             }
         }
 
-        // upload developer images
-        for (const [index, dev] of dapp.developers.entries()) {
-            if (dev?.iconFile && dev.iconFile.startsWith('data:')) {
-                const imageInfo = this.createFileInfo(dev.iconFile, `developer-${index + 1}`);
-                dev.iconFile = await this.uploadImage(imageInfo, collectionKey, dapp.address);
-            }
-        }
+        // Upload developer images if needed
+        await this.fixImages(dapp, collectionKey);
 
         //upload document
         const firebasePayload = {
@@ -289,19 +284,21 @@ export class FirebaseService implements IFirebaseService {
      * Fixes base64 images stored in JSON
      * @param dapp to fix images for
      * @param collectionKey collection key
-     * @returns value indicating if
+     * @returns value indicating if some images are fixed and the dApp was updated in Firebase.
      */
-    private async fixImages(dapp: DappItem, collectionKey: string): Promise<boolean> {
+    private async fixImages(dapp: DappItem, collectionKey: string, updateDappIfNeeded = false): Promise<boolean> {
         let hasBase64 = false;
-        for (const [index, dev] of dapp.developers.entries()) {
-            if (dev.iconFile && dev.iconFile.startsWith('data:')) {
-                const imageInfo = this.createFileInfo(dev.iconFile, `developer-${index + 1}`);
-                dev.iconFile = dev.iconFile = await this.uploadImage(imageInfo, collectionKey, dapp.address);
-                hasBase64 = true;
+        if (dapp?.developers) {
+            for (const [index, dev] of dapp.developers.entries()) {
+                if (dev?.iconFile && dev.iconFile.startsWith('data:')) {
+                    const imageInfo = this.createFileInfo(dev.iconFile, `developer-${index + 1}`);
+                    dev.iconFile = await this.uploadImage(imageInfo, collectionKey, dapp.address);
+                    hasBase64 = true;
+                }
             }
         }
 
-        if (hasBase64) {
+        if (hasBase64 && updateDappIfNeeded) {
             await admin.firestore().collection(collectionKey).doc(dapp.address).set(dapp);
         }
 
