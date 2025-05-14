@@ -81,6 +81,32 @@
         }
       }
     },
+    "/api/v1/{network}/token/extendedstats": {
+      "get": {
+        "tags": [
+          "Token"
+        ],
+        "description": "Retrieves token statistics for a given network.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya, rocstar",
+            "enum": [
+              "astar",
+              "shiden"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/{network}/token/circulation": {
       "get": {
         "tags": [
