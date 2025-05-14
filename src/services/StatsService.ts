@@ -90,15 +90,19 @@ export class StatsService extends DappStakingV3IndexerBase implements IStatsServ
         }
 
         try {
-            const tokenSymbol = network == 'astar' ? 'astr' : 'sdn';
             const currency = 'usd';
 
             const api = this._apiFactory.getApiInstance(network);
+            const apiClient = await api.getApiPromise();
+
+            const chainTokens = apiClient.registry.chainTokens;
+            const tokenSymbol = chainTokens[0];
+
             const [chainDecimals, totalSupply, balancesToExclude, price] = await Promise.all([
                 api.getChainDecimals(),
                 api.getTotalSupply(),
                 api.getBalances(addressesToExclude),
-                this._priceProvider.getPrice(tokenSymbol, currency),
+                this._priceProvider.getPrice(tokenSymbol.toLowerCase(), currency),
             ]);
 
             const totalBalancesToExclude = this.getTotalBalanceToExclude(balancesToExclude);
@@ -106,7 +110,7 @@ export class StatsService extends DappStakingV3IndexerBase implements IStatsServ
             const circulatingSupply = this.formatBalance(circulatingSupplyWei, chainDecimals);
 
             return {
-                symbol: tokenSymbol.toUpperCase(),
+                symbol: tokenSymbol,
                 currencyCode: currency.toUpperCase(),
                 price,
                 marketCap: circulatingSupply * price,
