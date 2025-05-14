@@ -108,13 +108,13 @@ export class StatsService extends DappStakingV3IndexerBase implements IStatsServ
             return {
                 symbol: tokenSymbol.toUpperCase(),
                 currencyCode: currency.toUpperCase(),
+                price,
                 marketCap: circulatingSupply * price,
+                accTradePrice24h: null,
                 circulatingSupply,
                 maxSupply: this.formatBalance(totalSupply, chainDecimals),
                 provider: 'Stake Technologies Pte Ltd',
                 lastUpdatedTimestamp: Date.now(),
-                accTradePrice24h: null,
-                price,
             };
         } catch (e) {
             console.error(e);
