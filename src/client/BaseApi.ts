@@ -302,7 +302,7 @@ export class BaseApi implements IAstarApi {
 
         return await localApi.isReadyOrError.then(
             (api: ApiPromise) => {
-                // Connection suceed
+                // Connection succeed
                 this._api = api;
                 return api;
             },

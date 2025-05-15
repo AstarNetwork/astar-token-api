@@ -93,6 +93,27 @@ export class TokenStatsController extends ControllerBase implements IControllerB
         });
 
         /**
+         * @description Token extended statistics route v1.
+         */
+        app.route('/api/v1/:network/token/extendedstats').get(async (req: Request, res: Response) => {
+            /*
+                #swagger.description = 'Retrieves token statistics for a given network.'
+                #swagger.tags = ['Token']
+                #swagger.parameters['network'] = {
+                    in: 'path',
+                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
+                    required: true,
+                    enum: ['astar', 'shiden']
+                }
+            */
+            try {
+                res.json(await this._statsService.getTokenStatsExtended(req.params.network as NetworkType));
+            } catch (err) {
+                this.handleError(res, err as Error);
+            }
+        });
+
+        /**
          * @description Test route
          */
         app.route('/api/token/circulation').get(async (req: Request, res: Response) => {
