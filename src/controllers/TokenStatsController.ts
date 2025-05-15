@@ -274,7 +274,7 @@ export class TokenStatsController extends ControllerBase implements IControllerB
                 #swagger.tags = ['Token']
                 #swagger.parameters['network'] = {
                     in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya'
+                    description: 'The network name. Supported networks: astar, shiden, shibuya',
                     required: true,
                     enum: ['astar', 'shiden', 'shibuya']
                 }
