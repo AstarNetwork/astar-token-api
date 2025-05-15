@@ -312,7 +312,13 @@
             "name": "network",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The network name. Supported networks: astar, shiden, shibuya",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
           }
         ],
         "responses": {

@@ -34,7 +34,7 @@
         "deploy": "firebase deploy"
     },
     "engines": {
-        "node": "18"
+        "node": "20"
     },
     "license": "MIT",
     "devDependencies": {
