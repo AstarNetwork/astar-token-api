@@ -31,7 +31,7 @@ export type ExtendedTokenStats = {
 
 export interface IStatsService {
     getTokenStats(network: NetworkType): Promise<TokenStats>;
-    getTokenStatsExtended(network: NetworkType): Promise<ExtendedTokenStats>;
+    getTokenStatsExtended(network: NetworkType, currencies: string[]): Promise<ExtendedTokenStats[]>;
     getTotalSupply(network: NetworkType): Promise<number>;
     getTotalIssuanceHistory(network: NetworkType): Promise<TotalSupply[]>;
 }
@@ -84,42 +84,46 @@ export class StatsService extends DappStakingV3IndexerBase implements IStatsServ
      * @param network NetworkType (astar or shiden) to calculate token supply for.
      * @returns Token statistics including total supply and circulating supply.
      */
-    public async getTokenStatsExtended(network: NetworkType): Promise<ExtendedTokenStats> {
+    public async getTokenStatsExtended(network: NetworkType, currencies: string[]): Promise<ExtendedTokenStats[]> {
         if (network !== 'astar' && network !== 'shiden') {
             throw new Error(`This method is not supported for the network ${network}`);
         }
 
         try {
-            const currency = 'usd';
-
             const api = this._apiFactory.getApiInstance(network);
             const apiClient = await api.getApiPromise();
 
             const chainTokens = apiClient.registry.chainTokens;
             const tokenSymbol = chainTokens[0];
+            const priceRequests = currencies.map((currency) => {
+                return this._priceProvider.getPrice(tokenSymbol.toLowerCase(), currency);
+            });
 
-            const [chainDecimals, totalSupply, balancesToExclude, price] = await Promise.all([
+            const [chainDecimals, totalSupply, balancesToExclude] = await Promise.all([
                 api.getChainDecimals(),
                 api.getTotalSupply(),
                 api.getBalances(addressesToExclude),
-                this._priceProvider.getPrice(tokenSymbol.toLowerCase(), currency),
             ]);
+            const prices = await Promise.all(priceRequests);
 
             const totalBalancesToExclude = this.getTotalBalanceToExclude(balancesToExclude);
             const circulatingSupplyWei = totalSupply.sub(totalBalancesToExclude);
             const circulatingSupply = this.formatBalance(circulatingSupplyWei, chainDecimals);
+            const lastUpdatedTimestamp = Date.now();
 
-            return {
-                symbol: tokenSymbol,
-                currencyCode: currency.toUpperCase(),
-                price,
-                marketCap: circulatingSupply * price,
-                accTradePrice24h: null,
-                circulatingSupply,
-                maxSupply: this.formatBalance(totalSupply, chainDecimals),
-                provider: 'Stake Technologies Pte Ltd',
-                lastUpdatedTimestamp: Date.now(),
-            };
+            return currencies.map((currency, index) => {
+                return {
+                    symbol: tokenSymbol,
+                    currencyCode: currency.toUpperCase(),
+                    price: prices[index],
+                    marketCap: circulatingSupply * prices[index],
+                    accTradePrice24h: null,
+                    circulatingSupply,
+                    maxSupply: this.formatBalance(totalSupply, chainDecimals),
+                    provider: 'Stake Technologies Pte Ltd',
+                    lastUpdatedTimestamp,
+                };
+            });
         } catch (e) {
             console.error(e);
             throw new Error('Unable to fetch token statistics from a node.');
