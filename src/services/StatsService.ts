@@ -82,7 +82,8 @@ export class StatsService extends DappStakingV3IndexerBase implements IStatsServ
      * Calculates token circulation supply by substracting sum of all token holder accounts
      * not in circulation from total token supply.
      * @param network NetworkType (astar or shiden) to calculate token supply for.
-     * @returns Token statistics including total supply and circulating supply.
+     * @param currencies
+     * @returns Token statistics array including total supply and circulating supply.
      */
     public async getTokenStatsExtended(network: NetworkType, currencies: string[]): Promise<ExtendedTokenStats[]> {
         if (network !== 'astar' && network !== 'shiden') {
