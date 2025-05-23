@@ -1,5 +1,11 @@
-import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto';
-import { u8aToHex } from '@polkadot/util';
+import {
+    cryptoWaitReady,
+    decodeAddress,
+    evmToAddress,
+    isEthereumAddress,
+    signatureVerify,
+} from '@polkadot/util-crypto';
+import { stringToU8a, u8aToHex } from '@polkadot/util';
 import { inject, injectable } from 'inversify';
 import { IApiFactory } from '../client/ApiFactory';
 import { ContainerTypes } from '../containertypes';
@@ -7,6 +13,8 @@ import { DappItem, NewDappItem } from '../models/Dapp';
 import { NetworkType } from '../networks';
 import { DappsStakingService, IDappsStakingService } from './DappsStakingService';
 import { IFirebaseService } from './FirebaseService';
+import { ethers } from 'ethers';
+import { ASTAR_SS58_FORMAT } from './TxQueryService';
 
 @injectable()
 /**
@@ -56,10 +64,19 @@ export class DappsStakingService2 extends DappsStakingService implements IDappsS
         network: NetworkType,
     ): Promise<boolean> {
         const api = this._apiFactory.getApiInstance(network);
+        const isEvmSigner = isEthereumAddress(senderAddress);
+        const ss58SenderAddress = isEvmSigner ? evmToAddress(senderAddress, ASTAR_SS58_FORMAT) : senderAddress;
 
         // Build signed payload and check signature
-        const signedMessage = await api.getRegisterDappPayload(dappAddress, senderAddress);
-        const isValidSignature = await this.isValidSignature(signedMessage, signature, senderAddress);
+        const messageToVerify = await api.getRegisterDappPayload(dappAddress, ss58SenderAddress);
+        let isValidSignature = false;
+
+        if (isEvmSigner) {
+            const signerAddress = ethers.verifyMessage(messageToVerify, signature);
+            isValidSignature = signerAddress.toLowerCase() === senderAddress.toLowerCase();
+        } else {
+            isValidSignature = await this.isValidSignature(messageToVerify, signature, senderAddress);
+        }
 
         if (isValidSignature) {
             // Check if dapp and sender are already registered to a node.
@@ -69,7 +86,7 @@ export class DappsStakingService2 extends DappsStakingService implements IDappsS
             if (registeredDapp) {
                 return (
                     registeredDapp.state.toString() === 'Registered' &&
-                    registeredDapp.developer.toString() === senderAddress
+                    registeredDapp.developer.toString() === ss58SenderAddress
                 );
             } else {
                 throw new Error(`The dapp ${dappAddress} is not registered with developer account ${senderAddress}`);
