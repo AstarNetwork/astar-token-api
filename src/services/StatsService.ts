@@ -36,6 +36,8 @@ export interface IStatsService {
     getTotalIssuanceHistory(network: NetworkType): Promise<TotalSupply[]>;
 }
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 @injectable()
 /**
  * Token statistics calculation service.
@@ -49,7 +51,7 @@ export class StatsService extends DappStakingV3IndexerBase implements IStatsServ
     }
 
     /**
-     * Calculates token circulation supply by substracting sum of all token holder accounts
+     * Calculates token circulation supply by subtracting sum of all token holder accounts
      * not in circulation from total token supply.
      * @param network NetworkType (astar or shiden) to calculate token supply for.
      * @returns Token statistics including total supply and circulating supply.
@@ -79,7 +81,7 @@ export class StatsService extends DappStakingV3IndexerBase implements IStatsServ
     }
 
     /**
-     * Calculates token circulation supply by substracting sum of all token holder accounts
+     * Calculates token circulation supply by subtracting sum of all token holder accounts
      * not in circulation from total token supply.
      * @param network NetworkType (astar or shiden) to calculate token supply for.
      * @param currencies
@@ -96,16 +98,19 @@ export class StatsService extends DappStakingV3IndexerBase implements IStatsServ
 
             const chainTokens = apiClient.registry.chainTokens;
             const tokenSymbol = chainTokens[0];
-            const priceRequests = currencies.map((currency) => {
-                return this._priceProvider.getPrice(tokenSymbol.toLowerCase(), currency);
-            });
 
             const [chainDecimals, totalSupply, balancesToExclude] = await Promise.all([
                 api.getChainDecimals(),
                 api.getTotalSupply(),
                 api.getBalances(addressesToExclude),
             ]);
-            const prices = await Promise.all(priceRequests);
+
+            const prices: number[] = [];
+            for (const currency of currencies) {
+                const price = await this._priceProvider.getPrice(tokenSymbol.toLowerCase(), currency);
+                prices.push(price);
+                await delay(1000); // To avoid hitting the API rate limit
+            }
 
             const totalBalancesToExclude = this.getTotalBalanceToExclude(balancesToExclude);
             const circulatingSupplyWei = totalSupply.sub(totalBalancesToExclude);

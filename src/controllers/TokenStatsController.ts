@@ -108,7 +108,13 @@ export class TokenStatsController extends ControllerBase implements IControllerB
             */
             try {
                 res.json(
-                    await this._statsService.getTokenStatsExtended(req.params.network as NetworkType, ['usd', 'krw']),
+                    await this._statsService.getTokenStatsExtended(req.params.network as NetworkType, [
+                        'usd',
+                        'krw',
+                        'sgd',
+                        'idr',
+                        'thb',
+                    ]),
                 );
             } catch (err) {
                 this.handleError(res, err as Error);
