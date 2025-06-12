@@ -25,6 +25,10 @@ export class PriceProviderWithFailover implements IPriceProvider {
         return priceInfo.price;
     }
 
+    public async getPrices(symbol: string, currencies: string[]): Promise<Map<string, number>> {
+        throw new Error('getPrices method is not implemented in PriceProviderWithFailover.');
+    }
+
     public async getPriceWithTimestamp(symbol: string, currency = 'usd'): Promise<TokenInfo> {
         Guard.ThrowIfUndefined('symbol', symbol);
 

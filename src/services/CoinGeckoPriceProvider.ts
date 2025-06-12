@@ -1,8 +1,6 @@
-import axios, { AxiosRequestConfig } from 'axios';
-import { inject, injectable } from 'inversify';
+import axios from 'axios';
+import { injectable } from 'inversify';
 import { IPriceProvider, TokenInfo } from './IPriceProvider';
-import { ContainerTypes } from '../containertypes';
-import { IFirebaseService } from './FirebaseService';
 
 /**
  * Provides token price by using Coin Gecko API
@@ -28,6 +26,26 @@ export class CoinGeckoPriceProvider implements IPriceProvider {
         }
 
         return 0;
+    }
+
+    public async getPrices(symbol: string, currencies = ['usd']): Promise<Map<string, number>> {
+        const tokenSymbol = await this.getTokenId(symbol);
+        const prices = new Map<string, number>();
+        currencies.map((c) => prices.set(c, 0));
+
+        if (tokenSymbol) {
+            const url = `${CoinGeckoPriceProvider.BaseUrl}/simple/price?ids=${tokenSymbol}&vs_currencies=${currencies}`;
+            const result = await axios.get(url);
+
+            for (const [key, _] of prices) {
+                if (result.data[tokenSymbol]) {
+                    const price = result.data[tokenSymbol][key];
+                    prices.set(key, Number(price ?? 0));
+                }
+            }
+        }
+
+        return prices;
     }
 
     public async getPriceWithTimestamp(symbol: string, currency: string | undefined): Promise<TokenInfo> {

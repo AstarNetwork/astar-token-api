@@ -45,7 +45,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export class StatsService extends DappStakingV3IndexerBase implements IStatsService {
     constructor(
         @inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory,
-        @inject(ContainerTypes.PriceProviderWithFailover) private _priceProvider: IPriceProvider,
+        @inject(ContainerTypes.PriceProvider) private _coinGeckoPriceProvider: IPriceProvider,
     ) {
         super();
     }
@@ -106,11 +106,11 @@ export class StatsService extends DappStakingV3IndexerBase implements IStatsServ
             ]);
 
             const prices: number[] = [];
-            for (const currency of currencies) {
-                const price = await this._priceProvider.getPrice(tokenSymbol.toLowerCase(), currency);
-                prices.push(price);
-                await delay(1000); // To avoid hitting the API rate limit
-            }
+            const result = await this._coinGeckoPriceProvider.getPrices(tokenSymbol.toLowerCase(), currencies);
+            currencies.map((currency) => {
+                const price = result.get(currency.toLowerCase());
+                prices.push(price ?? 0);
+            });
 
             const totalBalancesToExclude = this.getTotalBalanceToExclude(balancesToExclude);
             const circulatingSupplyWei = totalSupply.sub(totalBalancesToExclude);

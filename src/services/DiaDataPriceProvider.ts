@@ -20,6 +20,10 @@ export class DiaDataPriceProvider implements IPriceProvider {
         return 0;
     }
 
+    public async getPrices(symbol: string, currencies: string[]): Promise<Map<string, number>> {
+        throw new Error('DIA Data API does not support multiple currencies in a single request.');
+    }
+
     public async getPriceWithTimestamp(symbol: string): Promise<{ price: number; lastUpdated: number }> {
         const price = await this.getPrice(symbol);
 
