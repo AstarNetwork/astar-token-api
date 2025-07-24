@@ -42,6 +42,7 @@ export interface IDappsStakingEvents {
     getAggregatedPeriodData(network: NetworkType, period: number): Promise<PeriodDataResponse[]>;
     getAggregatedStakerData(network: NetworkType, stakerAddress: string): Promise<StakerPeriodDataResponse[]>;
     getTotalAggregatedStakerData(network: NetworkType, stakerAddress: string): Promise<StakerPeriodTotalResponse>;
+    getPeriodBlockRange(network: NetworkType, period: number): Promise<{ start: number; end?: number }>;
 }
 
 export type RewardEventType = 'Reward' | 'BonusReward' | 'DAppReward';
@@ -615,5 +616,35 @@ export class DappsStakingEvents extends DappStakingV3IndexerBase implements IDap
         );
 
         return total;
+    }
+
+    public async getPeriodBlockRange(network: NetworkType, period: number): Promise<{ start: number; end?: number }> {
+        this.GuardNetwork(network);
+        if (period <= 0) {
+            throw new Error('Period must be greater than 0');
+        }
+
+        try {
+            const result = await axios.post(this.getApiUrl(network), {
+                query: `query {
+                    subperiods(orderBy: timestamp_ASC, where: {type_eq: Voting}) {
+                        blockNumber
+                    }
+                }`,
+            });
+
+            const subperiods = result.data.data.subperiods;
+            if (period > subperiods.length) {
+                throw new Error(`Season ${period} not found`);
+            }
+
+            return {
+                start: subperiods[period - 1].blockNumber,
+                end: subperiods[period]?.blockNumber - 1,
+            };
+        } catch (e) {
+            console.error(e);
+            throw new Error('Unable to fetch season block range from a node.');
+        }
     }
 }

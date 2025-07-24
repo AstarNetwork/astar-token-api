@@ -498,5 +498,35 @@ export class DappsStakingV3Controller extends ControllerBase implements IControl
                 }
             },
         );
+
+        app.route('/api/v3/:network/dapps-staking/get-period-range/:period').get(
+            async (req: Request, res: Response) => {
+                /*
+                    #swagger.description = 'Retreives the start and end block numbers for the given dApp staking period.'
+                    #swagger.tags = ['Dapps Staking']
+                    #swagger.parameters['network'] = {
+                        in: 'path',
+                        description: 'The network name. Supported networks: astar',
+                        required: true,
+                        enum: ['astar', 'shiden', 'shibuya']
+                    }
+                    #swagger.parameters['period'] = {
+                        in: 'path',
+                        description: 'dApp staking period.',
+                        required: true,
+                    }
+                */
+                try {
+                    res.json(
+                        await this._dappsStakingEvents.getPeriodBlockRange(
+                            req.params.network as NetworkType,
+                            Number(req.params.period),
+                        ),
+                    );
+                } catch (err) {
+                    this.handleError(res, err as Error);
+                }
+            },
+        );
     }
 }

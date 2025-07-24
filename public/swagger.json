@@ -1335,6 +1335,40 @@
         }
       }
     },
+    "/api/v3/{network}/dapps-staking/get-period-range/{period}": {
+      "get": {
+        "tags": [
+          "Dapps Staking"
+        ],
+        "description": "Retreives the start and end block numbers for the given dApp staking period.",
+        "parameters": [
+          {
+            "name": "network",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The network name. Supported networks: astar",
+            "enum": [
+              "astar",
+              "shiden",
+              "shibuya"
+            ]
+          },
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "dApp staking period."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/{network}/node/tx-perblock/total": {
       "get": {
         "tags": [
