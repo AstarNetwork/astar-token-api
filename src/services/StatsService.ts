@@ -22,7 +22,7 @@ export type ExtendedTokenStats = {
     currencyCode: string;
     marketCap: number;
     circulatingSupply: number;
-    maxSupply: number;
+    maxSupply: 'N/A';
     provider: string;
     lastUpdatedTimestamp: number;
     accTradePrice24h: number | null;
@@ -125,7 +125,7 @@ export class StatsService extends DappStakingV3IndexerBase implements IStatsServ
                     marketCap: circulatingSupply * prices[index],
                     accTradePrice24h: null,
                     circulatingSupply,
-                    maxSupply: this.formatBalance(totalSupply, chainDecimals),
+                    maxSupply: 'N/A', // since ASTR is inflationary, we don't have a max supply
                     provider: 'Stake Technologies Pte Ltd',
                     lastUpdatedTimestamp,
                 };
