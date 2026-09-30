@@ -1,0 +1,151 @@
+{
+  "indexedToBlock": 15889477,
+  "votingStartBlocks": [
+    5876079,
+    6315278,
+    6754478,
+    7193678,
+    7632878,
+    8468349,
+    9346749,
+    10225149,
+    11103549,
+    11981949,
+    12860349,
+    13738749
+  ],
+  "unregisteredDapps": [
+    {
+      "contractAddress": "0x602332522f85c2fc29603f1e26ff4a0a9b390ff2",
+      "dappId": 2,
+      "beneficiary": null,
+      "owner": "YhG92xFnS9G31SboDjBuLp799CmGzLHyJnL9EcECtTQ5mas",
+      "state": "Unregistered",
+      "registeredAt": "1707296190398",
+      "registrationBlockNumber": 5876089,
+      "unregisteredAt": "1771423242000",
+      "unregistrationBlockNumber": 13786940
+    },
+    {
+      "contractAddress": "0x2b9a7085afba278bec6bbffb399a3c042ed05046",
+      "dappId": 0,
+      "beneficiary": null,
+      "owner": "akZKtCjvFvTMfKayv6Uw8ARPiHKUgQqLtuyURhjxZv3D5z3",
+      "state": "Unregistered",
+      "registeredAt": "1707296190398",
+      "registrationBlockNumber": 5876089,
+      "unregisteredAt": "1771423242000",
+      "unregistrationBlockNumber": 13786940
+    },
+    {
+      "contractAddress": "0x4ffa8531733be6a390d884c597238d1067fa88ec",
+      "dappId": 5,
+      "beneficiary": null,
+      "owner": "XyKWzYcgR24MBZNHVLrGMDXT4iZY3dsB6oRdhpyU1vuZPhR",
+      "state": "Unregistered",
+      "registeredAt": "1707296190398",
+      "registrationBlockNumber": 5876089,
+      "unregisteredAt": "1771423242000",
+      "unregistrationBlockNumber": 13786940
+    },
+    {
+      "contractAddress": "0x0a5d6a6a34145b6e93611dac828d2a386caafaf5",
+      "dappId": 13,
+      "beneficiary": null,
+      "owner": "XMrzzASqaPj6mzR47z4wGuumGvhs72Lcn68vAP7mTWUWefX",
+      "state": "Unregistered",
+      "registeredAt": "1707296190398",
+      "registrationBlockNumber": 5876089,
+      "unregisteredAt": "1771423242000",
+      "unregistrationBlockNumber": 13786940
+    },
+    {
+      "contractAddress": "0xb4be4e9b44e3b2fcb63fe96f0117740240a54c73",
+      "dappId": 15,
+      "beneficiary": null,
+      "owner": "WtyKQ9HVKiwszrDj5PkFNbwLWfmuSny3QznFKBpwXRVDhKP",
+      "state": "Unregistered",
+      "registeredAt": "1707296190398",
+      "registrationBlockNumber": 5876089,
+      "unregisteredAt": "1771423242000",
+      "unregistrationBlockNumber": 13786940
+    },
+    {
+      "contractAddress": "0xb715b849cd7d8794fe29e3363efa8c419a68f6aa",
+      "dappId": 16,
+      "beneficiary": null,
+      "owner": "YonjJybdevn8u4bVTgJhv5rijbyKxfSRj7tVYS9NC9xoB5q",
+      "state": "Unregistered",
+      "registeredAt": "1707296190398",
+      "registrationBlockNumber": 5876089,
+      "unregisteredAt": "1771423242000",
+      "unregistrationBlockNumber": 13786940
+    },
+    {
+      "contractAddress": "0x072416b9df2382a62df34956dffb7b0addf668f9",
+      "dappId": 20,
+      "beneficiary": null,
+      "owner": "ZvZjsmsGmLcD5RyWBgdrhamT2pdYrfTxNoHPdRz2CwFtJzm",
+      "state": "Unregistered",
+      "registeredAt": "1707296190398",
+      "registrationBlockNumber": 5876089,
+      "unregisteredAt": "1771423242000",
+      "unregistrationBlockNumber": 13786940
+    },
+    {
+      "contractAddress": "0xec6b921f67e58028c903cd5f96c65847c42e5fc7",
+      "dappId": 23,
+      "beneficiary": null,
+      "owner": "XFgNUQh8Ad83sRXsvUEjiaruvsru7SFPUC766fBXPiA9QAj",
+      "state": "Unregistered",
+      "registeredAt": "1707296190398",
+      "registrationBlockNumber": 5876089,
+      "unregisteredAt": "1771423242000",
+      "unregistrationBlockNumber": 13786940
+    },
+    {
+      "contractAddress": "0x8a74b5ee7b1f5c058a83d4c675e267fd000730dc",
+      "dappId": 24,
+      "beneficiary": null,
+      "owner": "YefVfauiCA24uDLENbTxp952LVU8Lvb7BqneNZkZE7ErE5J",
+      "state": "Unregistered",
+      "registeredAt": "1707296190398",
+      "registrationBlockNumber": 5876089,
+      "unregisteredAt": "1771423242000",
+      "unregistrationBlockNumber": 13786940
+    },
+    {
+      "contractAddress": "0xe0f41a9626ade6c2bfaade6e497dc584bc3e9dc5",
+      "dappId": 25,
+      "beneficiary": null,
+      "owner": "XM8yY9rZaGHj6LEKwjMwS2KFysqAvpRmwgVFA3q8kKtkosi",
+      "state": "Unregistered",
+      "registeredAt": "1707296190398",
+      "registrationBlockNumber": 5876089,
+      "unregisteredAt": "1771423242000",
+      "unregistrationBlockNumber": 13786940
+    },
+    {
+      "contractAddress": "0xae4fe19acd45e405c4cfbea281c7a3af20a10849",
+      "dappId": 6,
+      "beneficiary": null,
+      "owner": "ZRajKEZjoosLP6S8Kepq9mhwpPh2DrrAJCF72fJVZkuSWpn",
+      "state": "Unregistered",
+      "registeredAt": "1707296190398",
+      "registrationBlockNumber": 5876089,
+      "unregisteredAt": "1771423242000",
+      "unregistrationBlockNumber": 13786940
+    },
+    {
+      "contractAddress": "0x4d4e6e07d480f3aae931c31430bc61ea7ef29052",
+      "dappId": 10,
+      "beneficiary": null,
+      "owner": "ahKpuUxwS8qWzETuurEJFwJHJgVdEHMYQvaUWSDknbQGFBE",
+      "state": "Unregistered",
+      "registeredAt": "1707296190398",
+      "registrationBlockNumber": 5876089,
+      "unregisteredAt": "1771423242000",
+      "unregistrationBlockNumber": 13786940
+    }
+  ]
+}

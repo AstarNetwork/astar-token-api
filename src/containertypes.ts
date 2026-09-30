@@ -1,5 +1,3 @@
-import { BurnService } from './services/BurnService';
-
 export const ContainerTypes = {
     Controller: 'Controller',
     StatsService: 'StatsService',
@@ -18,5 +16,4 @@ export const ContainerTypes = {
     DappRadarService: 'DappRadarService',
     GiantSquidService: 'GiantSquidService',
     BluezNftService: 'BluezNftService',
-    BurnService: 'BurnService',
 };

@@ -45,7 +45,6 @@ import {
 import { BluezNftService, INftService } from './services/NftService';
 import { NftController } from './controllers/NftController';
 import { TokenStatsControllerV2 } from './controllers/TokenStatsControllerV2';
-import { BurnService, IBurnService } from './services/BurnService';
 import { BurnController } from './controllers/BurnController';
 
 const container = new Container();
@@ -77,7 +76,6 @@ container.bind<IApiFactory>(ContainerTypes.ApiFactory).to(ApiFactory).inSingleto
 container.bind<IStatsService>(ContainerTypes.StatsService).to(StatsService).inSingletonScope();
 
 container.bind<IDappsStakingEvents>(ContainerTypes.DappsStakingEvents).to(DappsStakingEvents).inSingletonScope();
-container.bind<IBurnService>(ContainerTypes.BurnService).to(BurnService).inSingletonScope();
 
 container
     .bind<IDappsStakingService>(ContainerTypes.DappsStakingService)

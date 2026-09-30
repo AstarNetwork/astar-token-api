@@ -7,15 +7,8 @@ import { NetworkType } from '../networks';
 import { addressesToExclude } from './AddressesToExclude';
 import { AccountData } from '../models/AccountData';
 import { Guard } from '../guard';
-import { DappStakingV3IndexerBase } from './DappStakingV3IndexerBase';
-import axios from 'axios';
+import { ServiceBase } from './ServiceBase';
 import { IPriceProvider } from './IPriceProvider';
-
-export type TotalSupply = {
-    block: number;
-    timestamp: number;
-    balance: bigint;
-};
 
 export type ExtendedTokenStats = {
     symbol: string;
@@ -33,7 +26,6 @@ export interface IStatsService {
     getTokenStats(network: NetworkType): Promise<TokenStats>;
     getTokenStatsExtended(network: NetworkType, currencies: string[]): Promise<ExtendedTokenStats[]>;
     getTotalSupply(network: NetworkType): Promise<number>;
-    getTotalIssuanceHistory(network: NetworkType): Promise<TotalSupply[]>;
 }
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -42,7 +34,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 /**
  * Token statistics calculation service.
  */
-export class StatsService extends DappStakingV3IndexerBase implements IStatsService {
+export class StatsService extends ServiceBase implements IStatsService {
     constructor(
         @inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory,
         @inject(ContainerTypes.PriceProvider) private _coinGeckoPriceProvider: IPriceProvider,
@@ -149,33 +141,6 @@ export class StatsService extends DappStakingV3IndexerBase implements IStatsServ
         } catch (e) {
             console.error(e);
             throw new Error('Unable to fetch token total supply from a node.');
-        }
-    }
-
-    public async getTotalIssuanceHistory(network: NetworkType): Promise<TotalSupply[]> {
-        this.GuardNetwork(network);
-
-        try {
-            const result = await axios.post(this.getApiUrl(network), {
-                query: `query {
-                    totalIssuances(orderBy: id_ASC) {
-                        id
-                        timestamp
-                        balance
-                    }
-                }`,
-            });
-
-            return result.data.data.totalIssuances.map((item: { id: string; timestamp: string; balance: string }) => {
-                return {
-                    block: Number(item.id),
-                    timestamp: Number(item.timestamp),
-                    balance: BigInt(item.balance),
-                };
-            });
-        } catch (e) {
-            console.error(e);
-            return [];
         }
     }
 

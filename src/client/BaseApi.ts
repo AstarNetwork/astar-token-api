@@ -35,6 +35,13 @@ export interface DappInfoV3 extends Struct {
     state: string;
 }
 
+export type IntegratedDapp = {
+    contractAddress: string;
+    dappId: number;
+    owner: string;
+    beneficiary: string | null;
+};
+
 export interface PalletDappStakingV3ProtocolState extends Struct {
     era: Compact<u32>;
     nextEraStart: Compact<u32>;
@@ -94,6 +101,7 @@ export interface IAstarApi {
     getApiPromise(): Promise<ApiPromise>;
     getStakerInfo(address: string): Promise<bigint>;
     getProtocolState(): Promise<PalletDappStakingV3ProtocolState>;
+    getIntegratedDapps(): Promise<IntegratedDapp[]>;
 }
 
 export class BaseApi implements IAstarApi {
@@ -238,6 +246,23 @@ export class BaseApi implements IAstarApi {
         await this.ensureConnection();
 
         return await this._api.query.dappStaking.activeProtocolState<PalletDappStakingV3ProtocolState>();
+    }
+
+    public async getIntegratedDapps(): Promise<IntegratedDapp[]> {
+        await this.ensureConnection();
+        const entries = await this._api.query.dappStaking.integratedDApps.entries();
+
+        return entries.map(([key, value]) => {
+            const contract = key.args[0].toJSON() as { evm?: string; wasm?: string };
+            const info = value.toJSON() as { id: number; owner: string; rewardBeneficiary: string | null };
+
+            return {
+                contractAddress: contract.evm?.toLowerCase() ?? contract.wasm ?? '',
+                dappId: info.id,
+                owner: info.owner,
+                beneficiary: info.rewardBeneficiary ?? null,
+            };
+        });
     }
 
     public async getStakerInfo(address: string): Promise<bigint> {

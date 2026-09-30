@@ -1,51 +1,47 @@
 import { injectable, inject } from 'inversify';
-import axios from 'axios';
-import { formatEther } from 'ethers';
 import type { NetworkType } from '../networks';
 import { Guard } from '../guard';
-import type { TotalAmountCount, Triplet, Pair, PeriodType, StakerAmount } from './ServiceBase';
 import type { IApiFactory } from '../client/ApiFactory';
 import { ContainerTypes } from '../containertypes';
-import type {
-    DappStakingEventData,
-    DappStakingEventResponse,
-    DappStakingAggregatedData,
-    DappStakingAggregatedResponse,
-    PeriodDataResponse,
-    StakerPeriodDataResponse,
-    StakerPeriodTotalResponse,
-} from './DappStaking/ResponseData';
-import type { IStatsIndexerService } from './StatsIndexerService';
-import { DappStakingV3IndexerBase } from './DappStakingV3IndexerBase';
+import { ServiceBase } from './ServiceBase';
+import { CacheService } from './CacheService';
+import astarSnapshot from '../data/dappStakingSnapshot.astar.json';
+import shidenSnapshot from '../data/dappStakingSnapshot.shiden.json';
+import shibuyaSnapshot from '../data/dappStakingSnapshot.shibuya.json';
 
 export interface IDappsStakingEvents {
-    getDapps(network: NetworkType): Promise<[]>;
-    getStakingEvents(
-        network: NetworkType,
-        address: string,
-        startDate: string,
-        endDate: string,
-        limit?: number,
-        offset?: number,
-    ): Promise<DappStakingEventData[]>;
-    getAggregatedData(network: NetworkType, period: PeriodType): Promise<DappStakingAggregatedData[]>;
-    getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]>;
-    getDappStakingStakersCount(network: NetworkType, contractAddress: string, period: PeriodType): Promise<Pair[]>;
+    getDapps(network: NetworkType): Promise<DappData[]>;
     getParticipantStake(network: NetworkType, address: string): Promise<bigint>;
-    getDappStakingStakersCountTotal(network: NetworkType, period: PeriodType): Promise<Pair[]>;
-    getDappStakingStakersTotal(network: NetworkType, period: PeriodType): Promise<Triplet[]>;
-    getDappStakingLockersTotal(network: NetworkType, period: PeriodType): Promise<Triplet[]>;
-    getDappStakingLockersAndStakersTotal(network: NetworkType, period: PeriodType): Promise<TotalAmountCount[]>;
-    getDappStakingRewards(network: NetworkType, period: PeriodType, transaction: RewardEventType): Promise<Pair[]>;
-    getDappStakingRewardsAggregated(network: NetworkType, address: string, period: PeriodType): Promise<Pair[]>;
-    getDappStakingStakersList(network: NetworkType, contractAddress: string): Promise<StakerAmount[]>;
-    getAggregatedPeriodData(network: NetworkType, period: number): Promise<PeriodDataResponse[]>;
-    getAggregatedStakerData(network: NetworkType, stakerAddress: string): Promise<StakerPeriodDataResponse[]>;
-    getTotalAggregatedStakerData(network: NetworkType, stakerAddress: string): Promise<StakerPeriodTotalResponse>;
     getPeriodBlockRange(network: NetworkType, period: number): Promise<{ start: number; end?: number }>;
 }
 
-export type RewardEventType = 'Reward' | 'BonusReward' | 'DAppReward';
+export type DappData = {
+    contractAddress: string;
+    dappId: number;
+    owner: string;
+    beneficiary: string | null;
+    state: 'Registered' | 'Unregistered';
+    registeredAt?: string;
+    registrationBlockNumber?: number;
+    unregisteredAt?: string;
+    unregistrationBlockNumber?: number;
+};
+
+type Snapshot = {
+    indexedToBlock: number;
+    votingStartBlocks: number[];
+    unregisteredDapps: DappData[];
+};
+
+/**
+ * Last data exported from the retired dApp staking indexer (Subsquid), used for history that cannot be
+ * read from the chain: period boundaries and dApps unregistered before the snapshot block.
+ */
+const SNAPSHOTS: Record<string, Snapshot> = {
+    astar: astarSnapshot as Snapshot,
+    shiden: shidenSnapshot as Snapshot,
+    shibuya: shibuyaSnapshot as Snapshot,
+};
 
 declare global {
     interface BigInt {
@@ -57,59 +53,11 @@ BigInt.prototype.toJSON = function () {
 };
 
 @injectable()
-export class DappsStakingEvents extends DappStakingV3IndexerBase implements IDappsStakingEvents {
-    constructor(
-        @inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory,
-        @inject(ContainerTypes.StatsIndexerService) private _statsService: IStatsIndexerService,
-    ) {
+export class DappsStakingEvents extends ServiceBase implements IDappsStakingEvents {
+    private readonly dappsCache = new CacheService<DappData[]>(10 * 60 * 1000);
+
+    constructor(@inject(ContainerTypes.ApiFactory) private _apiFactory: IApiFactory) {
         super();
-    }
-
-    public async getStakingEvents(
-        network: NetworkType,
-        contractAddress: string,
-        startDate: string,
-        endDate: string,
-        limit?: number,
-        offset?: number,
-    ): Promise<DappStakingEventData[]> {
-        Guard.ThrowIfUndefined('network', network);
-        Guard.ThrowIfUndefined('contractAddress', contractAddress);
-        Guard.ThrowIfUndefined('startDate', startDate);
-        Guard.ThrowIfUndefined('endDate', endDate);
-
-        if (network !== 'astar') {
-            return [];
-        }
-
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-
-        const query = `query MyQuery {
-            stakingEvents(where: {
-                contractAddress_eq: "${contractAddress}",
-                timestamp_gte: "${start.getTime()}",
-                timestamp_lte: "${end.getTime()}"
-            },
-            orderBy: blockNumber_DESC,
-            limit: ${limit},
-            offset: ${offset}) {
-              amount
-              blockNumber
-              contractAddress
-              id
-              timestamp
-              transaction
-              userAddress
-            }
-          }`;
-
-        const result = await axios.post<DappStakingEventResponse>(this.getApiUrl(network), {
-            operationName: 'MyQuery',
-            query,
-        });
-
-        return result.data.data.stakingEvents;
     }
 
     public async getParticipantStake(network: NetworkType, address: string): Promise<bigint> {
@@ -127,495 +75,28 @@ export class DappsStakingEvents extends DappStakingV3IndexerBase implements IDap
         }
     }
 
-    public async getAggregatedData(network: NetworkType, period: PeriodType): Promise<DappStakingAggregatedData[]> {
-        Guard.ThrowIfUndefined('network', network);
-
-        if (network !== 'astar') {
-            return [];
-        }
-
-        const range = this.getDateRange(period);
-
-        const query = `query MyQuery {
-            groupedStakingEvents(where: {
-                timestamp_gte: "${range.start.getTime()}",
-                timestamp_lte: "${range.end.getTime()}"
-            }, orderBy: timestamp_DESC) {
-              amount
-              id
-              timestamp
-              transaction
-            }
-          }`;
-
-        const result = await axios.post<DappStakingAggregatedResponse>(this.getApiUrl(network), {
-            operationName: 'MyQuery',
-            query,
-        });
-
-        return result.data.data.groupedStakingEvents;
-    }
-
-    public async getDappStakingTvl(network: NetworkType, period: PeriodType): Promise<Pair[]> {
+    public async getDapps(network: NetworkType): Promise<DappData[]> {
         this.GuardNetwork(network);
 
-        const range = this.getDateRange(period);
+        const cacheItem = this.dappsCache.getItem(network);
+        if (cacheItem && !this.dappsCache.isExpired(cacheItem)) {
+            return cacheItem.data;
+        }
 
         try {
-            const result = await axios.post(this.getApiUrl(network), {
-                query: `query {
-                    tvlAggregatedDailies(
-                      orderBy: id_ASC
-                      where: { id_gte: "${range.start.getTime()}", id_lte: "${range.end.getTime()}" }
-                    ) {
-                      id
-                      tvl
-                      usdPrice
-                    }
-                  }`,
-            });
+            const api = this._apiFactory.getApiInstance(network);
+            const registered: DappData[] = (await api.getIntegratedDapps()).map((dapp) => ({
+                ...dapp,
+                state: 'Registered',
+            }));
+            const dapps = registered.concat(SNAPSHOTS[network].unregisteredDapps);
+            this.dappsCache.setItem(network, dapps);
 
-            const indexedTvl = result.data.data.tvlAggregatedDailies.map(
-                (node: { id: string; tvl: number; usdPrice: number }) => {
-                    return [node.id, node.usdPrice * Number(formatEther(node.tvl.toString()))];
-                },
-            );
-
-            // Concat TVL from staking v2 if needed.
-            const missingDays = this.getPeriodDurationInDays(period) - indexedTvl.length;
-            let v2tvl: Pair[] = [];
-            if (missingDays > 0) {
-                const v2data = await this._statsService.getDappStakingTvl(network, period);
-                v2tvl = v2data.slice(-Math.min(missingDays, v2data.length));
-            }
-
-            return v2tvl.concat(indexedTvl);
+            return dapps;
         } catch (e) {
             console.error(e);
-            return [];
+            return cacheItem?.data ?? [];
         }
-    }
-
-    public async getDappStakingRewards(
-        network: NetworkType,
-        period: PeriodType,
-        transaction: RewardEventType,
-    ): Promise<Pair[]> {
-        this.GuardNetwork(network);
-
-        const range = this.getDateRange(period);
-
-        try {
-            const result = await axios.post(this.getApiUrl(network), {
-                query: `query MyQuery {
-                    rewardEvents(
-                        where: {
-                            timestamp_gte: "${range.start.getTime()}",
-                            timestamp_lte: "${range.end.getTime()}",
-                            ${transaction ? `transaction_in: [${transaction}]}` : '}'}
-                      orderBy: id_ASC) {
-                      amount
-                      blockNumber
-                      contractAddress
-                      era
-                      id
-                      period
-                      tierId
-                      timestamp
-                      transaction
-                      userAddress
-                    }
-                  }`,
-            });
-
-            return result.data.data.rewardEvents;
-        } catch (e) {
-            console.error(e);
-            return [];
-        }
-    }
-
-    public async getDappStakingRewardsAggregated(
-        network: NetworkType,
-        address: string,
-        period: PeriodType,
-    ): Promise<Pair[]> {
-        this.GuardNetwork(network);
-
-        const range = this.getDateRange(period);
-
-        try {
-            const result = await axios.post(this.getApiUrl(network), {
-                query: `query {
-                    rewardAggregatedDailies(
-                      orderBy: timestamp_DESC
-                      where: {
-                        beneficiary_eq: "${address}"
-                        timestamp_gte: "${range.start.getTime()}"
-                        timestamp_lte: "${range.end.getTime()}"
-                      }
-                    ) {
-                      amount
-                      timestamp
-                    }
-                  }`,
-            });
-
-            const stakersCount = result.data.data.rewardAggregatedDailies.map(
-                (node: { timestamp: string; amount: number }) => {
-                    return [node.timestamp, node.amount];
-                },
-            );
-
-            return stakersCount;
-        } catch (e) {
-            console.error(e);
-            return [];
-        }
-    }
-
-    public async getDappStakingStakersCount(
-        network: NetworkType,
-        contractAddress: string,
-        period: PeriodType,
-    ): Promise<Pair[]> {
-        this.GuardNetwork(network);
-
-        const range = this.getDateRange(period);
-
-        try {
-            const result = await axios.post(this.getApiUrl(network), {
-                query: `query {
-                    dappAggregatedDailies(
-                      orderBy: timestamp_DESC
-                      where: {
-                        dappAddress_eq: "${contractAddress}"
-                        timestamp_gte: "${range.start.getTime()}"
-                        timestamp_lte: "${range.end.getTime()}"
-                      }
-                    ) {
-                      stakersCount
-                      timestamp
-                    }
-                  }`,
-            });
-
-            const stakersCount = result.data.data.dappAggregatedDailies.map(
-                (node: { timestamp: string; stakersCount: number }) => {
-                    return [node.timestamp, node.stakersCount];
-                },
-            );
-
-            return stakersCount;
-        } catch (e) {
-            console.error(e);
-            return [];
-        }
-    }
-
-    public async getDappStakingStakersList(network: NetworkType, contractAddress: string): Promise<StakerAmount[]> {
-        this.GuardNetwork(network);
-        Guard.ThrowIfUndefined('contractAddress', contractAddress);
-
-        // Fetch current period
-        const api = this._apiFactory.getApiInstance(network);
-        const protocolState = await api.getProtocolState();
-        const period = protocolState.periodInfo.number.toNumber();
-
-        try {
-            const result = await axios.post(this.getApiUrl(network), {
-                query: `query {
-                    stakes(
-                      where: {
-                        period_eq: ${period},
-                        dappAddress_eq: "${contractAddress}"
-                      }
-                    ) {
-                      stakerAddress
-                      stakerAddressEvm
-                      amount
-                    }
-                  }`,
-            });
-
-            const sumsByStaker: {
-                [key: string]: { amount: bigint; stakerAddress: string; stakerAddressEvm?: string };
-            } = result.data.data.stakes.reduce(
-                (
-                    acc: { [key: string]: { amount: bigint; stakerAddress: string; stakerAddressEvm?: string } },
-                    { stakerAddress, stakerAddressEvm, amount }: StakerAmount,
-                ) => {
-                    if (!acc[stakerAddress]) {
-                        acc[stakerAddress] = { amount: BigInt(0), stakerAddress, stakerAddressEvm };
-                    }
-                    acc[stakerAddress].amount += BigInt(amount);
-                    return acc;
-                },
-                {},
-            );
-
-            const stakersList: StakerAmount[] = Object.entries(sumsByStaker)
-                .map(([_, stake]) => stake)
-                .filter((s) => s.amount !== BigInt(0));
-
-            return stakersList;
-        } catch (e) {
-            console.error(e);
-            return [];
-        }
-    }
-
-    public async getDappStakingStakersCountTotal(network: NetworkType, period: PeriodType): Promise<Pair[]> {
-        this.GuardNetwork(network);
-
-        const range = this.getDateRange(period);
-
-        try {
-            const result = await axios.post(this.getApiUrl(network), {
-                query: `query {
-                    stakersCountAggregatedDailies(
-                      orderBy: id_DESC
-                      where: {
-                        id_gte: "${range.start.getTime()}"
-                        id_lte: "${range.end.getTime()}"
-                      }
-                    ) {
-                      stakersCount
-                      stakersAmount
-                      id
-                    }
-                  }`,
-            });
-
-            const stakersCount = result.data.data.stakersCountAggregatedDailies.map(
-                (node: { id: string; stakersCount: number; stakersAmount: number }) => {
-                    return [node.id, node.stakersCount, node.stakersAmount];
-                },
-            );
-
-            return stakersCount;
-        } catch (e) {
-            console.error(e);
-            return [];
-        }
-    }
-
-    public async getDappStakingStakersTotal(network: NetworkType, period: PeriodType): Promise<Triplet[]> {
-        this.GuardNetwork(network);
-
-        const range = this.getDateRange(period);
-
-        try {
-            const result = await axios.post(this.getApiUrl(network), {
-                query: `query {
-                    stakersCountAggregatedDailies(
-                      orderBy: id_DESC
-                      where: {
-                        id_gte: "${range.start.getTime()}"
-                        id_lte: "${range.end.getTime()}"
-                      }
-                    ) {
-                      date: id
-                      count: stakersCount
-                      amount: stakersAmount
-                    }
-                  }`,
-            });
-
-            const results: Triplet[] = result.data.data.stakersCountAggregatedDailies;
-            return results;
-        } catch (e) {
-            console.error(e);
-            return [];
-        }
-    }
-
-    public async getDappStakingLockersTotal(network: NetworkType, period: PeriodType): Promise<Triplet[]> {
-        this.GuardNetwork(network);
-
-        const range = this.getDateRange(period);
-
-        try {
-            const result = await axios.post(this.getApiUrl(network), {
-                query: `query {
-                    tvlAggregatedDailies(
-                      orderBy: id_DESC
-                      where: { id_gte: "${range.start.getTime()}", id_lte: "${range.end.getTime()}" }
-                    ) {
-                      date: id
-                      count: lockersCount
-                      amount: tvl
-                    }
-                  }`,
-            });
-
-            const results: Triplet[] = result.data.data.tvlAggregatedDailies;
-            return results;
-        } catch (e) {
-            console.error(e);
-            return [];
-        }
-    }
-
-    public async getDappStakingLockersAndStakersTotal(
-        network: NetworkType,
-        period: PeriodType,
-    ): Promise<TotalAmountCount[]> {
-        this.GuardNetwork(network);
-
-        const range = this.getDateRange(period);
-
-        const query = `query {
-            tvlAggregatedDailies(
-                orderBy: id_DESC
-                where: { id_gte: "${range.start.getTime()}", id_lte: "${range.end.getTime()}" }
-            ) {
-                date: id
-                count: lockersCount
-                amount: tvl
-            }
-            stakersCountAggregatedDailies(
-                orderBy: id_DESC
-                where: { id_gte: "${range.start.getTime()}", id_lte: "${range.end.getTime()}" }
-            ) {
-                date: id
-                count: stakersCount
-                amount: stakersAmount
-            }
-        }`;
-
-        try {
-            const result = await axios.post(this.getApiUrl(network), { query });
-
-            const combinedData: TotalAmountCount[] = [];
-
-            const lockersData: Triplet[] = result.data.data.tvlAggregatedDailies;
-            const stakersData: Triplet[] = result.data.data.stakersCountAggregatedDailies;
-            const lockersMap = new Map(lockersData.map((item) => [item.date, item]));
-            const stakersMap = new Map(stakersData.map((item) => [item.date, item]));
-
-            const allIds = new Set([...lockersMap.keys(), ...stakersMap.keys()]);
-
-            allIds.forEach((date) => {
-                combinedData.push({
-                    date,
-                    tvl: lockersMap.has(date) ? lockersMap.get(date)?.amount : undefined,
-                    lockersCount: lockersMap.has(date) ? lockersMap.get(date)?.count : undefined,
-                    tvs: stakersMap.has(date) ? stakersMap.get(date)?.amount : undefined,
-                    stakersCount: stakersMap.has(date) ? stakersMap.get(date)?.count : undefined,
-                });
-            });
-
-            return combinedData;
-        } catch (e) {
-            console.error(e);
-            return [];
-        }
-    }
-
-    public async getDapps(network: NetworkType): Promise<[]> {
-        this.GuardNetwork(network);
-
-        try {
-            const result = await axios.post(this.getApiUrl(network), {
-                query: `query {
-                    dapps (orderBy: registeredAt_ASC) {
-                        contractAddress: id
-                        dappId
-                        beneficiary
-                        owner
-                        state
-                        stakersCount
-                        registeredAt
-                        registrationBlockNumber
-                        unregisteredAt
-                        unregistrationBlockNumber
-                    }
-                }`,
-            });
-
-            return result.data.data.dapps;
-        } catch (e) {
-            console.error(e);
-            return [];
-        }
-    }
-
-    public async getAggregatedPeriodData(network: NetworkType, period: number): Promise<PeriodDataResponse[]> {
-        this.GuardNetwork(network);
-
-        try {
-            const result = await axios.post(this.getApiUrl(network), {
-                query: `query {
-                    stakesPerDapAndPeriods(where: {period_eq: ${period}}) {
-                        dappAddress
-                        rewardAmount
-                        stakeAmount
-                      }
-                }`,
-            });
-
-            return result.data.data.stakesPerDapAndPeriods;
-        } catch (e) {
-            console.error(e);
-            return [];
-        }
-    }
-
-    public async getAggregatedStakerData(
-        network: NetworkType,
-        stakerAddress: string,
-    ): Promise<StakerPeriodDataResponse[]> {
-        Guard.ThrowIfUndefined('stakerAddress', stakerAddress);
-        this.GuardNetwork(network);
-
-        try {
-            const result = await axios.post(this.getApiUrl(network), {
-                query: `query {
-                  stakesPerStakerAndPeriods(where: {stakerAddress_eq: "${stakerAddress}"}) {
-                    stakerAddress
-                    period
-                    stakeAmount
-                    stakerRewardAmount
-                    bonusRewardAmount
-                  }
-                }`,
-            });
-
-            return result.data.data.stakesPerStakerAndPeriods;
-        } catch (e) {
-            console.error(e);
-            return [];
-        }
-    }
-
-    public async getTotalAggregatedStakerData(
-        network: NetworkType,
-        stakerAddress: string,
-    ): Promise<StakerPeriodTotalResponse> {
-        this.GuardNetwork(network);
-
-        const data = await this.getAggregatedStakerData(network, stakerAddress);
-        let maxPeriod = -1;
-        const total = data.reduce(
-            (acc, item) => {
-                if (item.period > maxPeriod) {
-                    acc.currentStake = BigInt(item.stakeAmount);
-                    maxPeriod = item.period;
-                }
-                acc.totalStakerRewardsClaimed += BigInt(item.stakerRewardAmount);
-                acc.totalBonusRewardsClaimed += BigInt(item.bonusRewardAmount);
-                return acc;
-            },
-            {
-                currentStake: BigInt(0),
-                totalBonusRewardsClaimed: BigInt(0),
-                totalStakerRewardsClaimed: BigInt(0),
-                stakerAddress,
-            },
-        );
-
-        return total;
     }
 
     public async getPeriodBlockRange(network: NetworkType, period: number): Promise<{ start: number; end?: number }> {
@@ -624,27 +105,14 @@ export class DappsStakingEvents extends DappStakingV3IndexerBase implements IDap
             throw new Error('Period must be greater than 0');
         }
 
-        try {
-            const result = await axios.post(this.getApiUrl(network), {
-                query: `query {
-                    subperiods(orderBy: timestamp_ASC, where: {type_eq: Voting}) {
-                        blockNumber
-                    }
-                }`,
-            });
-
-            const subperiods = result.data.data.subperiods;
-            if (period > subperiods.length) {
-                throw new Error(`Season ${period} not found`);
-            }
-
-            return {
-                start: subperiods[period - 1].blockNumber,
-                end: subperiods[period]?.blockNumber - 1,
-            };
-        } catch (e) {
-            console.error(e);
-            throw new Error('Unable to fetch season block range from a node.');
+        const starts = SNAPSHOTS[network].votingStartBlocks;
+        if (period > starts.length) {
+            throw new Error(`Season ${period} not found`);
         }
+
+        return {
+            start: starts[period - 1],
+            end: starts[period] ? starts[period] - 1 : undefined,
+        };
     }
 }
