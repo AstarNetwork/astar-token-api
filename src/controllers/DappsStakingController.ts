@@ -14,7 +14,6 @@ import { IStatsIndexerService } from '../services/StatsIndexerService';
 import { ControllerBase } from './ControllerBase';
 import { IControllerBase } from './IControllerBase';
 import { IGiantSquidService } from '../services/GiantSquidService';
-import { IDappsStakingEvents } from '../services/DappsStakingEvents';
 
 @injectable()
 export class DappsStakingController extends ControllerBase implements IControllerBase {
@@ -24,7 +23,6 @@ export class DappsStakingController extends ControllerBase implements IControlle
         @inject(ContainerTypes.DappsStakingStatsService) private _statsService: IDappsStakingStatsService,
         @inject(ContainerTypes.DappRadarService) private _dappRadarService: IDappRadarService,
         @inject(ContainerTypes.GiantSquidService) private _giantSquidService: IGiantSquidService,
-        @inject(ContainerTypes.DappsStakingEvents) private _eventsService: IDappsStakingEvents,
     ) {
         super();
     }
@@ -83,31 +81,11 @@ export class DappsStakingController extends ControllerBase implements IControlle
         });
 
         /**
-         * @description Dapps staking TVL route v1.
+         * @description Dapps staking TVL route v1. Retired together with the dApp staking indexer.
          */
-        app.route('/api/v1/:network/dapps-staking/tvl/:period').get(async (req: Request, res: Response) => {
-            /*
-                #swagger.description = 'Retrieves dapps staking TVL for a given network and period.'
-                #swagger.tags = ['Dapps Staking']
-                #swagger.parameters['network'] = {
-                    in: 'path',
-                    description: 'The network name. Supported networks: astar, shiden, shibuya, rocstar',
-                    required: true,
-                    enum: ['astar', 'shiden', 'shibuya', 'rocstar']
-                }
-                #swagger.parameters['period'] = {
-                    in: 'path',
-                    description: 'The period type. Supported values: 7 days 30 days, 90 days, 1 year',
-                    required: true,
-                    enum: ['7 days', '30 days', '90 days', '1 year']
-                }
-            */
-            res.json(
-                await this._eventsService.getDappStakingTvl(
-                    req.params.network as NetworkType,
-                    req.params.period as PeriodType,
-                ),
-            );
+        app.route('/api/v1/:network/dapps-staking/tvl/:period').get(async (_req: Request, res: Response) => {
+            // #swagger.ignore = true
+            this.handleRetired(res);
         });
 
         app.route('/api/v1/:network/dapps-staking/earned/:address').get(async (req: Request, res: Response) => {

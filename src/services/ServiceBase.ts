@@ -1,4 +1,6 @@
 import { injectable } from 'inversify';
+import { Guard } from '../guard';
+import { NetworkType } from '../networks';
 
 export type PeriodType = '1 day' | '7 days' | '30 days' | '90 days' | '1 year';
 export type PeriodTypeEra = '7 eras' | '30 eras' | '90 eras' | 'all';
@@ -42,5 +44,12 @@ export abstract class ServiceBase {
         }
 
         return numberOfDays;
+    }
+
+    protected GuardNetwork(network: NetworkType) {
+        Guard.ThrowIfUndefined('network', network);
+        if (!['shibuya', 'shiden', 'astar'].includes(network)) {
+            throw new Error(`This method is not supported for the network ${network}`);
+        }
     }
 }

@@ -31,10 +31,11 @@
         "lint:check": "eslint '*/**/*.{js,ts}' && prettier -c .",
         "test": "jest",
         "swagger-autogen": "node src/swagger.js",
-        "deploy": "firebase deploy"
+        "deploy": "firebase deploy",
+        "smoke": "scripts/smoke.sh"
     },
     "engines": {
-        "node": "20"
+        "node": "24"
     },
     "license": "MIT",
     "devDependencies": {
@@ -78,7 +79,7 @@
         "express": "^4.18.2",
         "express-validator": "^7.0.1",
         "firebase-admin": "^11.10.1",
-        "firebase-functions": "^4.4.1",
+        "firebase-functions": "^4.9.0",
         "inversify": "^6.0.1",
         "reflect-metadata": "^0.1.13",
         "swagger-autogen": "^2.23.5",

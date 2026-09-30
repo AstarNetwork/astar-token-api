@@ -5,6 +5,7 @@ import '@polkadot/api-augment';
 import express from 'express';
 import bodyParser from 'body-parser';
 import * as functions from 'firebase-functions';
+import { defineSecret } from 'firebase-functions/params';
 import cors from 'cors';
 import container from './container';
 import { IControllerBase } from './controllers/IControllerBase';
@@ -20,5 +21,7 @@ app.use(cors());
 const controllers: IControllerBase[] = container.getAll<IControllerBase>(ContainerTypes.Controller);
 controllers.forEach((controller) => controller.register(app));
 
-functions.runWith({ memory: '2GB' });
-exports.app = functions.https.onRequest(app);
+// Exposed to the function as process.env.COINGECKO_API_KEY.
+const coingeckoApiKey = defineSecret('COINGECKO_API_KEY');
+
+exports.app = functions.runWith({ secrets: [coingeckoApiKey] }).https.onRequest(app);
