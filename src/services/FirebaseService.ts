@@ -79,6 +79,9 @@ export class FirebaseService implements IFirebaseService {
                 dapp.images = images.filter((x) => x !== null) as FileInfo[];
             }
 
+            // Check if developer images are stored as base64 and fix them.
+            await this.fixImages(dapp, collectionKey, true);
+
             dapp.description = this.decode(dapp.description);
             dapp.shortDescription = this.decode(dapp.shortDescription ?? '');
             return dapp;
@@ -104,6 +107,9 @@ export class FirebaseService implements IFirebaseService {
                 dapp.imagesUrl.push(imageUrl);
             }
         }
+
+        // Upload developer images if needed
+        await this.fixImages(dapp, collectionKey);
 
         //upload document
         const firebasePayload = {
@@ -160,12 +166,28 @@ export class FirebaseService implements IFirebaseService {
     }
 
     private async uploadImage(fileInfo: FileInfo, collectionKey: string, contractAddress: string): Promise<string> {
+        return await this.uploadEncodedImage(
+            fileInfo.base64content,
+            fileInfo.contentType,
+            fileInfo.name,
+            collectionKey,
+            contractAddress,
+        );
+    }
+
+    private async uploadEncodedImage(
+        base64content: string,
+        contentType: string,
+        fileName: string,
+        collectionKey: string,
+        contractAddress: string,
+    ): Promise<string> {
         const file = admin
             .storage()
             .bucket(functions.config().extfirebase.bucket)
-            .file(`${collectionKey}/${contractAddress}_${fileInfo.name}`);
-        const buffer = Buffer.from(this.decode(fileInfo.base64content), 'base64');
-        await file.save(buffer, { contentType: this.decode(fileInfo.contentType) });
+            .file(`${collectionKey}/${contractAddress}_${fileName}`);
+        const buffer = Buffer.from(this.decode(base64content), 'base64');
+        await file.save(buffer, { contentType: this.decode(contentType) });
         file.makePublic();
 
         return file.publicUrl();
@@ -222,6 +244,16 @@ export class FirebaseService implements IFirebaseService {
         }
     }
 
+    private createFileInfo(encodedContent: string, fileNameWithoutExtension: string): FileInfo {
+        const decoded = this.decode(encodedContent);
+        const parts = decoded.split(';base64,');
+        return {
+            name: `${fileNameWithoutExtension}.${parts[0].split('/')[1]}`,
+            contentType: parts[0].split(':')[1],
+            base64content: parts[1],
+        };
+    }
+
     /**
      * Firebase encodes '/' as &#x2F; before storing to the db, becasue '/' is special caracter,
      * so we need to fix this before sending to a client.
@@ -235,7 +267,7 @@ export class FirebaseService implements IFirebaseService {
         const data = await query.orderBy('name').get();
 
         const result: DappItem[] = [];
-        data.forEach((x) => {
+        for (const x of data.docs) {
             const data = x.data() as DappItem;
             data.creationTime = x.createTime.seconds;
             if (data.description) {
@@ -243,8 +275,33 @@ export class FirebaseService implements IFirebaseService {
             }
             data.shortDescription = this.decode(data.shortDescription ?? '');
             result.push(data);
-        });
+        }
 
         return result;
+    }
+
+    /**
+     * Fixes base64 images stored in JSON
+     * @param dapp to fix images for
+     * @param collectionKey collection key
+     * @returns value indicating if some images are fixed and the dApp was updated in Firebase.
+     */
+    private async fixImages(dapp: DappItem, collectionKey: string, updateDappIfNeeded = false): Promise<boolean> {
+        let hasBase64 = false;
+        if (dapp?.developers) {
+            for (const [index, dev] of dapp.developers.entries()) {
+                if (dev?.iconFile && dev.iconFile.startsWith('data:')) {
+                    const imageInfo = this.createFileInfo(dev.iconFile, `developer-${index + 1}`);
+                    dev.iconFile = await this.uploadImage(imageInfo, collectionKey, dapp.address);
+                    hasBase64 = true;
+                }
+            }
+        }
+
+        if (hasBase64 && updateDappIfNeeded) {
+            await admin.firestore().collection(collectionKey).doc(dapp.address).set(dapp);
+        }
+
+        return hasBase64;
     }
 }
